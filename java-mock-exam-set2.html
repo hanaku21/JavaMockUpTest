@@ -1,0 +1,686 @@
+<title>Java Arrays & Methods Set 2</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Sarabun:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a sticky score bar, three part tabs, one column of question cards (max 760px) */
+:root{
+  --bg:#f3f5f2; --surface:#ffffff; --fg:#1b2129; --muted:#5c6670; --line:#d7dcd9;
+  --accent:#1f5f6b; --accent-fg:#ffffff; --accent-soft:#e3eef0;
+  --ok:#1d7a4a; --ok-soft:#e1f2e7; --bad:#b4372f; --bad-soft:#f9e4e1;
+  --code-bg:#eef1ee; --code-fg:#1b2129; --blank-bg:#fff7d6;
+  --font-ui:"IBM Plex Sans Thai","Sarabun",system-ui,sans-serif;
+  --font-body:"Sarabun","IBM Plex Sans Thai",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#14191d; --surface:#1d2429; --fg:#e6eaec; --muted:#9aa5ad; --line:#323c43;
+  --accent:#63b8c6; --accent-fg:#0f1a1d; --accent-soft:#1f3337;
+  --ok:#5fcf8c; --ok-soft:#1b3326; --bad:#ef8a80; --bad-soft:#3b2220;
+  --code-bg:#0f1416; --code-fg:#e6eaec; --blank-bg:#3a3415; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#14191d; --surface:#1d2429; --fg:#e6eaec; --muted:#9aa5ad; --line:#323c43;
+  --accent:#63b8c6; --accent-fg:#0f1a1d; --accent-soft:#1f3337;
+  --ok:#5fcf8c; --ok-soft:#1b3326; --bad:#ef8a80; --bad-soft:#3b2220;
+  --code-bg:#0f1416; --code-fg:#e6eaec; --blank-bg:#3a3415; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+h1,h2,h3{font-family:var(--font-ui);text-wrap:balance;margin:0}
+code,pre,textarea,input.blank{font-family:var(--font-mono)}
+code{font-size:.92em;background:var(--code-bg);color:var(--code-fg);padding:.05em .35em;border-radius:4px}
+.wrap{max-width:760px;margin:0 auto}
+header.top{padding-block:28px 12px}
+.eyebrow{font-family:var(--font-ui);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font-size:clamp(1.5rem,4vw,2.1rem);font-weight:700;line-height:1.2;margin-top:4px}
+.sub{color:var(--muted);margin-top:6px;max-width:60ch}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:18px}
+.rule{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--surface);font-size:.92rem}
+.rule b{font-family:var(--font-ui);display:block}
+.rule span{color:var(--muted)}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding-block:10px}
+.bar .wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tabs{display:flex;gap:4px;flex:1 1 auto;min-width:0}
+.tab{font-family:var(--font-ui);font-weight:600;font-size:.9rem;border:1px solid var(--line);background:var(--surface);color:var(--fg);
+  border-radius:999px;padding:6px 14px;cursor:pointer;display:flex;gap:8px;align-items:center;white-space:nowrap}
+.tab[aria-selected="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.tab .n{font-variant-numeric:tabular-nums;font-weight:500;opacity:.85}
+.total{font-family:var(--font-ui);font-weight:600;font-variant-numeric:tabular-nums;margin-left:auto}
+.total small{color:var(--muted);font-weight:500}
+.btn{font-family:var(--font-ui);font-weight:600;font-size:.88rem;border:1px solid var(--line);background:var(--surface);color:var(--fg);
+  border-radius:6px;padding:7px 12px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.btn.ghost{background:transparent}
+.btn:focus-visible,.tab:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+section.part{display:none;padding-block:18px}
+section.part.active{display:block}
+.part-head{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px}
+.part-head h2{font-size:1.25rem}
+.part-head p{margin:2px 0 0;color:var(--muted);font-size:.95rem}
+.part-head .actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+
+.q{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:12px}
+.q.ok{border-color:var(--ok)} .q.bad{border-color:var(--bad)}
+.qh{display:flex;gap:10px;align-items:baseline}
+.num{font-family:var(--font-ui);font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;min-width:2.2em}
+.qt{flex:1;min-width:0}
+.qt .en{font-weight:500}
+.qt .th{color:var(--muted);font-size:.95rem}
+.qt .title{font-family:var(--font-ui);font-weight:600;font-size:1.05rem}
+.lv{font-family:var(--font-ui);font-size:.7rem;font-weight:700;letter-spacing:.06em;border-radius:4px;padding:1px 6px;align-self:center;white-space:nowrap;border:1px solid var(--line);color:var(--muted)}
+.lv.H{border-color:var(--accent);color:var(--accent)}
+pre{background:var(--code-bg);color:var(--code-fg);border-radius:8px;padding:12px 14px;margin:10px 0 0;overflow-x:auto;font-size:.88rem;line-height:1.5;tab-size:4}
+input.blank{background:var(--blank-bg);color:var(--code-fg);border:1px solid var(--line);border-bottom:2px solid var(--accent);border-radius:4px;
+  font-size:inherit;padding:1px 6px;width:14ch;max-width:100%;margin:0 2px}
+input.blank.ok{border-color:var(--ok);background:var(--ok-soft)} input.blank.bad{border-color:var(--bad);background:var(--bad-soft)}
+.opts{display:grid;gap:6px;margin-top:10px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:8px 10px;cursor:pointer}
+.opt:hover{border-color:var(--accent)}
+.opt input{margin-top:4px;accent-color:var(--accent)}
+.opt .k{font-family:var(--font-ui);font-weight:600;color:var(--muted);min-width:1.2em}
+.opt code{background:transparent;padding:0;font-size:.9em}
+.opt.ok{border-color:var(--ok);background:var(--ok-soft)} .opt.bad{border-color:var(--bad);background:var(--bad-soft)}
+.foot{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.fb{font-family:var(--font-ui);font-weight:600;font-size:.9rem}
+.fb.ok{color:var(--ok)} .fb.bad{color:var(--bad)}
+.exp{margin-top:8px;padding:8px 12px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 6px 6px 0;font-size:.92rem}
+.ex{margin-top:8px;font-size:.9rem;color:var(--muted)}
+.ex code{white-space:pre-wrap}
+textarea{width:100%;min-height:150px;margin-top:10px;background:var(--code-bg);color:var(--code-fg);border:1px solid var(--line);border-radius:8px;
+  padding:10px 12px;font-size:.88rem;line-height:1.5;resize:vertical;tab-size:4}
+.sol{margin-top:10px}
+.sol .lbl{font-family:var(--font-ui);font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.done{display:flex;gap:8px;align-items:center;font-family:var(--font-ui);font-weight:600;font-size:.9rem;cursor:pointer}
+.done input{accent-color:var(--ok);width:16px;height:16px}
+.result{margin-top:16px;padding:14px 16px;border-radius:10px;background:var(--accent-soft);border:1px solid var(--accent);display:none}
+.result.show{display:block}
+.result b{font-family:var(--font-ui);font-size:1.1rem}
+@media (prefers-reduced-motion:no-preference){.q{transition:border-color .2s}}
+@media (max-width:480px){.tab{padding:6px 10px;font-size:.84rem}.q{padding:14px}}
+</style>
+
+<header class="top wrap">
+  <div class="eyebrow">Java Programming · Mock Exam Set 2 · ชุดที่ 2 · Medium + Hard</div>
+  <h1>Arrays &amp; Methods · Set 2</h1>
+  <p class="sub">90 questions in three parts, mixed medium and hard (each question is tagged MED or HARD). Focus of this set: 2D arrays & matrices. Answers are checked on the page and every question keeps its model solution.<br>90 ข้อ 3 ส่วน ผสมระดับปานกลางและยาก (แต่ละข้อมีป้าย MED/HARD) จุดเน้นของชุดนี้: อาร์เรย์ 2 มิติและเมทริกซ์ ตรวจคำตอบได้ทันที และทุกข้อมีเฉลย</p>
+  <div class="rules">
+    <div class="rule"><b>Part 1 · Multiple choice</b><span>30 × 1 point · ปรนัย 30 ข้อ</span></div>
+    <div class="rule"><b>Part 2 · Write the code</b><span>30 tasks, self-marked · เขียนโปรแกรม 30 ข้อ</span></div>
+    <div class="rule"><b>Part 3 · Fill in the blank</b><span>30 × 1 point · เติมคำ 30 ข้อ</span></div>
+  </div>
+</header>
+
+<div class="bar"><div class="wrap">
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-mcq" data-part="mcq" aria-selected="true">Part 1 <span class="n" id="n-mcq">0/30</span></button>
+    <button class="tab" role="tab" id="tab-code" data-part="code" aria-selected="false">Part 2 <span class="n" id="n-code">0/30</span></button>
+    <button class="tab" role="tab" id="tab-fill" data-part="fill" aria-selected="false">Part 3 <span class="n" id="n-fill">0/30</span></button>
+  </div>
+  <div class="total" id="total">0<small>/90</small></div>
+  <button class="btn ghost" id="reset" type="button">Reset · เริ่มใหม่</button>
+</div></div>
+
+<main class="wrap">
+  <section class="part active" id="part-mcq">
+    <div class="part-head"><div><h2>Part 1 · Multiple choice · ปรนัย</h2><p>Choose one answer, then press Check. · เลือกคำตอบหนึ่งข้อ แล้วกด ตรวจ</p></div>
+      <div class="actions"><button class="btn primary" type="button" data-checkall="mcq">Check all · ตรวจทั้งหมด</button><button class="btn" type="button" data-showall="mcq">Show answers · เฉลย</button></div></div>
+    <div id="list-mcq"></div>
+    <div class="result" id="res-mcq"></div>
+  </section>
+  <section class="part" id="part-code">
+    <div class="part-head"><div><h2>Part 2 · Write the code · เขียนโปรแกรม</h2><p>Write each method in the box, compare with the model answer, then tick Done. · เขียนเมธอดในช่อง เทียบกับเฉลย แล้วติ๊ก ทำได้แล้ว</p></div>
+      <div class="actions"><button class="btn" type="button" data-showall="code">Show all answers · เฉลยทั้งหมด</button></div></div>
+    <div id="list-code"></div>
+  </section>
+  <section class="part" id="part-fill">
+    <div class="part-head"><div><h2>Part 3 · Fill in the blank · เติมคำในช่องว่าง</h2><p>Type the missing code in the yellow box. · พิมพ์โค้ดที่หายไปในช่องสีเหลือง</p></div>
+      <div class="actions"><button class="btn primary" type="button" data-checkall="fill">Check all · ตรวจทั้งหมด</button><button class="btn" type="button" data-showall="fill">Show answers · เฉลย</button></div></div>
+    <div id="list-fill"></div>
+    <div class="result" id="res-fill"></div>
+  </section>
+</main>
+
+<script>
+const MCQ = [
+{lv:"M",en:"A gradebook stores one row per student. The code counts how many students have a total strictly greater than 8. What is printed?",
+ th:"สมุดคะแนนเก็บข้อมูลนักศึกษาคนละหนึ่งแถว โค้ดนับจำนวนนักศึกษาที่มีคะแนนรวมมากกว่า 8 อย่างเคร่งครัด โปรแกรมพิมพ์อะไร",
+ code:"int[][] m = {{1, 2, 3}, {4, 5, 6}, {0, 0, 9}};\nint c = 0;\nfor (int i = 0; i < m.length; i++) {\n    int s = 0;\n    for (int j = 0; j < m[i].length; j++) {\n        s += m[i][j];\n    }\n    if (s > 8) c++;\n}\nSystem.out.println(c);",
+ opts:["2","3","1","0"],ans:0,
+ exp:"Row sums are 6, 15 and 9; two of them exceed 8. / ผลรวมแต่ละแถวคือ 6, 15, 9 มีสองแถวที่เกิน 8"},
+{lv:"H",en:"<code>clone()</code> is called on a 2D array. One cell is changed through the clone and one whole row of the clone is replaced. What does the <b>original</b> print?",
+ th:"เรียก <code>clone()</code> กับอาร์เรย์สองมิติ แก้ค่าหนึ่งช่องผ่านสำเนา และแทนที่ทั้งแถวหนึ่งของสำเนา อาร์เรย์<b>ต้นฉบับ</b>พิมพ์อะไร",
+ code:"int[][] a = {{1, 2}, {3, 4}};\nint[][] b = a.clone();\nb[0][0] = 9;\nb[1] = new int[]{7, 7};\nSystem.out.println(a[0][0] + \" \" + a[1][0]);",
+ opts:["9 3","1 3","9 7","1 7"],ans:0,
+ exp:"clone() copies only the outer array (shallow copy): b[0] and a[0] are the same row, so 9 is visible; b[1] = new row changes only b. / clone() คัดลอกเฉพาะอาร์เรย์ชั้นนอก (shallow copy): b[0] กับ a[0] คือแถวเดียวกันจึงเห็น 9 ส่วน b[1] = แถวใหม่ เปลี่ยนเฉพาะ b"},
+{lv:"M",en:"A jagged array has rows of different lengths. The loop multiplies each row's length by its row index and accumulates. What is printed?",
+ th:"อาร์เรย์ขั้นบันไดมีแถวยาวไม่เท่ากัน ลูปคูณความยาวของแต่ละแถวด้วยดัชนีแถวแล้วสะสมผล โปรแกรมพิมพ์อะไร",
+ code:"int[][] j = {{1}, {1, 2, 3}, {1, 2}};\nint total = 0;\nfor (int i = 0; i < j.length; i++) {\n    total += j[i].length * i;\n}\nSystem.out.println(total);",
+ opts:["7","6","9","3"],ans:0,
+ exp:"0×1 + 1×3 + 2×2 = 7. / 0×1 + 1×3 + 2×2 = 7"},
+{lv:"M",en:"Which text does <code>Arrays.deepToString(m)</code> produce for the jagged array below?",
+ th:"<code>Arrays.deepToString(m)</code> ให้ข้อความใดสำหรับอาร์เรย์ขั้นบันไดด้านล่าง",
+ code:"int[][] m = {{1, 2}, {3}};\nSystem.out.println(Arrays.deepToString(m));",
+ opts:["[[1, 2], [3]]","[1, 2, 3]","[[I@1b6d3586, [I@4554617c]","{{1, 2}, {3}}"],ans:0,
+ exp:"deepToString recurses into nested arrays; plain Arrays.toString(m) would print the row addresses. / deepToString ลงไปในอาร์เรย์ซ้อน ส่วน Arrays.toString(m) ธรรมดาจะพิมพ์ที่อยู่ของแถว"},
+{lv:"H",en:"A minesweeper board marks mines with <code>'*'</code>. The code counts the mines among the eight neighbours of cell (1, 2), skipping positions outside the board. What is printed?",
+ th:"กระดานเกมกู้ระเบิดใช้ <code>'*'</code> แทนระเบิด โค้ดนับระเบิดในช่องข้างเคียงทั้งแปดของช่อง (1, 2) โดยข้ามตำแหน่งที่อยู่นอกกระดาน โปรแกรมพิมพ์อะไร",
+ code:"char[][] g = {\n    {'*', '.', '.'},\n    {'.', '*', '.'},\n    {'.', '.', '.'}\n};\nint r = 1, c = 2, n = 0;\nfor (int dr = -1; dr <= 1; dr++) {\n    for (int dc = -1; dc <= 1; dc++) {\n        if (dr == 0 && dc == 0) continue;\n        int rr = r + dr, cc = c + dc;\n        if (rr >= 0 && rr < 3 && cc >= 0 && cc < 3 && g[rr][cc] == '*') n++;\n    }\n}\nSystem.out.println(n);",
+ opts:["1","2","0","ArrayIndexOutOfBoundsException"],ans:0,
+ exp:"Neighbours of (1,2) inside the board are (0,1), (0,2), (1,1), (2,1), (2,2); only (1,1) is a mine. The bounds check prevents the exception. / ช่องข้างเคียงของ (1,2) ที่อยู่ในกระดานคือ (0,1), (0,2), (1,1), (2,1), (2,2) มีเพียง (1,1) ที่เป็นระเบิด การตรวจขอบเขตป้องกัน exception"},
+{lv:"M",en:"The code multiplies the values on the main diagonal of a square matrix. What is printed?",
+ th:"โค้ดคูณค่าบนเส้นทแยงมุมหลักของเมทริกซ์จัตุรัส โปรแกรมพิมพ์อะไร",
+ code:"int[][] m = {{2, 0, 0}, {0, 3, 0}, {0, 0, 4}};\nint p = 1;\nfor (int i = 0; i < m.length; i++) {\n    p *= m[i][i];\n}\nSystem.out.println(p);",
+ opts:["24","9","0","1"],ans:0,
+ exp:"2 × 3 × 4 = 24; the zeros are off the diagonal. / 2 × 3 × 4 = 24 ค่าศูนย์อยู่นอกเส้นทแยงมุม"},
+{lv:"H",en:"<code>swapRows</code> swaps two row references inside the matrix, and <code>reset</code> assigns a brand-new matrix to its parameter. After both calls, what does <code>main</code> print?",
+ th:"<code>swapRows</code> สลับการอ้างอิงของสองแถวภายในเมทริกซ์ ส่วน <code>reset</code> กำหนดเมทริกซ์ใหม่ให้พารามิเตอร์ หลังเรียกทั้งสอง <code>main</code> พิมพ์อะไร",
+ code:"static void swapRows(int[][] m, int a, int b) {\n    int[] t = m[a]; m[a] = m[b]; m[b] = t;\n}\nstatic void reset(int[][] m) {\n    m = new int[2][2];\n}\npublic static void main(String[] args) {\n    int[][] g = {{1, 2}, {3, 4}};\n    swapRows(g, 0, 1);\n    reset(g);\n    System.out.println(g[0][1]);\n}",
+ opts:["4","0","2","3"],ans:0,
+ exp:"swapRows writes into the shared matrix, so g = {{3,4},{1,2}}. reset only re-points its local parameter. g[0][1] = 4. / swapRows เขียนลงเมทริกซ์ที่ใช้ร่วมกัน g = {{3,4},{1,2}} ส่วน reset แค่เปลี่ยนพารามิเตอร์ท้องถิ่น g[0][1] = 4"},
+{lv:"M",en:"The matrix is visited column by column (outer loop over columns). How many times does <code>c++</code> run?",
+ th:"เมทริกซ์ถูกไล่ทีละคอลัมน์ (ลูปนอกวนคอลัมน์) <code>c++</code> ทำงานกี่ครั้ง",
+ code:"int[][] m = new int[3][5];\nint c = 0;\nfor (int j = 0; j < m[0].length; j++) {\n    for (int i = 0; i < m.length; i++) {\n        c++;\n    }\n}\nSystem.out.println(c);",
+ opts:["15","8","5","3"],ans:0,
+ exp:"Every cell is still visited exactly once: 3 × 5 = 15. / ทุกช่องยังถูกเยี่ยมครั้งเดียว 3 × 5 = 15"},
+{lv:"H",en:"A 4 × 6 grid represents a garden. The code counts the cells on the <b>border</b> (first/last row or first/last column). What is printed?",
+ th:"ตาราง 4 × 6 แทนสวน โค้ดนับช่องที่อยู่บน<b>ขอบ</b> (แถวแรก/แถวสุดท้าย หรือคอลัมน์แรก/คอลัมน์สุดท้าย) โปรแกรมพิมพ์อะไร",
+ code:"int[][] m = new int[4][6];\nint b = 0;\nfor (int i = 0; i < m.length; i++) {\n    for (int j = 0; j < m[i].length; j++) {\n        if (i == 0 || j == 0 || i == m.length - 1 || j == m[i].length - 1) b++;\n    }\n}\nSystem.out.println(b);",
+ opts:["16","20","24","8"],ans:0,
+ exp:"Total 24 cells minus the 2 × 4 interior cells = 16 border cells. / ช่องทั้งหมด 24 ลบช่องด้านใน 2 × 4 = 16 ช่องขอบ"},
+{lv:"M",en:"<code>t</code> is a jagged 2D int array. Which expression gives the number of cells in row 2?",
+ th:"<code>t</code> เป็นอาร์เรย์สองมิติแบบขั้นบันได นิพจน์ใดให้จำนวนช่องในแถวที่ 2",
+ opts:["t[2].length","t.length[2]","t.length","t[2].size()"],ans:0,
+ exp:"Each row is its own array, so ask that row for its length. / แต่ละแถวเป็นอาร์เรย์ของตัวเอง จึงถามความยาวจากแถวนั้น"},
+{lv:"H",en:"A tic-tac-toe checker tests every row, every column and the main diagonal, but <b>not</b> the anti-diagonal. For the board below, what is printed?",
+ th:"ตัวตรวจเกม XO ตรวจทุกแถว ทุกคอลัมน์ และเส้นทแยงมุมหลัก แต่<b>ไม่</b>ตรวจเส้นทแยงมุมรอง สำหรับกระดานด้านล่าง โปรแกรมพิมพ์อะไร",
+ code:"char[][] b = {{'X', 'O', 'X'},\n              {'O', 'X', 'O'},\n              {'O', 'X', 'X'}};\nboolean win = false;\nfor (int i = 0; i < 3; i++) {\n    if (b[i][0] == b[i][1] && b[i][1] == b[i][2]) win = true;\n    if (b[0][i] == b[1][i] && b[1][i] == b[2][i]) win = true;\n}\nif (b[0][0] == b[1][1] && b[1][1] == b[2][2]) win = true;\nSystem.out.println(win);",
+ opts:["true, because the main diagonal is X X X","false, because no row or column matches","true, because column 1 is O X X","false, because the anti-diagonal is not checked"],ans:0,
+ exp:"No row or column has three equal marks, but b[0][0], b[1][1], b[2][2] are all X. / ไม่มีแถวหรือคอลัมน์ที่เหมือนกันสามช่อง แต่ b[0][0], b[1][1], b[2][2] เป็น X ทั้งหมด"},
+{lv:"M",en:"<code>Arrays.fill</code> is applied to a single row of a 3 × 3 matrix. What is the sum of all cells afterwards?",
+ th:"ใช้ <code>Arrays.fill</code> กับแถวเดียวของเมทริกซ์ 3 × 3 ผลรวมของทุกช่องหลังจากนั้นเป็นเท่าใด",
+ code:"int[][] m = new int[3][3];\nArrays.fill(m[1], 5);\nint s = 0;\nfor (int i = 0; i < m.length; i++) {\n    for (int j = 0; j < m[i].length; j++) {\n        s += m[i][j];\n    }\n}\nSystem.out.println(s);",
+ opts:["15","45","5","Compile error: fill needs a 1D array"],ans:0,
+ exp:"m[1] IS a 1D array; its three cells become 5, the other rows stay 0. / m[1] คืออาร์เรย์หนึ่งมิติ สามช่องของมันกลายเป็น 5 แถวอื่นยังเป็น 0"},
+{lv:"H",en:"Every row of <code>m</code> is set to the <b>same</b> row array. Two cells are then written through different rows. What is printed?",
+ th:"ทุกแถวของ <code>m</code> ถูกกำหนดให้เป็นอาร์เรย์<b>ตัวเดียวกัน</b> จากนั้นเขียนค่าสองช่องผ่านแถวต่างกัน โปรแกรมพิมพ์อะไร",
+ code:"int[] row = new int[3];\nint[][] m = new int[3][];\nfor (int i = 0; i < 3; i++) m[i] = row;\nm[0][0] = 1;\nm[2][0] = 7;\nSystem.out.println(m[1][0]);",
+ opts:["7","0","1","NullPointerException"],ans:0,
+ exp:"All three rows alias one array, so the last write (7) is seen through every row. / ทั้งสามแถวชี้อาร์เรย์เดียวกัน การเขียนครั้งสุดท้าย (7) จึงเห็นผ่านทุกแถว"},
+{lv:"M",en:"A factory method allocates a grid of the requested size. What is printed?",
+ th:"เมธอดสร้างตารางตามขนาดที่ขอ โปรแกรมพิมพ์อะไร",
+ code:"static int[][] make(int r, int c) {\n    return new int[r][c];\n}\npublic static void main(String[] args) {\n    int[][] g = make(2, 7);\n    System.out.println(g.length + g[0].length);\n}",
+ opts:["9","27","14","2"],ans:0,
+ exp:"g.length is 2 rows and g[0].length is 7 columns; int + int = 9. / g.length คือ 2 แถว และ g[0].length คือ 7 คอลัมน์ บวกกันเป็น 9"},
+{lv:"H",en:"Think of the matrix as a checkerboard. The code sums only the cells whose <code>i + j</code> is even. What is printed?",
+ th:"มองเมทริกซ์เป็นกระดานหมากรุก โค้ดบวกเฉพาะช่องที่ <code>i + j</code> เป็นเลขคู่ โปรแกรมพิมพ์อะไร",
+ code:"int[][] m = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};\nint s = 0;\nfor (int i = 0; i < 3; i++) {\n    for (int j = 0; j < 3; j++) {\n        if ((i + j) % 2 == 0) s += m[i][j];\n    }\n}\nSystem.out.println(s);",
+ opts:["25","20","45","15"],ans:0,
+ exp:"Cells (0,0)=1, (0,2)=3, (1,1)=5, (2,0)=7, (2,2)=9 sum to 25. / ช่อง (0,0)=1, (0,2)=3, (1,1)=5, (2,0)=7, (2,2)=9 รวม 25"},
+{lv:"M",en:"What exactly does <code>int[][] m = new int[2][3];</code> create?",
+ th:"<code>int[][] m = new int[2][3];</code> สร้างอะไรกันแน่",
+ opts:["An outer array of 2 references, each pointing to a new int[3] filled with zeros","An outer array of 3 references, each pointing to an int[2]","A single block of 6 ints that cannot be split into rows","An outer array of 2 null references"],ans:0,
+ exp:"Java 2D arrays are arrays of arrays; both levels are allocated and zero-filled here. / อาร์เรย์สองมิติใน Java คืออาร์เรย์ของอาร์เรย์ ทั้งสองชั้นถูกจองและเติมศูนย์"},
+{lv:"H",en:"Two matrices with identical contents are compared with <code>Arrays.equals</code> and <code>Arrays.deepEquals</code>. What is printed?",
+ th:"เมทริกซ์สองตัวที่มีค่าเหมือนกันถูกเปรียบเทียบด้วย <code>Arrays.equals</code> และ <code>Arrays.deepEquals</code> โปรแกรมพิมพ์อะไร",
+ code:"int[][] a = {{1, 2}, {3, 4}};\nint[][] b = {{1, 2}, {3, 4}};\nSystem.out.println(Arrays.equals(a, b) + \" \" + Arrays.deepEquals(a, b));",
+ opts:["false true","true true","false false","true false"],ans:0,
+ exp:"Arrays.equals compares the row references (different objects); deepEquals compares the nested contents. / Arrays.equals เทียบการอ้างอิงของแถว (คนละอาร์เรย์) ส่วน deepEquals เทียบค่าที่ซ้อนอยู่"},
+{lv:"M",en:"The code finds the largest value in column 1. What is printed?",
+ th:"โค้ดหาค่าที่มากที่สุดในคอลัมน์ 1 โปรแกรมพิมพ์อะไร",
+ code:"int[][] m = {{3, 8, 1}, {9, 2, 7}, {4, 6, 5}};\nint col = 1, mx = m[0][col];\nfor (int i = 1; i < m.length; i++) {\n    if (m[i][col] > mx) mx = m[i][col];\n}\nSystem.out.println(mx);",
+ opts:["8","9","6","7"],ans:0,
+ exp:"Column 1 holds 8, 2, 6; the maximum is 8. / คอลัมน์ 1 มีค่า 8, 2, 6 ค่าสูงสุดคือ 8"},
+{lv:"H",en:"An upper-triangular jagged array is built so that row <code>i</code> has <code>4 - i</code> cells. What is printed?",
+ th:"สร้างอาร์เรย์ขั้นบันไดแบบสามเหลี่ยมบนให้แถว <code>i</code> มี <code>4 - i</code> ช่อง โปรแกรมพิมพ์อะไร",
+ code:"int[][] t = new int[4][];\nfor (int i = 0; i < 4; i++) {\n    t[i] = new int[4 - i];\n}\nint c = 0;\nfor (int i = 0; i < t.length; i++) {\n    c += t[i].length;\n}\nSystem.out.println(c + \" \" + t[3].length);",
+ opts:["10 1","16 4","10 0","6 1"],ans:0,
+ exp:"Row lengths are 4, 3, 2, 1 (total 10) and the last row has 1 cell. / ความยาวแถวคือ 4, 3, 2, 1 (รวม 10) และแถวสุดท้ายมี 1 ช่อง"},
+{lv:"M",en:"A 2 × 3 matrix is accessed at <code>m[1][3]</code>. What happens?",
+ th:"เมทริกซ์ 2 × 3 ถูกเข้าถึงที่ <code>m[1][3]</code> จะเกิดอะไรขึ้น",
+ code:"int[][] m = new int[2][3];\nSystem.out.println(m[1][3]);",
+ opts:["ArrayIndexOutOfBoundsException: valid column indexes are 0..2","Prints 0","NullPointerException","Compile error"],ans:0,
+ exp:"Row 1 exists, but it has only columns 0, 1, 2. / แถว 1 มีอยู่ แต่มีเพียงคอลัมน์ 0, 1, 2"},
+{lv:"H",en:"Inside the loop each row is first stored in a local variable, one cell is written through it, and then the local variable is pointed at a new array. What does the matrix look like afterwards?",
+ th:"ภายในลูป แต่ละแถวถูกเก็บในตัวแปรท้องถิ่นก่อน เขียนค่าหนึ่งช่องผ่านตัวแปรนั้น แล้วจึงให้ตัวแปรท้องถิ่นชี้ไปยังอาร์เรย์ใหม่ หลังจากนั้นเมทริกซ์มีค่าอย่างไร",
+ code:"int[][] m = {{1, 2}, {3, 4}};\nfor (int i = 0; i < m.length; i++) {\n    int[] row = m[i];\n    row[0] = 0;\n    row = new int[]{9, 9};\n}\nSystem.out.println(Arrays.deepToString(m));",
+ opts:["[[0, 2], [0, 4]]","[[9, 9], [9, 9]]","[[1, 2], [3, 4]]","[[0, 9], [0, 9]]"],ans:0,
+ exp:"row[0] = 0 writes through the reference into the real row m[i]; re-pointing the local variable row does not change m[i]. / row[0] = 0 เขียนผ่านการอ้างอิงลงแถวจริง m[i] ส่วนการให้ตัวแปรท้องถิ่น row ชี้ที่ใหม่ไม่เปลี่ยน m[i]"},
+{lv:"M",en:"For a 2 × 3 matrix, two cells are picked with swapped-looking indexes and added. What is printed?",
+ th:"สำหรับเมทริกซ์ 2 × 3 เลือกสองช่องด้วยดัชนีที่ดูสลับกันแล้วบวก โปรแกรมพิมพ์อะไร",
+ code:"int[][] m = {{1, 2, 3}, {4, 5, 6}};\nSystem.out.println(m[1][0] + m[0][1]);",
+ opts:["6","42","24","ArrayIndexOutOfBoundsException"],ans:0,
+ exp:"m[1][0] = 4 and m[0][1] = 2; int + int = 6. / m[1][0] = 4 และ m[0][1] = 2 บวกกันเป็น 6"},
+{lv:"H",en:"A seating chart uses <code>'.'</code> for an empty seat. The code finds the row with the most empty seats, keeping the <b>first</b> such row on ties. What is printed?",
+ th:"ผังที่นั่งใช้ <code>'.'</code> แทนที่นั่งว่าง โค้ดหาแถวที่มีที่นั่งว่างมากที่สุด โดยถ้าเท่ากันให้เก็บแถว<b>แรก</b>ไว้ โปรแกรมพิมพ์อะไร",
+ code:"char[][] s = {{'X', '.', 'X'}, {'.', '.', 'X'}, {'.', 'X', '.'}};\nint best = 0, bestEmpty = -1;\nfor (int i = 0; i < s.length; i++) {\n    int e = 0;\n    for (int j = 0; j < s[i].length; j++) {\n        if (s[i][j] == '.') e++;\n    }\n    if (e > bestEmpty) { bestEmpty = e; best = i; }\n}\nSystem.out.println(best);",
+ opts:["1","2","0","3"],ans:0,
+ exp:"Empty counts are 1, 2, 2. The strict > keeps the first row that reached 2, which is row 1. / จำนวนที่ว่างคือ 1, 2, 2 เครื่องหมาย > แบบเคร่งครัดทำให้เก็บแถวแรกที่ถึง 2 คือแถว 1"},
+{lv:"M",en:"Which method header correctly accepts a 2D int array named <code>grid</code>?",
+ th:"หัวเมธอดใดรับอาร์เรย์สองมิติชนิด int ชื่อ <code>grid</code> ได้ถูกต้อง",
+ opts:["static int countZeros(int[][] grid)","static int countZeros(int[,] grid)","static int countZeros(int grid[2][2])","static int countZeros(int[][2] grid)"],ans:0,
+ exp:"Parameter types never carry sizes; int[][] is the type of an array of int arrays. / ชนิดพารามิเตอร์ไม่ระบุขนาด int[][] คือชนิดของอาร์เรย์ของอาร์เรย์ int"},
+{lv:"H",en:"<code>paths(r, c)</code> counts the ways to walk from the top-left to the bottom-right of a grid moving only right or down, where <code>r</code> and <code>c</code> are the remaining steps down and right. What is printed?",
+ th:"<code>paths(r, c)</code> นับจำนวนเส้นทางจากมุมซ้ายบนไปมุมขวาล่างของตารางโดยเดินได้เฉพาะขวาหรือลง โดย <code>r</code> และ <code>c</code> คือจำนวนก้าวที่เหลือลงและขวา โปรแกรมพิมพ์อะไร",
+ code:"static int paths(int r, int c) {\n    if (r == 0 || c == 0) return 1;\n    return paths(r - 1, c) + paths(r, c - 1);\n}\npublic static void main(String[] args) {\n    System.out.println(paths(2, 2));\n}",
+ opts:["6","4","8","2"],ans:0,
+ exp:"paths(1,1) = 2, paths(2,1) = paths(1,2) = 3, so paths(2,2) = 3 + 3 = 6 (the binomial C(4,2)). / paths(1,1) = 2, paths(2,1) = paths(1,2) = 3 ดังนั้น paths(2,2) = 6 (ค่า C(4,2))"},
+{lv:"M",en:"Which statement is the correct first step for a jagged array whose rows will be allocated later with different lengths?",
+ th:"ข้อใดคือขั้นแรกที่ถูกต้องสำหรับอาร์เรย์ขั้นบันไดที่จะจองแต่ละแถวในภายหลังด้วยความยาวต่างกัน",
+ opts:["int[][] t = new int[3][];","int[][] t = new int[][3];","int[][] t = new int[][];","int[][] t = new int[3][0..5];"],ans:0,
+ exp:"Only the outer dimension is required; each row is created later, e.g. t[i] = new int[k]. / ต้องระบุเฉพาะมิตินอก แต่ละแถวสร้างภายหลัง เช่น t[i] = new int[k]"},
+{lv:"H",en:"A 2 × 3 matrix is filled with loops whose bounds are accidentally swapped. The exception is caught and the number of successful writes is printed. What is the output?",
+ th:"เมทริกซ์ 2 × 3 ถูกเติมค่าด้วยลูปที่สลับขอบเขตผิดโดยไม่ตั้งใจ exception ถูกดักไว้และพิมพ์จำนวนครั้งที่เขียนสำเร็จ ผลลัพธ์คืออะไร",
+ code:"int[][] m = new int[2][3];\nint c = 0;\ntry {\n    for (int i = 0; i < m[0].length; i++) {\n        for (int j = 0; j < m.length; j++) {\n            m[i][j] = 1;\n            c++;\n        }\n    }\n} catch (ArrayIndexOutOfBoundsException e) {\n    System.out.println(\"err \" + c);\n}",
+ opts:["err 4","err 6","err 2","Nothing is printed, no exception occurs"],ans:0,
+ exp:"i runs 0..2 and j runs 0..1. Rows 0 and 1 each get 2 writes (c = 4); m[2] does not exist. / i วน 0..2 และ j วน 0..1 แถว 0 และ 1 ได้แถวละ 2 ครั้ง (c = 4) แต่ m[2] ไม่มีอยู่"},
+{lv:"M",en:"The code sums the <b>anti-diagonal</b> (top-right to bottom-left) of a 3 × 3 matrix. What is printed?",
+ th:"โค้ดบวกค่าบน<b>เส้นทแยงมุมรอง</b> (ขวาบนไปซ้ายล่าง) ของเมทริกซ์ 3 × 3 โปรแกรมพิมพ์อะไร",
+ code:"int[][] m = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};\nint n = m.length, s = 0;\nfor (int i = 0; i < n; i++) {\n    s += m[i][n - 1 - i];\n}\nSystem.out.println(s);",
+ opts:["15","12","18","45"],ans:0,
+ exp:"Cells (0,2)=3, (1,1)=5, (2,0)=7 sum to 15. / ช่อง (0,2)=3, (1,1)=5, (2,0)=7 รวม 15"},
+{lv:"H",en:"A single row of a jagged matrix is passed to <code>bump</code>, which increments every element and returns the row length. What is printed?",
+ th:"แถวเดียวของเมทริกซ์ขั้นบันไดถูกส่งให้ <code>bump</code> ซึ่งเพิ่มค่าทุกสมาชิกแล้วคืนความยาวแถว โปรแกรมพิมพ์อะไร",
+ code:"static int bump(int[] r) {\n    for (int i = 0; i < r.length; i++) r[i]++;\n    return r.length;\n}\npublic static void main(String[] args) {\n    int[][] m = {{1, 1}, {2, 2, 2}};\n    int n = bump(m[1]);\n    System.out.println(n + m[1][0] + m[0][0]);\n}",
+ opts:["7","331","6","5"],ans:0,
+ exp:"bump changes row 1 to {3,3,3} and returns 3; 3 + 3 + 1 = 7 (int arithmetic, no strings). / bump เปลี่ยนแถว 1 เป็น {3,3,3} และคืน 3; 3 + 3 + 1 = 7 (เลขจำนวนเต็ม ไม่ใช่สตริง)"},
+{lv:"M",en:"A row of the matrix is stored in a separate variable and modified through it. What is printed?",
+ th:"แถวหนึ่งของเมทริกซ์ถูกเก็บในตัวแปรแยกและถูกแก้ไขผ่านตัวแปรนั้น โปรแกรมพิมพ์อะไร",
+ code:"int[][] m = {{1, 2}, {3, 4}};\nint[] r = m[1];\nr[1] = 0;\nSystem.out.println(m[1][1]);",
+ opts:["0","4","2","Compile error"],ans:0,
+ exp:"r is not a copy; it refers to the same row array as m[1]. / r ไม่ใช่สำเนา แต่ชี้อาร์เรย์แถวเดียวกับ m[1]"}
+];
+
+// ____ marks the blank. acc = accepted answers (whitespace-insensitive, case-insensitive).
+const FILL = [
+{lv:"M",en:"<code>colSum</code> adds up one column <code>c</code> of a rectangular matrix. Complete the column index.",
+ th:"<code>colSum</code> บวกค่าในคอลัมน์ <code>c</code> ของเมทริกซ์สี่เหลี่ยมผืนผ้า เติมดัชนีคอลัมน์",
+ code:"static int colSum(int[][] m, int c) {\n    int s = 0;\n    for (int i = 0; i < m.length; i++) {\n        s += m[i][____];\n    }\n    return s;\n}",acc:["c"]},
+{lv:"M",en:"A bank stores daily balances per account, one row per account. Count the accounts whose <b>first</b> recorded balance is negative. Complete the column index.",
+ th:"ธนาคารเก็บยอดเงินรายวันของแต่ละบัญชี บัญชีละหนึ่งแถว นับบัญชีที่ยอด<b>แรก</b>ที่บันทึกเป็นค่าลบ เติมดัชนีคอลัมน์",
+ code:"int c = 0;\nfor (int i = 0; i < m.length; i++) {\n    if (m[i][____] < 0) c++;\n}",acc:["0"]},
+{lv:"M",en:"A visited-grid for a maze must have the same shape as the maze. Complete the allocation.",
+ th:"ตารางบันทึกการเยี่ยมสำหรับเขาวงกตต้องมีรูปร่างเดียวกับเขาวงกต เติมการจองอาร์เรย์",
+ code:"int rows = maze.length, cols = maze[0].length;\nboolean[][] seen = new boolean[rows][____];",acc:["cols"]},
+{lv:"H",en:"Before reading a neighbour cell <code>(rr, cc)</code> the code must make sure it lies inside the (possibly jagged) grid <code>g</code>. Complete the last condition.",
+ th:"ก่อนอ่านช่องข้างเคียง <code>(rr, cc)</code> โค้ดต้องแน่ใจว่ามันอยู่ในตาราง <code>g</code> (ซึ่งอาจเป็นขั้นบันได) เติมเงื่อนไขสุดท้าย",
+ code:"if (rr >= 0 && rr < g.length && cc >= 0 && cc < ____) {\n    total += g[rr][cc];\n}",acc:["g[rr].length","g[0].length"]},
+{lv:"M",en:"A deep copy must duplicate every row, not just the outer array. Complete the length argument so each row is copied in full.",
+ th:"การคัดลอกแบบลึกต้องทำสำเนาทุกแถว ไม่ใช่แค่อาร์เรย์ชั้นนอก เติมอาร์กิวเมนต์ความยาวให้คัดลอกแต่ละแถวครบ",
+ code:"int[][] copy = new int[m.length][];\nfor (int i = 0; i < m.length; i++) {\n    copy[i] = Arrays.copyOf(m[i], ____);\n}",acc:["m[i].length"]},
+{lv:"H",en:"A tic-tac-toe checker tests the anti-diagonal: top-right, centre, bottom-left. Complete the column index of the bottom-left cell.",
+ th:"ตัวตรวจเกม XO ตรวจเส้นทแยงมุมรอง: ขวาบน ตรงกลาง ซ้ายล่าง เติมดัชนีคอลัมน์ของช่องซ้ายล่าง",
+ code:"boolean antiDiag = b[0][2] != '.'\n    && b[0][2] == b[1][1]\n    && b[1][1] == b[2][____];",acc:["0"]},
+{lv:"M",en:"Reset one row of a scoreboard to a given value using a library method. Complete the method name.",
+ th:"รีเซ็ตแถวหนึ่งของตารางคะแนนให้เป็นค่าที่กำหนดโดยใช้เมธอดจากไลบรารี เติมชื่อเมธอด",
+ code:"static void resetRow(int[][] board, int r, int v) {\n    Arrays.____(board[r], v);\n}",acc:["fill"]},
+{lv:"H",en:"Find the index of the row with the largest total. Complete the assignment that remembers which row is currently best.",
+ th:"หาดัชนีของแถวที่มีผลรวมมากที่สุด เติมการกำหนดค่าที่จำว่าแถวใดดีที่สุดในขณะนี้",
+ code:"int bestRow = 0, bestSum = Integer.MIN_VALUE;\nfor (int i = 0; i < m.length; i++) {\n    int s = 0;\n    for (int j = 0; j < m[i].length; j++) s += m[i][j];\n    if (s > bestSum) {\n        bestSum = s;\n        bestRow = ____;\n    }\n}",acc:["i"]},
+{lv:"M",en:"Print a matrix one row per line in the form <code>[1, 2, 3]</code>. Complete the method name.",
+ th:"พิมพ์เมทริกซ์บรรทัดละหนึ่งแถวในรูป <code>[1, 2, 3]</code> เติมชื่อเมธอด",
+ code:"for (int i = 0; i < m.length; i++) {\n    System.out.println(Arrays.____(m[i]));\n}",acc:["toString"]},
+{lv:"H",en:"Build an upper-triangular jagged array where row <code>i</code> has <code>n - i</code> cells (row 0 is the longest). Complete the row allocation.",
+ th:"สร้างอาร์เรย์ขั้นบันไดแบบสามเหลี่ยมบน โดยแถว <code>i</code> มี <code>n - i</code> ช่อง (แถว 0 ยาวที่สุด) เติมการจองแถว",
+ code:"int[][] t = new int[n][];\nfor (int i = 0; i < n; i++) {\n    t[i] = new int[n - ____];\n}",acc:["i"]},
+{lv:"M",en:"A cell is on the border if it is in the first or last row, or the first or last column. Complete the last comparison.",
+ th:"ช่องอยู่บนขอบถ้าอยู่ในแถวแรกหรือแถวสุดท้าย หรือคอลัมน์แรกหรือคอลัมน์สุดท้าย เติมการเปรียบเทียบสุดท้าย",
+ code:"boolean border = i == 0 || j == 0\n    || i == m.length - 1\n    || j == ____;",acc:["m[i].length-1","m[0].length-1"]},
+{lv:"H",en:"Flatten a jagged matrix into a 1D array in row-major order. The write position <code>k</code> must advance after every write. Complete the index expression.",
+ th:"แปลงเมทริกซ์ขั้นบันไดเป็นอาร์เรย์หนึ่งมิติเรียงตามแถว ตำแหน่งเขียน <code>k</code> ต้องเลื่อนทุกครั้งที่เขียน เติมนิพจน์ดัชนี",
+ code:"int[] flat = new int[total];\nint k = 0;\nfor (int i = 0; i < m.length; i++) {\n    for (int j = 0; j < m[i].length; j++) {\n        flat[____] = m[i][j];\n    }\n}",acc:["k++"]},
+{lv:"M",en:"Count how many cells of a jagged grid equal <code>target</code>, using nested index loops. Complete the comparison.",
+ th:"นับจำนวนช่องในตารางขั้นบันไดที่มีค่าเท่ากับ <code>target</code> โดยใช้ลูปดัชนีซ้อนกัน เติมการเปรียบเทียบ",
+ code:"int c = 0;\nfor (int i = 0; i < m.length; i++) {\n    for (int j = 0; j < m[i].length; j++) {\n        if (m[i][j] ____ target) c++;\n    }\n}",acc:["=="]},
+{lv:"H",en:"Swap two rows of a matrix by exchanging their references (no cell-by-cell copying). Complete the final assignment.",
+ th:"สลับสองแถวของเมทริกซ์โดยแลกการอ้างอิง (ไม่คัดลอกทีละช่อง) เติมการกำหนดค่าสุดท้าย",
+ code:"static void swapRows(int[][] m, int a, int b) {\n    int[] t = m[a];\n    m[a] = m[b];\n    m[b] = ____;\n}",acc:["t"]},
+{lv:"M",en:"<code>zeros</code> returns a freshly allocated r × c matrix. Complete the return type.",
+ th:"<code>zeros</code> คืนเมทริกซ์ r × c ที่จองใหม่ เติมชนิดคืนค่า",
+ code:"static ____ zeros(int r, int c) {\n    return new int[r][c];\n}",acc:["int[][]"]},
+{lv:"H",en:"Mirror every row left-to-right in place (flip the image horizontally). Complete the index of the partner cell.",
+ th:"กลับด้านทุกแถวจากซ้ายไปขวาในที่เดิม (พลิกภาพแนวนอน) เติมดัชนีของช่องคู่สลับ",
+ code:"for (int i = 0; i < m.length; i++) {\n    int w = m[i].length;\n    for (int j = 0; j < w / 2; j++) {\n        int t = m[i][j];\n        m[i][j] = m[i][____];\n        m[i][w - 1 - j] = t;\n    }\n}",acc:["w-1-j","w-j-1"]},
+{lv:"M",en:"A distance table is valid only if every cell on the main diagonal is zero. Complete the test that rejects a bad table.",
+ th:"ตารางระยะทางจะถูกต้องก็ต่อเมื่อทุกช่องบนเส้นทแยงมุมหลักเป็นศูนย์ เติมเงื่อนไขที่ปฏิเสธตารางที่ผิด",
+ code:"for (int i = 0; i < d.length; i++) {\n    if (d[i][i] ____ 0) return false;\n}\nreturn true;",acc:["!="]},
+{lv:"H",en:"Minesweeper: for each mine at <code>(r, c)</code>, increase the count of every in-bounds neighbour that is not itself a mine. Complete the update.",
+ th:"เกมกู้ระเบิด: สำหรับระเบิดแต่ละลูกที่ <code>(r, c)</code> ให้เพิ่มตัวนับของช่องข้างเคียงทุกช่องที่อยู่ในขอบเขตและไม่ใช่ระเบิด เติมการอัปเดต",
+ code:"for (int dr = -1; dr <= 1; dr++) {\n    for (int dc = -1; dc <= 1; dc++) {\n        int rr = r + dr, cc = c + dc;\n        if (rr >= 0 && rr < n && cc >= 0 && cc < n && !mine[rr][cc]) {\n            count[rr][cc]____;\n        }\n    }\n}",acc:["++","+=1"]},
+{lv:"M",en:"Count the total number of cells in a jagged array by adding the length of each row. Complete the row index.",
+ th:"นับจำนวนช่องทั้งหมดในอาร์เรย์ขั้นบันไดโดยบวกความยาวของแต่ละแถว เติมดัชนีแถว",
+ code:"int total = 0;\nfor (int i = 0; i < t.length; i++) {\n    total += t[____].length;\n}",acc:["i"]},
+{lv:"H",en:"<code>isRectangular</code> returns true only if every row has the same length as the first row. Complete the comparison.",
+ th:"<code>isRectangular</code> คืน true ก็ต่อเมื่อทุกแถวยาวเท่ากับแถวแรก เติมการเปรียบเทียบ",
+ code:"static boolean isRectangular(int[][] m) {\n    for (int i = 1; i < m.length; i++) {\n        if (m[i].length != m[____].length) return false;\n    }\n    return true;\n}",acc:["0"]},
+{lv:"M",en:"Sum every cell of a jagged matrix with nested index loops. The inner loop must stop at the end of the <b>current</b> row. Complete its bound.",
+ th:"บวกทุกช่องของเมทริกซ์ขั้นบันไดด้วยลูปดัชนีซ้อนกัน ลูปในต้องหยุดที่ปลายของแถว<b>ปัจจุบัน</b> เติมขอบเขตของลูปใน",
+ code:"int s = 0;\nfor (int i = 0; i < m.length; i++) {\n    for (int j = 0; j < ____; j++) {\n        s += m[i][j];\n    }\n}",acc:["m[i].length"]},
+{lv:"H",en:"<code>find</code> returns the position of the first cell equal to <code>key</code> as a 2-element array, or <code>null</code>. Complete the array initializer.",
+ th:"<code>find</code> คืนตำแหน่งของช่องแรกที่เท่ากับ <code>key</code> เป็นอาร์เรย์ 2 ช่อง หรือ <code>null</code> เติมตัวกำหนดค่าอาร์เรย์",
+ code:"static int[] find(int[][] m, int key) {\n    for (int i = 0; i < m.length; i++) {\n        for (int j = 0; j < m[i].length; j++) {\n            if (m[i][j] == key) return new int[]{____};\n        }\n    }\n    return null;\n}",acc:["i,j"]},
+{lv:"M",en:"A matrix is symmetric when every cell equals its mirror across the main diagonal. Complete the mirrored row index.",
+ th:"เมทริกซ์สมมาตรเมื่อทุกช่องเท่ากับช่องกระจกข้ามเส้นทแยงมุมหลัก เติมดัชนีแถวของช่องกระจก",
+ code:"for (int i = 0; i < m.length; i++) {\n    for (int j = 0; j < m.length; j++) {\n        if (m[i][j] != m[____][i]) return false;\n    }\n}\nreturn true;",acc:["j"]},
+{lv:"H",en:"Each row of a timetable must be non-decreasing. The inner loop compares each cell with the one before it. Complete the index.",
+ th:"แต่ละแถวของตารางเวลาต้องไม่ลดลง ลูปในเปรียบเทียบแต่ละช่องกับช่องก่อนหน้า เติมดัชนี",
+ code:"for (int i = 0; i < m.length; i++) {\n    for (int j = 1; j < m[i].length; j++) {\n        if (m[i][j] < m[i][____]) return false;\n    }\n}\nreturn true;",acc:["j-1"]},
+{lv:"M",en:"Allocate a table of scores with one row per student and one column per subject, storing decimals. Complete the element type.",
+ th:"จองตารางคะแนนที่มีนักศึกษาคนละแถวและวิชาละคอลัมน์ เก็บค่าทศนิยม เติมชนิดของสมาชิก",
+ code:"double[][] scores = new ____[students][subjects];",acc:["double"]},
+{lv:"H",en:"Sum the 3 × 3 block whose top-left corner is <code>(r, c)</code>. Complete the column bound.",
+ th:"บวกค่าในบล็อก 3 × 3 ที่มุมซ้ายบนอยู่ที่ <code>(r, c)</code> เติมขอบเขตของคอลัมน์",
+ code:"int s = 0;\nfor (int i = r; i < r + 3; i++) {\n    for (int j = c; j < ____; j++) {\n        s += m[i][j];\n    }\n}",acc:["c+3"]},
+{lv:"M",en:"Read the <b>last</b> cell of row <code>i</code> in a jagged array. Complete the offset.",
+ th:"อ่านช่อง<b>สุดท้าย</b>ของแถว <code>i</code> ในอาร์เรย์ขั้นบันได เติมค่าที่ต้องลบ",
+ code:"int last = t[i][t[i].length - ____];",acc:["1"]},
+{lv:"H",en:"A flat index <code>k</code> (row-major) is converted back to 2D coordinates for a matrix with <code>cols</code> columns. Complete the column calculation.",
+ th:"แปลงดัชนีแบบแบน <code>k</code> (เรียงตามแถว) กลับเป็นพิกัดสองมิติของเมทริกซ์ที่มี <code>cols</code> คอลัมน์ เติมการคำนวณคอลัมน์",
+ code:"int i = k / cols;\nint j = k ____ cols;\nint value = m[i][j];",acc:["%"]},
+{lv:"M",en:"<code>inside</code> reports whether <code>(r, c)</code> is a valid position in a jagged grid. Complete the last check.",
+ th:"<code>inside</code> บอกว่า <code>(r, c)</code> เป็นตำแหน่งที่ถูกต้องในตารางขั้นบันไดหรือไม่ เติมการตรวจสุดท้าย",
+ code:"static boolean inside(int[][] g, int r, int c) {\n    return r >= 0 && r < g.length && c >= 0 && c < g[r].____;\n}",acc:["length"]},
+{lv:"H",en:"For a non-square matrix, the main diagonal only runs as far as the shorter dimension. Complete the method name that picks the smaller of the two sizes.",
+ th:"สำหรับเมทริกซ์ที่ไม่ใช่จัตุรัส เส้นทแยงมุมหลักยาวเท่ากับมิติที่สั้นกว่า เติมชื่อเมธอดที่เลือกค่าที่น้อยกว่าจากสองขนาด",
+ code:"int len = Math.____(m.length, m[0].length);\nint s = 0;\nfor (int i = 0; i < len; i++) s += m[i][i];",acc:["min"]}
+];
+
+const CODE = [
+{lv:"M",t:"Column sums",
+ en:"A sales table has one row per branch and one column per month. Write <code>static int[] colSums(int[][] m)</code> that returns an array whose element <code>j</code> is the total of column <code>j</code>. The matrix is rectangular with at least one row.",
+ th:"ตารางยอดขายมีสาขาละหนึ่งแถวและเดือนละหนึ่งคอลัมน์ เขียน <code>static int[] colSums(int[][] m)</code> ที่คืนอาร์เรย์ซึ่งสมาชิกที่ <code>j</code> คือผลรวมของคอลัมน์ <code>j</code> เมทริกซ์เป็นสี่เหลี่ยมผืนผ้าและมีอย่างน้อยหนึ่งแถว",
+ ex:"colSums({{1, 2, 3}, {4, 5, 6}})  →  {5, 7, 9}",
+ sol:"static int[] colSums(int[][] m) {\n    int[] s = new int[m[0].length];\n    for (int i = 0; i < m.length; i++) {\n        for (int j = 0; j < m[i].length; j++) {\n            s[j] += m[i][j];\n        }\n    }\n    return s;\n}"},
+{lv:"M",t:"Count a value in a grid",
+ en:"Write <code>static int countValue(int[][] g, int v)</code> that returns how many cells of a (possibly jagged) grid equal <code>v</code>.",
+ th:"เขียน <code>static int countValue(int[][] g, int v)</code> ที่คืนจำนวนช่องในตาราง (อาจเป็นขั้นบันได) ที่มีค่าเท่ากับ <code>v</code>",
+ ex:"countValue({{1, 0}, {0, 0, 1}, {1}}, 1)  →  3",
+ sol:"static int countValue(int[][] g, int v) {\n    int c = 0;\n    for (int i = 0; i < g.length; i++) {\n        for (int j = 0; j < g[i].length; j++) {\n            if (g[i][j] == v) c++;\n        }\n    }\n    return c;\n}"},
+{lv:"H",t:"Deep copy of a jagged matrix",
+ en:"Write <code>static int[][] deepCopy(int[][] m)</code> that returns a completely independent copy of a jagged matrix: changing any cell of the copy must never affect the original, and the copy's rows must have the same lengths as the original's. Do not use <code>clone()</code> on the outer array alone.",
+ th:"เขียน <code>static int[][] deepCopy(int[][] m)</code> ที่คืนสำเนาอิสระโดยสมบูรณ์ของเมทริกซ์ขั้นบันได: การแก้ช่องใดในสำเนาต้องไม่กระทบต้นฉบับ และแถวของสำเนาต้องยาวเท่ากับต้นฉบับ ห้ามใช้ <code>clone()</code> กับอาร์เรย์ชั้นนอกเพียงอย่างเดียว",
+ ex:"int[][] a = {{1, 2}, {3}};  int[][] b = deepCopy(a);  b[0][0] = 9;\n→  a[0][0] is still 1,  b[1].length == 1",
+ sol:"static int[][] deepCopy(int[][] m) {\n    int[][] c = new int[m.length][];\n    for (int i = 0; i < m.length; i++) {\n        c[i] = new int[m[i].length];\n        for (int j = 0; j < m[i].length; j++) {\n            c[i][j] = m[i][j];\n        }\n    }\n    return c;\n}"},
+{lv:"M",t:"Is it square?",
+ en:"Write <code>static boolean isSquare(int[][] m)</code> that returns true only when the matrix has the same number of columns in every row and that number equals the number of rows.",
+ th:"เขียน <code>static boolean isSquare(int[][] m)</code> ที่คืน true เมื่อทุกแถวมีจำนวนคอลัมน์เท่ากันและจำนวนนั้นเท่ากับจำนวนแถว",
+ ex:"isSquare({{1, 2}, {3, 4}})     →  true\nisSquare({{1, 2}, {3}})        →  false\nisSquare({{1, 2, 3}, {4, 5, 6}})  →  false",
+ sol:"static boolean isSquare(int[][] m) {\n    for (int i = 0; i < m.length; i++) {\n        if (m[i].length != m.length) return false;\n    }\n    return true;\n}"},
+{lv:"H",t:"Flip horizontally",
+ en:"An image is stored as a jagged <code>int[][]</code> of pixel values. Write <code>static int[][] flipHorizontal(int[][] m)</code> that returns a <b>new</b> matrix in which every row is reversed (mirror image). The input must not change.",
+ th:"ภาพถูกเก็บเป็น <code>int[][]</code> ขั้นบันไดของค่าพิกเซล เขียน <code>static int[][] flipHorizontal(int[][] m)</code> ที่คืนเมทริกซ์<b>ใหม่</b>ซึ่งทุกแถวถูกกลับด้าน (ภาพสะท้อน) อินพุตต้องไม่เปลี่ยน",
+ ex:"flipHorizontal({{1, 2, 3}, {4, 5}})  →  {{3, 2, 1}, {5, 4}}",
+ sol:"static int[][] flipHorizontal(int[][] m) {\n    int[][] out = new int[m.length][];\n    for (int i = 0; i < m.length; i++) {\n        int w = m[i].length;\n        out[i] = new int[w];\n        for (int j = 0; j < w; j++) {\n            out[i][j] = m[i][w - 1 - j];\n        }\n    }\n    return out;\n}"},
+{lv:"M",t:"Position of the maximum",
+ en:"Write <code>static int[] maxPosition(int[][] m)</code> that returns <code>{row, col}</code> of the largest value. If the maximum appears more than once, return the position that comes first in row-major order. Assume at least one cell.",
+ th:"เขียน <code>static int[] maxPosition(int[][] m)</code> ที่คืน <code>{row, col}</code> ของค่าที่มากที่สุด ถ้าค่าสูงสุดปรากฏหลายครั้ง ให้คืนตำแหน่งที่มาก่อนตามลำดับแถว ถือว่ามีอย่างน้อยหนึ่งช่อง",
+ ex:"maxPosition({{3, 9}, {9, 1}})  →  {0, 1}",
+ sol:"static int[] maxPosition(int[][] m) {\n    int br = 0, bc = 0;\n    for (int i = 0; i < m.length; i++) {\n        for (int j = 0; j < m[i].length; j++) {\n            if (m[i][j] > m[br][bc]) { br = i; bc = j; }\n        }\n    }\n    return new int[]{br, bc};\n}"},
+{lv:"H",t:"Minesweeper numbers",
+ en:"Write <code>static int[][] neighbourCounts(boolean[][] mine)</code> for a rectangular minefield (<code>true</code> = mine). Return a matrix of the same size where each non-mine cell holds the number of mines among its up-to-eight neighbours, and each mine cell holds <code>-1</code>. Write a helper <code>static boolean inBounds(boolean[][] g, int r, int c)</code>.",
+ th:"เขียน <code>static int[][] neighbourCounts(boolean[][] mine)</code> สำหรับสนามระเบิดสี่เหลี่ยม (<code>true</code> = ระเบิด) คืนเมทริกซ์ขนาดเท่ากัน โดยช่องที่ไม่ใช่ระเบิดเก็บจำนวนระเบิดในช่องข้างเคียงไม่เกินแปดช่อง และช่องที่เป็นระเบิดเก็บ <code>-1</code> ให้เขียนเมธอดช่วย <code>static boolean inBounds(boolean[][] g, int r, int c)</code>",
+ ex:"mine = {{true, false}, {false, false}}\nneighbourCounts(mine)  →  {{-1, 1}, {1, 1}}",
+ sol:"static boolean inBounds(boolean[][] g, int r, int c) {\n    return r >= 0 && r < g.length && c >= 0 && c < g[0].length;\n}\n\nstatic int[][] neighbourCounts(boolean[][] mine) {\n    int rows = mine.length, cols = mine[0].length;\n    int[][] out = new int[rows][cols];\n    for (int r = 0; r < rows; r++) {\n        for (int c = 0; c < cols; c++) {\n            if (mine[r][c]) { out[r][c] = -1; continue; }\n            int n = 0;\n            for (int dr = -1; dr <= 1; dr++) {\n                for (int dc = -1; dc <= 1; dc++) {\n                    if (dr == 0 && dc == 0) continue;\n                    if (inBounds(mine, r + dr, c + dc) && mine[r + dr][c + dc]) n++;\n                }\n            }\n            out[r][c] = n;\n        }\n    }\n    return out;\n}"},
+{lv:"M",t:"Trace of a matrix",
+ en:"Write <code>static int trace(int[][] m)</code> that returns the sum of the main diagonal of a square matrix.",
+ th:"เขียน <code>static int trace(int[][] m)</code> ที่คืนผลรวมของเส้นทแยงมุมหลักของเมทริกซ์จัตุรัส",
+ ex:"trace({{5, 1, 1}, {2, 6, 2}, {3, 3, 7}})  →  18",
+ sol:"static int trace(int[][] m) {\n    int s = 0;\n    for (int i = 0; i < m.length; i++) {\n        s += m[i][i];\n    }\n    return s;\n}"},
+{lv:"H",t:"Symmetric matrix",
+ en:"A distance table between cities must be symmetric: the distance from A to B equals the distance from B to A. Write <code>static boolean isSymmetric(int[][] m)</code> that first checks the matrix is square (return false otherwise) and then checks <code>m[i][j] == m[j][i]</code> for every pair. Only compare each pair once.",
+ th:"ตารางระยะทางระหว่างเมืองต้องสมมาตร: ระยะจาก A ไป B เท่ากับจาก B ไป A เขียน <code>static boolean isSymmetric(int[][] m)</code> ที่ตรวจก่อนว่าเมทริกซ์เป็นจัตุรัส (ถ้าไม่ใช่คืน false) แล้วตรวจ <code>m[i][j] == m[j][i]</code> ทุกคู่ โดยเปรียบเทียบแต่ละคู่เพียงครั้งเดียว",
+ ex:"isSymmetric({{0, 5, 7}, {5, 0, 2}, {7, 2, 0}})  →  true\nisSymmetric({{0, 5}, {4, 0}})                  →  false",
+ sol:"static boolean isSymmetric(int[][] m) {\n    for (int i = 0; i < m.length; i++) {\n        if (m[i].length != m.length) return false;\n    }\n    for (int i = 0; i < m.length; i++) {\n        for (int j = i + 1; j < m.length; j++) {\n            if (m[i][j] != m[j][i]) return false;\n        }\n    }\n    return true;\n}"},
+{lv:"M",t:"Flatten a jagged matrix",
+ en:"Write <code>static int[] flatten(int[][] m)</code> that returns all cells of a jagged matrix in one array, row by row, left to right. Count the cells first so the result has exactly the right length.",
+ th:"เขียน <code>static int[] flatten(int[][] m)</code> ที่คืนทุกช่องของเมทริกซ์ขั้นบันไดในอาร์เรย์เดียว ทีละแถวจากซ้ายไปขวา ให้นับจำนวนช่องก่อนเพื่อให้ผลลัพธ์มีความยาวพอดี",
+ ex:"flatten({{1, 2}, {3}, {4, 5, 6}})  →  {1, 2, 3, 4, 5, 6}",
+ sol:"static int[] flatten(int[][] m) {\n    int total = 0;\n    for (int i = 0; i < m.length; i++) total += m[i].length;\n    int[] out = new int[total];\n    int k = 0;\n    for (int i = 0; i < m.length; i++) {\n        for (int j = 0; j < m[i].length; j++) {\n            out[k++] = m[i][j];\n        }\n    }\n    return out;\n}"},
+{lv:"H",t:"Reshape",
+ en:"Write <code>static int[][] reshape(int[] a, int rows, int cols)</code> that lays the values of <code>a</code> into a rows × cols matrix in row-major order. If <code>a.length != rows * cols</code>, return <code>null</code>. Use integer division and remainder to map each index.",
+ th:"เขียน <code>static int[][] reshape(int[] a, int rows, int cols)</code> ที่จัดค่าใน <code>a</code> ลงเมทริกซ์ rows × cols เรียงตามแถว ถ้า <code>a.length != rows * cols</code> ให้คืน <code>null</code> ใช้การหารจำนวนเต็มและเศษเพื่อจับคู่ดัชนี",
+ ex:"reshape({1, 2, 3, 4, 5, 6}, 2, 3)  →  {{1, 2, 3}, {4, 5, 6}}\nreshape({1, 2, 3}, 2, 2)           →  null",
+ sol:"static int[][] reshape(int[] a, int rows, int cols) {\n    if (a.length != rows * cols) return null;\n    int[][] m = new int[rows][cols];\n    for (int k = 0; k < a.length; k++) {\n        m[k / cols][k % cols] = a[k];\n    }\n    return m;\n}"},
+{lv:"M",t:"Scalar multiplication",
+ en:"Write <code>static int[][] scale(int[][] m, int k)</code> that returns a new matrix with every cell multiplied by <code>k</code>. The input must stay unchanged, and jagged input must produce jagged output of the same shape.",
+ th:"เขียน <code>static int[][] scale(int[][] m, int k)</code> ที่คืนเมทริกซ์ใหม่ซึ่งทุกช่องถูกคูณด้วย <code>k</code> อินพุตต้องไม่เปลี่ยน และอินพุตขั้นบันไดต้องให้ผลลัพธ์ขั้นบันไดรูปร่างเดียวกัน",
+ ex:"scale({{1, 2}, {3}}, 10)  →  {{10, 20}, {30}}",
+ sol:"static int[][] scale(int[][] m, int k) {\n    int[][] out = new int[m.length][];\n    for (int i = 0; i < m.length; i++) {\n        out[i] = new int[m[i].length];\n        for (int j = 0; j < m[i].length; j++) {\n            out[i][j] = m[i][j] * k;\n        }\n    }\n    return out;\n}"},
+{lv:"H",t:"Tic-tac-toe winner",
+ en:"A 3 × 3 board holds <code>'X'</code>, <code>'O'</code> or <code>'.'</code>. Write <code>static char winner(char[][] b)</code> that returns <code>'X'</code> or <code>'O'</code> if that player has three in a row (any row, column or either diagonal), and <code>'.'</code> otherwise. Write a helper <code>static boolean line(char[][] b, int r1, int c1, int r2, int c2, int r3, int c3, char p)</code> and call it for all eight lines.",
+ th:"กระดาน 3 × 3 เก็บ <code>'X'</code>, <code>'O'</code> หรือ <code>'.'</code> เขียน <code>static char winner(char[][] b)</code> ที่คืน <code>'X'</code> หรือ <code>'O'</code> ถ้าผู้เล่นนั้นเรียงครบสาม (แถว คอลัมน์ หรือเส้นทแยงมุมใดก็ได้) และคืน <code>'.'</code> ถ้าไม่มี ให้เขียนเมธอดช่วย <code>static boolean line(char[][] b, int r1, int c1, int r2, int c2, int r3, int c3, char p)</code> แล้วเรียกสำหรับทั้งแปดเส้น",
+ ex:"winner({{'X','O','.'}, {'O','X','.'}, {'O','.','X'}})  →  'X'\nwinner({{'X','O','X'}, {'X','O','O'}, {'O','X','X'}})  →  '.'",
+ sol:"static boolean line(char[][] b, int r1, int c1, int r2, int c2, int r3, int c3, char p) {\n    return b[r1][c1] == p && b[r2][c2] == p && b[r3][c3] == p;\n}\n\nstatic char winner(char[][] b) {\n    char[] players = {'X', 'O'};\n    for (int k = 0; k < players.length; k++) {\n        char p = players[k];\n        for (int i = 0; i < 3; i++) {\n            if (line(b, i, 0, i, 1, i, 2, p)) return p;   // row i\n            if (line(b, 0, i, 1, i, 2, i, p)) return p;   // column i\n        }\n        if (line(b, 0, 0, 1, 1, 2, 2, p)) return p;\n        if (line(b, 0, 2, 1, 1, 2, 0, p)) return p;\n    }\n    return '.';\n}"},
+{lv:"M",t:"Triangular multiplication table",
+ en:"Write <code>static int[][] triangleTable(int n)</code> that returns a jagged array with <code>n</code> rows where row <code>i</code> has <code>i + 1</code> cells and cell <code>(i, j)</code> holds <code>(i + 1) * (j + 1)</code>.",
+ th:"เขียน <code>static int[][] triangleTable(int n)</code> ที่คืนอาร์เรย์ขั้นบันได <code>n</code> แถว โดยแถว <code>i</code> มี <code>i + 1</code> ช่อง และช่อง <code>(i, j)</code> เก็บค่า <code>(i + 1) * (j + 1)</code>",
+ ex:"triangleTable(3)  →  {{1}, {2, 4}, {3, 6, 9}}",
+ sol:"static int[][] triangleTable(int n) {\n    int[][] t = new int[n][];\n    for (int i = 0; i < n; i++) {\n        t[i] = new int[i + 1];\n        for (int j = 0; j <= i; j++) {\n            t[i][j] = (i + 1) * (j + 1);\n        }\n    }\n    return t;\n}"},
+{lv:"H",t:"Rotate 180°",
+ en:"Write <code>static int[][] rotate180(int[][] m)</code> that returns a new rectangular matrix equal to <code>m</code> turned upside down (rotated by 180°): the last row reversed becomes the first row, and so on.",
+ th:"เขียน <code>static int[][] rotate180(int[][] m)</code> ที่คืนเมทริกซ์สี่เหลี่ยมใหม่ซึ่งเท่ากับ <code>m</code> หมุน 180°: แถวสุดท้ายที่กลับด้านกลายเป็นแถวแรก และเช่นนี้ต่อไป",
+ ex:"rotate180({{1, 2, 3}, {4, 5, 6}})  →  {{6, 5, 4}, {3, 2, 1}}",
+ sol:"static int[][] rotate180(int[][] m) {\n    int r = m.length, c = m[0].length;\n    int[][] out = new int[r][c];\n    for (int i = 0; i < r; i++) {\n        for (int j = 0; j < c; j++) {\n            out[r - 1 - i][c - 1 - j] = m[i][j];\n        }\n    }\n    return out;\n}"},
+{lv:"M",t:"Matrix addition",
+ en:"Write <code>static int[][] add(int[][] a, int[][] b)</code> that returns the cell-by-cell sum of two rectangular matrices of the same size. Return <code>null</code> if the row counts or column counts differ.",
+ th:"เขียน <code>static int[][] add(int[][] a, int[][] b)</code> ที่คืนผลบวกทีละช่องของเมทริกซ์สี่เหลี่ยมสองตัวที่มีขนาดเท่ากัน คืน <code>null</code> ถ้าจำนวนแถวหรือจำนวนคอลัมน์ต่างกัน",
+ ex:"add({{1, 2}, {3, 4}}, {{10, 20}, {30, 40}})  →  {{11, 22}, {33, 44}}\nadd({{1, 2}}, {{1}, {2}})                    →  null",
+ sol:"static int[][] add(int[][] a, int[][] b) {\n    if (a.length != b.length || a[0].length != b[0].length) return null;\n    int[][] s = new int[a.length][a[0].length];\n    for (int i = 0; i < a.length; i++) {\n        for (int j = 0; j < a[0].length; j++) {\n            s[i][j] = a[i][j] + b[i][j];\n        }\n    }\n    return s;\n}"},
+{lv:"H",t:"Duplicate rows",
+ en:"Write <code>static boolean hasDuplicateRow(int[][] m)</code> that returns true if any two rows contain exactly the same values in the same order. Compare contents, not references; <code>Arrays.equals</code> may be used for a pair of rows. Each pair should be compared only once.",
+ th:"เขียน <code>static boolean hasDuplicateRow(int[][] m)</code> ที่คืน true ถ้ามีสองแถวใดที่มีค่าเหมือนกันทุกตัวในลำดับเดียวกัน ให้เปรียบเทียบเนื้อหา ไม่ใช่การอ้างอิง ใช้ <code>Arrays.equals</code> กับคู่แถวได้ และแต่ละคู่ควรเปรียบเทียบเพียงครั้งเดียว",
+ ex:"hasDuplicateRow({{1, 2}, {3, 4}, {1, 2}})  →  true\nhasDuplicateRow({{1, 2}, {2, 1}})          →  false",
+ sol:"static boolean hasDuplicateRow(int[][] m) {\n    for (int i = 0; i < m.length; i++) {\n        for (int j = i + 1; j < m.length; j++) {\n            if (Arrays.equals(m[i], m[j])) return true;\n        }\n    }\n    return false;\n}"},
+{lv:"M",t:"Row average",
+ en:"Write <code>static double rowAverage(int[][] m, int r)</code> that returns the mean of row <code>r</code> as a double. Be careful to avoid integer division. Return 0 for an empty row.",
+ th:"เขียน <code>static double rowAverage(int[][] m, int r)</code> ที่คืนค่าเฉลี่ยของแถว <code>r</code> เป็น double ระวังการหารจำนวนเต็ม คืน 0 ถ้าแถวว่าง",
+ ex:"rowAverage({{1, 2}, {3, 4, 5}}, 1)  →  4.0\nrowAverage({{1, 2}}, 0)             →  1.5",
+ sol:"static double rowAverage(int[][] m, int r) {\n    if (m[r].length == 0) return 0;\n    int s = 0;\n    for (int j = 0; j < m[r].length; j++) s += m[r][j];\n    return (double) s / m[r].length;\n}"},
+{lv:"H",t:"Submatrix",
+ en:"Write <code>static int[][] submatrix(int[][] m, int r0, int c0, int rows, int cols)</code> that returns a new rows × cols matrix copied from <code>m</code> starting at cell <code>(r0, c0)</code>. If the requested block does not fit inside <code>m</code>, return <code>null</code>.",
+ th:"เขียน <code>static int[][] submatrix(int[][] m, int r0, int c0, int rows, int cols)</code> ที่คืนเมทริกซ์ใหม่ขนาด rows × cols ซึ่งคัดลอกจาก <code>m</code> โดยเริ่มที่ช่อง <code>(r0, c0)</code> ถ้าบล็อกที่ขอไม่พอดีอยู่ใน <code>m</code> ให้คืน <code>null</code>",
+ ex:"m = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}\nsubmatrix(m, 1, 1, 2, 2)  →  {{5, 6}, {8, 9}}\nsubmatrix(m, 2, 0, 2, 2)  →  null",
+ sol:"static int[][] submatrix(int[][] m, int r0, int c0, int rows, int cols) {\n    if (r0 < 0 || c0 < 0 || r0 + rows > m.length || c0 + cols > m[0].length) return null;\n    int[][] out = new int[rows][cols];\n    for (int i = 0; i < rows; i++) {\n        for (int j = 0; j < cols; j++) {\n            out[i][j] = m[r0 + i][c0 + j];\n        }\n    }\n    return out;\n}"},
+{lv:"M",t:"Border sum",
+ en:"Write <code>static int borderSum(int[][] m)</code> that returns the sum of every cell on the outer border of a rectangular matrix (first and last rows, first and last columns), counting each corner only once.",
+ th:"เขียน <code>static int borderSum(int[][] m)</code> ที่คืนผลรวมของทุกช่องบนขอบนอกของเมทริกซ์สี่เหลี่ยม (แถวแรกและแถวสุดท้าย คอลัมน์แรกและคอลัมน์สุดท้าย) โดยนับมุมแต่ละมุมเพียงครั้งเดียว",
+ ex:"borderSum({{1, 2, 3}, {4, 5, 6}, {7, 8, 9}})  →  40   (everything except 5)",
+ sol:"static int borderSum(int[][] m) {\n    int s = 0;\n    for (int i = 0; i < m.length; i++) {\n        for (int j = 0; j < m[i].length; j++) {\n            if (i == 0 || j == 0 || i == m.length - 1 || j == m[i].length - 1) s += m[i][j];\n        }\n    }\n    return s;\n}"},
+{lv:"H",t:"Sort rows by their sum",
+ en:"Write <code>static int[][] sortRowsBySum(int[][] m)</code> that returns a new outer array containing the <b>same row arrays</b> rearranged so that row sums are in ascending order (stable: rows with equal sums keep their original relative order). The original outer array must not change. Write a helper <code>static int rowSum(int[] row)</code>. Do not use <code>Arrays.sort</code>.",
+ th:"เขียน <code>static int[][] sortRowsBySum(int[][] m)</code> ที่คืนอาร์เรย์ชั้นนอกใหม่ซึ่งมี<b>อาร์เรย์แถวเดิม</b>จัดเรียงใหม่ให้ผลรวมแถวเรียงจากน้อยไปมาก (แบบ stable: แถวที่ผลรวมเท่ากันคงลำดับเดิม) อาร์เรย์ชั้นนอกต้นฉบับต้องไม่เปลี่ยน ให้เขียนเมธอดช่วย <code>static int rowSum(int[] row)</code> ห้ามใช้ <code>Arrays.sort</code>",
+ ex:"sortRowsBySum({{5, 5}, {1, 1}, {2, 3}})  →  {{1, 1}, {2, 3}, {5, 5}}",
+ sol:"static int rowSum(int[] row) {\n    int s = 0;\n    for (int j = 0; j < row.length; j++) s += row[j];\n    return s;\n}\n\nstatic int[][] sortRowsBySum(int[][] m) {\n    int[][] out = new int[m.length][];\n    for (int i = 0; i < m.length; i++) out[i] = m[i];\n    // insertion sort on the row references (stable)\n    for (int i = 1; i < out.length; i++) {\n        int[] key = out[i];\n        int j = i - 1;\n        while (j >= 0 && rowSum(out[j]) > rowSum(key)) {\n            out[j + 1] = out[j];\n            j--;\n        }\n        out[j + 1] = key;\n    }\n    return out;\n}"},
+{lv:"M",t:"All rows sorted?",
+ en:"Write <code>static boolean allRowsSorted(int[][] m)</code> that returns true if every row is in non-decreasing order. Empty rows and single-cell rows count as sorted.",
+ th:"เขียน <code>static boolean allRowsSorted(int[][] m)</code> ที่คืน true ถ้าทุกแถวเรียงแบบไม่ลดลง แถวว่างและแถวที่มีช่องเดียวถือว่าเรียงแล้ว",
+ ex:"allRowsSorted({{1, 2, 2}, {5}, {}})  →  true\nallRowsSorted({{1, 2}, {3, 1}})      →  false",
+ sol:"static boolean allRowsSorted(int[][] m) {\n    for (int i = 0; i < m.length; i++) {\n        for (int j = 1; j < m[i].length; j++) {\n            if (m[i][j] < m[i][j - 1]) return false;\n        }\n    }\n    return true;\n}"},
+{lv:"H",t:"Count peaks",
+ en:"A height map is a rectangular <code>int[][]</code>. A cell is a <b>peak</b> when it is strictly greater than each of its existing up/down/left/right neighbours (edge cells simply have fewer neighbours). Write <code>static int countPeaks(int[][] h)</code>.",
+ th:"แผนที่ความสูงเป็น <code>int[][]</code> สี่เหลี่ยม ช่องจะเป็น<b>ยอด</b>เมื่อมีค่ามากกว่าช่องข้างเคียงบน/ล่าง/ซ้าย/ขวาที่มีอยู่ทุกช่องอย่างเคร่งครัด (ช่องริมมีเพื่อนบ้านน้อยกว่า) เขียน <code>static int countPeaks(int[][] h)</code>",
+ ex:"countPeaks({{1, 5, 1}, {2, 3, 2}, {9, 1, 4}})  →  3   (5, 9 and 4)",
+ sol:"static int countPeaks(int[][] h) {\n    int rows = h.length, cols = h[0].length, c = 0;\n    int[] dr = {-1, 1, 0, 0};\n    int[] dc = {0, 0, -1, 1};\n    for (int i = 0; i < rows; i++) {\n        for (int j = 0; j < cols; j++) {\n            boolean peak = true;\n            for (int d = 0; d < 4; d++) {\n                int r = i + dr[d], cc = j + dc[d];\n                if (r >= 0 && r < rows && cc >= 0 && cc < cols && h[r][cc] >= h[i][j]) {\n                    peak = false;\n                    break;\n                }\n            }\n            if (peak) c++;\n        }\n    }\n    return c;\n}"},
+{lv:"M",t:"Column maximums",
+ en:"Write <code>static int[] columnMax(int[][] m)</code> for a rectangular matrix with at least one row, returning the largest value in each column.",
+ th:"เขียน <code>static int[] columnMax(int[][] m)</code> สำหรับเมทริกซ์สี่เหลี่ยมที่มีอย่างน้อยหนึ่งแถว คืนค่าที่มากที่สุดของแต่ละคอลัมน์",
+ ex:"columnMax({{3, 8, 1}, {9, 2, 7}})  →  {9, 8, 7}",
+ sol:"static int[] columnMax(int[][] m) {\n    int[] mx = new int[m[0].length];\n    for (int j = 0; j < m[0].length; j++) {\n        mx[j] = m[0][j];\n        for (int i = 1; i < m.length; i++) {\n            if (m[i][j] > mx[j]) mx[j] = m[i][j];\n        }\n    }\n    return mx;\n}"},
+{lv:"H",t:"Minimum path sum",
+ en:"A robot starts at the top-left of a rectangular grid of costs and must reach the bottom-right moving only <b>right</b> or <b>down</b>. Write <code>static int minPathSum(int[][] g)</code> that returns the smallest possible total cost (the start and end cells are included). Hint: build a table <code>best[i][j]</code> = cheapest cost to reach <code>(i, j)</code>, filling row by row.",
+ th:"หุ่นยนต์เริ่มที่มุมซ้ายบนของตารางต้นทุนสี่เหลี่ยมและต้องไปถึงมุมขวาล่างโดยเดินได้เฉพาะ<b>ขวา</b>หรือ<b>ลง</b> เขียน <code>static int minPathSum(int[][] g)</code> ที่คืนต้นทุนรวมต่ำสุดที่เป็นไปได้ (รวมช่องเริ่มและช่องปลายทาง) คำใบ้: สร้างตาราง <code>best[i][j]</code> = ต้นทุนต่ำสุดในการไปถึง <code>(i, j)</code> โดยเติมทีละแถว",
+ ex:"minPathSum({{1, 3, 1}, {1, 5, 1}, {4, 2, 1}})  →  7   (1→3→1→1→1)",
+ sol:"static int minPathSum(int[][] g) {\n    int rows = g.length, cols = g[0].length;\n    int[][] best = new int[rows][cols];\n    for (int i = 0; i < rows; i++) {\n        for (int j = 0; j < cols; j++) {\n            if (i == 0 && j == 0) best[i][j] = g[i][j];\n            else if (i == 0) best[i][j] = best[i][j - 1] + g[i][j];\n            else if (j == 0) best[i][j] = best[i - 1][j] + g[i][j];\n            else best[i][j] = Math.min(best[i - 1][j], best[i][j - 1]) + g[i][j];\n        }\n    }\n    return best[rows - 1][cols - 1];\n}"},
+{lv:"M",t:"Grid to text",
+ en:"Write <code>static String toText(char[][] g)</code> that joins every row of a character grid into one line and separates lines with <code>\"\\n\"</code>, with no trailing newline after the last row.",
+ th:"เขียน <code>static String toText(char[][] g)</code> ที่ต่อทุกแถวของตารางตัวอักษรเป็นหนึ่งบรรทัดและคั่นบรรทัดด้วย <code>\"\\n\"</code> โดยไม่มีขึ้นบรรทัดใหม่ต่อท้ายแถวสุดท้าย",
+ ex:"toText({{'#', '.'}, {'.', '#'}})  →  \"#.\\n.#\"",
+ sol:"static String toText(char[][] g) {\n    String s = \"\";\n    for (int i = 0; i < g.length; i++) {\n        if (i > 0) s += \"\\n\";\n        for (int j = 0; j < g[i].length; j++) s += g[i][j];\n    }\n    return s;\n}"},
+{lv:"H",t:"Game of Life step",
+ en:"Conway's Game of Life on a rectangular <code>int[][]</code> (1 = alive, 0 = dead). Write <code>static int[][] step(int[][] g)</code> that returns the <b>next</b> generation without modifying <code>g</code>: a live cell with 2 or 3 live neighbours (8-neighbourhood) stays alive, a dead cell with exactly 3 live neighbours becomes alive, everything else is dead. Write a helper <code>static int liveNeighbours(int[][] g, int r, int c)</code>.",
+ th:"เกมชีวิตของ Conway บน <code>int[][]</code> สี่เหลี่ยม (1 = มีชีวิต, 0 = ตาย) เขียน <code>static int[][] step(int[][] g)</code> ที่คืนรุ่น<b>ถัดไป</b>โดยไม่แก้ <code>g</code>: ช่องมีชีวิตที่มีเพื่อนบ้านมีชีวิต 2 หรือ 3 ช่อง (นับ 8 ทิศ) ยังมีชีวิต ช่องตายที่มีเพื่อนบ้านมีชีวิต 3 ช่องพอดีจะเกิด นอกนั้นตาย ให้เขียนเมธอดช่วย <code>static int liveNeighbours(int[][] g, int r, int c)</code>",
+ ex:"step({{0, 1, 0}, {0, 1, 0}, {0, 1, 0}})  →  {{0, 0, 0}, {1, 1, 1}, {0, 0, 0}}   (blinker)",
+ sol:"static int liveNeighbours(int[][] g, int r, int c) {\n    int n = 0;\n    for (int dr = -1; dr <= 1; dr++) {\n        for (int dc = -1; dc <= 1; dc++) {\n            if (dr == 0 && dc == 0) continue;\n            int rr = r + dr, cc = c + dc;\n            if (rr >= 0 && rr < g.length && cc >= 0 && cc < g[0].length) n += g[rr][cc];\n        }\n    }\n    return n;\n}\n\nstatic int[][] step(int[][] g) {\n    int rows = g.length, cols = g[0].length;\n    int[][] next = new int[rows][cols];\n    for (int i = 0; i < rows; i++) {\n        for (int j = 0; j < cols; j++) {\n            int n = liveNeighbours(g, i, j);\n            if (g[i][j] == 1 && (n == 2 || n == 3)) next[i][j] = 1;\n            else if (g[i][j] == 0 && n == 3) next[i][j] = 1;\n        }\n    }\n    return next;\n}"},
+{lv:"M",t:"Both diagonals",
+ en:"Write <code>static int[] diagonals(int[][] m)</code> for a square n × n matrix that returns a 2-element array <code>{mainDiagonalSum, antiDiagonalSum}</code>. For odd <code>n</code> the centre cell belongs to both sums.",
+ th:"เขียน <code>static int[] diagonals(int[][] m)</code> สำหรับเมทริกซ์จัตุรัส n × n ที่คืนอาร์เรย์ 2 ช่อง <code>{ผลรวมทแยงหลัก, ผลรวมทแยงรอง}</code> ถ้า <code>n</code> เป็นเลขคี่ ช่องกลางนับในทั้งสองผลรวม",
+ ex:"diagonals({{1, 2, 3}, {4, 5, 6}, {7, 8, 9}})  →  {15, 15}\ndiagonals({{1, 2}, {3, 4}})                   →  {5, 5}",
+ sol:"static int[] diagonals(int[][] m) {\n    int n = m.length, d1 = 0, d2 = 0;\n    for (int i = 0; i < n; i++) {\n        d1 += m[i][i];\n        d2 += m[i][n - 1 - i];\n    }\n    return new int[]{d1, d2};\n}"},
+{lv:"H",t:"Latin square",
+ en:"An n × n grid is a <b>Latin square</b> if every row and every column contains each of the numbers 1..n exactly once (like a solved Sudoku without boxes). Write <code>static boolean isLatinSquare(int[][] m)</code>. Use a <code>boolean[] seen</code> of size n + 1 for each row and each column, and reject any value outside 1..n.",
+ th:"ตาราง n × n เป็น<b>จัตุรัสละติน</b>ถ้าทุกแถวและทุกคอลัมน์มีตัวเลข 1..n ครบแต่ละตัวเพียงครั้งเดียว (เหมือนซูโดกุที่ไม่มีกล่อง) เขียน <code>static boolean isLatinSquare(int[][] m)</code> ใช้ <code>boolean[] seen</code> ขนาด n + 1 สำหรับแต่ละแถวและแต่ละคอลัมน์ และปฏิเสธค่าที่อยู่นอก 1..n",
+ ex:"isLatinSquare({{1, 2, 3}, {2, 3, 1}, {3, 1, 2}})  →  true\nisLatinSquare({{1, 2}, {1, 2}})                  →  false",
+ sol:"static boolean isLatinSquare(int[][] m) {\n    int n = m.length;\n    for (int i = 0; i < n; i++) {\n        boolean[] seenRow = new boolean[n + 1];\n        boolean[] seenCol = new boolean[n + 1];\n        for (int j = 0; j < n; j++) {\n            int r = m[i][j], c = m[j][i];\n            if (r < 1 || r > n || seenRow[r]) return false;\n            if (c < 1 || c > n || seenCol[c]) return false;\n            seenRow[r] = true;\n            seenCol[c] = true;\n        }\n    }\n    return true;\n}"},
+{lv:"M",t:"Parse a matrix from text",
+ en:"A matrix is written as text with <code>;</code> between rows and <code>,</code> between values, e.g. <code>\"1,2,3;4,5,6\"</code>. Write <code>static int[][] parse(String s)</code> that returns the jagged matrix. Use <code>String.split</code> and <code>Integer.parseInt</code>.",
+ th:"เมทริกซ์ถูกเขียนเป็นข้อความโดยใช้ <code>;</code> คั่นแถวและ <code>,</code> คั่นค่า เช่น <code>\"1,2,3;4,5,6\"</code> เขียน <code>static int[][] parse(String s)</code> ที่คืนเมทริกซ์ขั้นบันได ใช้ <code>String.split</code> และ <code>Integer.parseInt</code>",
+ ex:"parse(\"1,2,3;4,5\")  →  {{1, 2, 3}, {4, 5}}",
+ sol:"static int[][] parse(String s) {\n    String[] rows = s.split(\";\");\n    int[][] m = new int[rows.length][];\n    for (int i = 0; i < rows.length; i++) {\n        String[] cells = rows[i].split(\",\");\n        m[i] = new int[cells.length];\n        for (int j = 0; j < cells.length; j++) {\n            m[i][j] = Integer.parseInt(cells[j].trim());\n        }\n    }\n    return m;\n}"}
+];
+
+
+const KEY='java-mock-exam-set2';
+let state={mcq:{},fill:{},code:{},done:{},tab:'mcq'};
+try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&typeof s==='object')state=Object.assign(state,s);}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function h(tag,attrs,...kids){const el=document.createElement(tag);for(const k in attrs||{}){if(k==='html')el.innerHTML=attrs[k];else if(k.startsWith('on'))el.addEventListener(k.slice(2),attrs[k]);else el.setAttribute(k,attrs[k]);}
+  for(const c of kids){if(c==null)continue;el.append(c.nodeType?c:document.createTextNode(c));}return el;}
+function lv(q){if(!q.lv)return null;return h('span',{class:'lv '+q.lv,title:q.lv==='H'?'Hard · ยาก':'Medium · ปานกลาง'},q.lv==='H'?'HARD':'MED');}
+function shuffled(n,seed){const idx=[...Array(n).keys()];let s=seed*2654435761%4294967296+12345;for(let i=n-1;i>0;i--){s=(s*1103515245+12345)%2147483648;const j=s%(i+1);[idx[i],idx[j]]=[idx[j],idx[i]];}return idx;}
+const LET='ABCD';
+
+// ---------- Part 1: MCQ ----------
+const mcqEls=[];
+MCQ.forEach((q,i)=>{
+  const order=shuffled(q.opts.length,i+7);
+  const card=h('div',{class:'q',id:'mcq-'+(i+1)});
+  card.append(h('div',{class:'qh'},h('div',{class:'num'},String(i+1)),h('div',{class:'qt'},h('div',{class:'en',html:q.en}),h('div',{class:'th',html:q.th})),lv(q)));
+  if(q.code)card.append(h('pre',{},q.code));
+  const opts=h('div',{class:'opts'});
+  order.forEach((oi,k)=>{
+    const id=`m${i}o${oi}`;
+    const inp=h('input',{type:'radio',name:'m'+i,id,value:String(oi)});
+    if(state.mcq[i]===oi)inp.checked=true;
+    inp.addEventListener('change',()=>{state.mcq[i]=oi;save();});
+    opts.append(h('label',{class:'opt',for:id},inp,h('span',{class:'k'},LET[k]),h('code',{},q.opts[oi])));
+  });
+  card.append(opts);
+  const fb=h('span',{class:'fb'});const exp=h('div',{class:'exp',html:q.exp});exp.hidden=true;
+  const foot=h('div',{class:'foot'},h('button',{class:'btn',type:'button',onclick:()=>checkMcq(i,true)},'Check · ตรวจ'),fb);
+  card.append(foot,exp);
+  mcqEls.push({card,opts,fb,exp,order});
+  document.getElementById('list-mcq').append(card);
+});
+function checkMcq(i,reveal){
+  const q=MCQ[i],e=mcqEls[i],sel=state.mcq[i];
+  e.opts.querySelectorAll('.opt').forEach(o=>o.classList.remove('ok','bad'));
+  e.card.classList.remove('ok','bad');
+  if(sel===undefined&&!reveal){e.fb.className='fb';e.fb.textContent='';return null;}
+  const labels=e.opts.querySelectorAll('.opt');
+  labels.forEach(l=>{const v=+l.querySelector('input').value;if(v===q.ans)l.classList.add('ok');else if(v===sel)l.classList.add('bad');});
+  const ok=sel===q.ans;
+  e.card.classList.add(ok?'ok':'bad');
+  e.fb.className='fb '+(ok?'ok':'bad');
+  e.fb.textContent=sel===undefined?'Not answered · ยังไม่ได้ตอบ':ok?'Correct · ถูกต้อง':'Incorrect · ไม่ถูกต้อง';
+  e.exp.hidden=false;
+  updateScore();
+  return ok;
+}
+
+// ---------- Part 3: Fill ----------
+const fillEls=[];
+function norm(s){return s.replace(/\s+/g,'').toLowerCase();}
+FILL.forEach((q,i)=>{
+  const card=h('div',{class:'q',id:'fill-'+(i+1)});
+  card.append(h('div',{class:'qh'},h('div',{class:'num'},String(i+1)),h('div',{class:'qt'},h('div',{class:'en',html:q.en}),h('div',{class:'th',html:q.th})),lv(q)));
+  const pre=h('pre');
+  const parts=q.code.split('____');
+  let inp;
+  parts.forEach((p,k)=>{pre.append(p);if(k<parts.length-1){inp=h('input',{class:'blank',type:'text',id:'f'+i,autocomplete:'off',spellcheck:'false','aria-label':'blank '+(i+1)});
+    inp.value=state.fill[i]||'';inp.addEventListener('input',()=>{state.fill[i]=inp.value;save();inp.classList.remove('ok','bad');});
+    inp.addEventListener('keydown',ev=>{if(ev.key==='Enter')checkFill(i,true);});pre.append(inp);}});
+  card.append(pre);
+  const fb=h('span',{class:'fb'});const ans=h('div',{class:'exp'});ans.hidden=true;
+  ans.innerHTML='Answer · เฉลย: '+q.acc.map(a=>'<code>'+esc(a)+'</code>').join(' or ');
+  card.append(h('div',{class:'foot'},h('button',{class:'btn',type:'button',onclick:()=>checkFill(i,true)},'Check · ตรวจ'),fb),ans);
+  fillEls.push({card,inp,fb,ans});
+  document.getElementById('list-fill').append(card);
+});
+function checkFill(i,reveal){
+  const q=FILL[i],e=fillEls[i],v=state.fill[i]||'';
+  const ok=v.trim()!==''&&q.acc.some(a=>norm(a)===norm(v));
+  e.inp.classList.remove('ok','bad');e.card.classList.remove('ok','bad');
+  if(!reveal&&v.trim()==='')return null;
+  e.inp.classList.add(ok?'ok':'bad');e.card.classList.add(ok?'ok':'bad');
+  e.fb.className='fb '+(ok?'ok':'bad');
+  e.fb.textContent=v.trim()===''?'Not answered · ยังไม่ได้ตอบ':ok?'Correct · ถูกต้อง':'Incorrect · ไม่ถูกต้อง';
+  e.ans.hidden=ok;
+  updateScore();
+  return ok;
+}
+
+// ---------- Part 2: Code ----------
+const codeEls=[];
+CODE.forEach((q,i)=>{
+  const card=h('div',{class:'q',id:'code-'+(i+1)});
+  card.append(h('div',{class:'qh'},h('div',{class:'num'},String(i+1)),h('div',{class:'qt'},h('div',{class:'title'},q.t),h('div',{class:'en',html:q.en}),h('div',{class:'th',html:q.th})),lv(q)));
+  card.append(h('div',{class:'ex',html:'Examples · ตัวอย่าง:<br><code>'+esc(q.ex)+'</code>'}));
+  const ta=h('textarea',{id:'c'+i,placeholder:'// Write your Java code here · เขียนโค้ด Java ที่นี่',spellcheck:'false'});
+  ta.value=state.code[i]||'';ta.addEventListener('input',()=>{state.code[i]=ta.value;save();});
+  ta.addEventListener('keydown',ev=>{if(ev.key==='Tab'){ev.preventDefault();const s=ta.selectionStart;ta.setRangeText('    ',s,ta.selectionEnd,'end');ta.dispatchEvent(new Event('input'));}});
+  card.append(ta);
+  const sol=h('div',{class:'sol'},h('div',{class:'lbl'},'Model answer · เฉลย'),h('pre',{},q.sol));sol.hidden=true;
+  const btn=h('button',{class:'btn',type:'button'},'Show model answer · ดูเฉลย');
+  btn.addEventListener('click',()=>{sol.hidden=!sol.hidden;btn.textContent=sol.hidden?'Show model answer · ดูเฉลย':'Hide model answer · ซ่อนเฉลย';});
+  const chk=h('input',{type:'checkbox',id:'d'+i});chk.checked=!!state.done[i];
+  chk.addEventListener('change',()=>{state.done[i]=chk.checked;card.classList.toggle('ok',chk.checked);save();updateScore();});
+  card.classList.toggle('ok',chk.checked);
+  card.append(h('div',{class:'foot'},btn,h('label',{class:'done',for:'d'+i},chk,'Done · ทำได้แล้ว')),sol);
+  codeEls.push({card,sol,btn});
+  document.getElementById('list-code').append(card);
+});
+
+// ---------- Scoring, tabs, bulk actions ----------
+function updateScore(){
+  const m=MCQ.reduce((n,q,i)=>n+(state.mcq[i]===q.ans?1:0),0);
+  const f=FILL.reduce((n,q,i)=>n+((state.fill[i]||'').trim()&&q.acc.some(a=>norm(a)===norm(state.fill[i]))?1:0),0);
+  const c=CODE.reduce((n,q,i)=>n+(state.done[i]?1:0),0);
+  document.getElementById('n-mcq').textContent=m+'/30';
+  document.getElementById('n-fill').textContent=f+'/30';
+  document.getElementById('n-code').textContent=c+'/30';
+  document.getElementById('total').innerHTML=(m+f+c)+'<small>/90</small>';
+  return {m,f,c};
+}
+function showTab(p){
+  state.tab=p;save();
+  document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.part===p?'true':'false'));
+  document.querySelectorAll('.part').forEach(s=>s.classList.toggle('active',s.id==='part-'+p));
+}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{showTab(t.dataset.part);window.scrollTo({top:0});}));
+document.querySelectorAll('[data-checkall]').forEach(b=>b.addEventListener('click',()=>{
+  const p=b.dataset.checkall,arr=p==='mcq'?MCQ:FILL,fn=p==='mcq'?checkMcq:checkFill;
+  let ok=0,ans=0;arr.forEach((q,i)=>{const r=fn(i,true);if(r)ok++;if(p==='mcq'?state.mcq[i]!==undefined:(state.fill[i]||'').trim())ans++;});
+  const res=document.getElementById('res-'+p);
+  res.innerHTML=`<b>${ok} / ${arr.length}</b> correct · ตอบถูก ${ok} จาก ${arr.length} ข้อ (${ans} answered · ตอบแล้ว ${ans} ข้อ)`;
+  res.classList.add('show');updateScore();res.scrollIntoView({block:'nearest'});
+}));
+document.querySelectorAll('[data-showall]').forEach(b=>b.addEventListener('click',()=>{
+  const p=b.dataset.showall;
+  if(p==='mcq')MCQ.forEach((q,i)=>checkMcq(i,true));
+  else if(p==='fill')FILL.forEach((q,i)=>{checkFill(i,true);fillEls[i].ans.hidden=false;});
+  else codeEls.forEach(e=>{e.sol.hidden=false;e.btn.textContent='Hide model answer · ซ่อนเฉลย';});
+  updateScore();
+}));
+document.getElementById('reset').addEventListener('click',()=>{
+  const btn=document.getElementById('reset');
+  if(btn.dataset.arm!=='1'){btn.dataset.arm='1';btn.textContent='Press again to clear everything · กดอีกครั้งเพื่อล้างทั้งหมด';setTimeout(()=>{btn.dataset.arm='';btn.textContent='Reset · เริ่มใหม่';},4000);return;}
+  state={mcq:{},fill:{},code:{},done:{},tab:state.tab};save();location.reload();
+});
+const hashTab=(location.hash||'').slice(1);
+showTab(['mcq','code','fill'].includes(hashTab)?hashTab:(state.tab||'mcq'));
+updateScore();
+</script>

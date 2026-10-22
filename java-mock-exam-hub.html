@@ -1,0 +1,96 @@
+<title>Java Mock Exam Hub</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Sarabun:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one column (max 760px), a short intro, then one row-card per exam set */
+:root{
+  --bg:#f3f5f2; --surface:#ffffff; --fg:#1b2129; --muted:#5c6670; --line:#d7dcd9;
+  --accent:#1f5f6b; --accent-fg:#ffffff; --accent-soft:#e3eef0;
+  --font-ui:"IBM Plex Sans Thai","Sarabun",system-ui,sans-serif;
+  --font-body:"Sarabun","IBM Plex Sans Thai",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#14191d; --surface:#1d2429; --fg:#e6eaec; --muted:#9aa5ad; --line:#323c43;
+  --accent:#63b8c6; --accent-fg:#0f1a1d; --accent-soft:#1f3337; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#14191d; --surface:#1d2429; --fg:#e6eaec; --muted:#9aa5ad; --line:#323c43;
+  --accent:#63b8c6; --accent-fg:#0f1a1d; --accent-soft:#1f3337; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+.wrap{max-width:760px;margin:0 auto}
+h1,h2{font-family:var(--font-ui);text-wrap:balance;margin:0}
+.eyebrow{font-family:var(--font-ui);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font-size:clamp(1.5rem,4vw,2.1rem);font-weight:700;line-height:1.2;margin-top:4px}
+.sub{color:var(--muted);margin-top:6px;max-width:62ch}
+.note{margin-top:14px;padding:10px 14px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 6px 6px 0;font-size:.92rem}
+h2{font-size:1.1rem;margin-top:28px;margin-bottom:10px}
+.list{display:grid;gap:10px}
+a.card{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);
+  border-radius:10px;padding:14px 16px;color:inherit;text-decoration:none}
+a.card:hover,a.card:focus-visible{border-color:var(--accent);outline:none}
+a.card:focus-visible{box-shadow:0 0 0 2px var(--accent)}
+.num{font-family:var(--font-mono);font-weight:600;color:var(--accent);font-size:.95rem;min-width:3.2em;font-variant-numeric:tabular-nums}
+.t{font-family:var(--font-ui);font-weight:600;font-size:1.02rem}
+.d{color:var(--muted);font-size:.92rem;min-width:0}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.tag{font-family:var(--font-ui);font-size:.7rem;font-weight:700;letter-spacing:.06em;border:1px solid var(--line);border-radius:4px;padding:1px 6px;color:var(--muted);white-space:nowrap}
+.tag.h{border-color:var(--accent);color:var(--accent)}
+.go{font-family:var(--font-ui);font-weight:600;font-size:.88rem;color:var(--accent);white-space:nowrap}
+.foot{margin-top:28px;color:var(--muted);font-size:.9rem}
+@media (max-width:480px){a.card{grid-template-columns:auto 1fr}.go{display:none}}
+</style>
+
+<div class="wrap">
+  <div class="eyebrow">Java Programming · Arrays &amp; Methods · แบบทดสอบจำลอง</div>
+  <h1>Java Mock Exam Hub</h1>
+  <p class="sub">All exam sets in one place. Each set has 90 questions: 30 multiple choice, 30 write-the-code and 30 fill-in-the-blank, in Thai and English, with instant checking and model answers.<br>รวมข้อสอบทุกชุด แต่ละชุดมี 90 ข้อ: ปรนัย 30, เขียนโปรแกรม 30, เติมคำ 30 ภาษาไทย+อังกฤษ ตรวจคำตอบได้ทันทีพร้อมเฉลย</p>
+  <div class="note">Each set opens in a new tab and keeps its own score in your browser. · แต่ละชุดเปิดในแท็บใหม่ และเก็บคะแนนแยกกันในเบราว์เซอร์ของคุณ</div>
+
+  <h2>Mixed medium + hard · ผสมปานกลางและยาก</h2>
+  <div class="list">
+    <a class="card" href="java-mock-exam-set1.html" target="_blank" rel="noopener">
+      <span class="num">Set 1</span>
+      <span><span class="t">1D arrays &amp; method design · อาร์เรย์ 1 มิติและการออกแบบเมธอด</span>
+        <span class="d" style="display:block">Searching, counting, copy vs alias, pass-by-value, off-by-one traps, Arrays utilities</span>
+        <span class="tags"><span class="tag">MED</span><span class="tag h">HARD</span><span class="tag">90 Q</span></span></span>
+      <span class="go">Open →</span></a>
+    <a class="card" href="java-mock-exam-set2.html" target="_blank" rel="noopener">
+      <span class="num">Set 2</span>
+      <span><span class="t">2D arrays &amp; matrices · อาร์เรย์ 2 มิติและเมทริกซ์</span>
+        <span class="d" style="display:block">Jagged arrays, diagonals, borders, 8-neighbour counts, game boards, deep vs shallow copy</span>
+        <span class="tags"><span class="tag">MED</span><span class="tag h">HARD</span><span class="tag">90 Q</span></span></span>
+      <span class="go">Open →</span></a>
+    <a class="card" href="java-mock-exam-set3.html" target="_blank" rel="noopener">
+      <span class="num">Set 3</span>
+      <span><span class="t">Methods in depth &amp; array types · เมธอดเชิงลึกและอาร์เรย์ชนิดต่าง ๆ</span>
+        <span class="d" style="display:block">Overloading, varargs, static vs instance, scope, String/char/double/boolean arrays, parallel arrays</span>
+        <span class="tags"><span class="tag">MED</span><span class="tag h">HARD</span><span class="tag">90 Q</span></span></span>
+      <span class="go">Open →</span></a>
+    <a class="card" href="java-mock-exam-set4.html" target="_blank" rel="noopener">
+      <span class="num">Set 4</span>
+      <span><span class="t">Recursion &amp; classic algorithms · การเรียกซ้ำและอัลกอริทึมคลาสสิก</span>
+        <span class="d" style="display:block">Recursive traversal, merge sort, binary search variants, two-pointer, prefix sums, DP tables, permutations</span>
+        <span class="tags"><span class="tag">MED</span><span class="tag h">HARD</span><span class="tag">90 Q</span></span></span>
+      <span class="go">Open →</span></a>
+    <a class="card" href="java-mock-exam-set5.html" target="_blank" rel="noopener">
+      <span class="num">Set 5</span>
+      <span><span class="t">Applied data processing · การประมวลผลข้อมูลเชิงประยุกต์</span>
+        <span class="d" style="display:block">Grade books, attendance, inventory, sensor readings, queues, int[][] image ops, statistics, edge cases</span>
+        <span class="tags"><span class="tag">MED</span><span class="tag h">HARD</span><span class="tag">90 Q</span></span></span>
+      <span class="go">Open →</span></a>
+  </div>
+
+  <h2>Hard · ยาก</h2>
+  <div class="list">
+    <a class="card" href="java-arrays-methods-mock-exam.html" target="_blank" rel="noopener">
+      <span class="num">Set 0</span>
+      <span><span class="t">Arrays &amp; Methods · Intermediate</span>
+        <span class="d" style="display:block">Code tracing, aliasing, overload resolution, recursion, matrices, sorting and searching</span>
+        <span class="tags"><span class="tag h">HARD</span><span class="tag">90 Q</span></span></span>
+      <span class="go">Open →</span></a>
+  </div>
+
+  <p class="foot">Students can open a set only after it has been shared with them. · นักศึกษาจะเปิดชุดข้อสอบได้เมื่อแชร์ให้แล้วเท่านั้น</p>
+</div>

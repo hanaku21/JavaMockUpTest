@@ -1,0 +1,687 @@
+<title>Java Arrays & Methods Set 4</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Sarabun:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a sticky score bar, three part tabs, one column of question cards (max 760px) */
+:root{
+  --bg:#f3f5f2; --surface:#ffffff; --fg:#1b2129; --muted:#5c6670; --line:#d7dcd9;
+  --accent:#1f5f6b; --accent-fg:#ffffff; --accent-soft:#e3eef0;
+  --ok:#1d7a4a; --ok-soft:#e1f2e7; --bad:#b4372f; --bad-soft:#f9e4e1;
+  --code-bg:#eef1ee; --code-fg:#1b2129; --blank-bg:#fff7d6;
+  --font-ui:"IBM Plex Sans Thai","Sarabun",system-ui,sans-serif;
+  --font-body:"Sarabun","IBM Plex Sans Thai",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#14191d; --surface:#1d2429; --fg:#e6eaec; --muted:#9aa5ad; --line:#323c43;
+  --accent:#63b8c6; --accent-fg:#0f1a1d; --accent-soft:#1f3337;
+  --ok:#5fcf8c; --ok-soft:#1b3326; --bad:#ef8a80; --bad-soft:#3b2220;
+  --code-bg:#0f1416; --code-fg:#e6eaec; --blank-bg:#3a3415; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#14191d; --surface:#1d2429; --fg:#e6eaec; --muted:#9aa5ad; --line:#323c43;
+  --accent:#63b8c6; --accent-fg:#0f1a1d; --accent-soft:#1f3337;
+  --ok:#5fcf8c; --ok-soft:#1b3326; --bad:#ef8a80; --bad-soft:#3b2220;
+  --code-bg:#0f1416; --code-fg:#e6eaec; --blank-bg:#3a3415; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+h1,h2,h3{font-family:var(--font-ui);text-wrap:balance;margin:0}
+code,pre,textarea,input.blank{font-family:var(--font-mono)}
+code{font-size:.92em;background:var(--code-bg);color:var(--code-fg);padding:.05em .35em;border-radius:4px}
+.wrap{max-width:760px;margin:0 auto}
+header.top{padding-block:28px 12px}
+.eyebrow{font-family:var(--font-ui);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font-size:clamp(1.5rem,4vw,2.1rem);font-weight:700;line-height:1.2;margin-top:4px}
+.sub{color:var(--muted);margin-top:6px;max-width:60ch}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:18px}
+.rule{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--surface);font-size:.92rem}
+.rule b{font-family:var(--font-ui);display:block}
+.rule span{color:var(--muted)}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding-block:10px}
+.bar .wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tabs{display:flex;gap:4px;flex:1 1 auto;min-width:0}
+.tab{font-family:var(--font-ui);font-weight:600;font-size:.9rem;border:1px solid var(--line);background:var(--surface);color:var(--fg);
+  border-radius:999px;padding:6px 14px;cursor:pointer;display:flex;gap:8px;align-items:center;white-space:nowrap}
+.tab[aria-selected="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.tab .n{font-variant-numeric:tabular-nums;font-weight:500;opacity:.85}
+.total{font-family:var(--font-ui);font-weight:600;font-variant-numeric:tabular-nums;margin-left:auto}
+.total small{color:var(--muted);font-weight:500}
+.btn{font-family:var(--font-ui);font-weight:600;font-size:.88rem;border:1px solid var(--line);background:var(--surface);color:var(--fg);
+  border-radius:6px;padding:7px 12px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.btn.ghost{background:transparent}
+.btn:focus-visible,.tab:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+section.part{display:none;padding-block:18px}
+section.part.active{display:block}
+.part-head{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px}
+.part-head h2{font-size:1.25rem}
+.part-head p{margin:2px 0 0;color:var(--muted);font-size:.95rem}
+.part-head .actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+
+.q{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:12px}
+.q.ok{border-color:var(--ok)} .q.bad{border-color:var(--bad)}
+.qh{display:flex;gap:10px;align-items:baseline}
+.num{font-family:var(--font-ui);font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;min-width:2.2em}
+.qt{flex:1;min-width:0}
+.qt .en{font-weight:500}
+.qt .th{color:var(--muted);font-size:.95rem}
+.qt .title{font-family:var(--font-ui);font-weight:600;font-size:1.05rem}
+.lv{font-family:var(--font-ui);font-size:.7rem;font-weight:700;letter-spacing:.06em;border-radius:4px;padding:1px 6px;align-self:center;white-space:nowrap;border:1px solid var(--line);color:var(--muted)}
+.lv.H{border-color:var(--accent);color:var(--accent)}
+pre{background:var(--code-bg);color:var(--code-fg);border-radius:8px;padding:12px 14px;margin:10px 0 0;overflow-x:auto;font-size:.88rem;line-height:1.5;tab-size:4}
+input.blank{background:var(--blank-bg);color:var(--code-fg);border:1px solid var(--line);border-bottom:2px solid var(--accent);border-radius:4px;
+  font-size:inherit;padding:1px 6px;width:14ch;max-width:100%;margin:0 2px}
+input.blank.ok{border-color:var(--ok);background:var(--ok-soft)} input.blank.bad{border-color:var(--bad);background:var(--bad-soft)}
+.opts{display:grid;gap:6px;margin-top:10px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:8px 10px;cursor:pointer}
+.opt:hover{border-color:var(--accent)}
+.opt input{margin-top:4px;accent-color:var(--accent)}
+.opt .k{font-family:var(--font-ui);font-weight:600;color:var(--muted);min-width:1.2em}
+.opt code{background:transparent;padding:0;font-size:.9em}
+.opt.ok{border-color:var(--ok);background:var(--ok-soft)} .opt.bad{border-color:var(--bad);background:var(--bad-soft)}
+.foot{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.fb{font-family:var(--font-ui);font-weight:600;font-size:.9rem}
+.fb.ok{color:var(--ok)} .fb.bad{color:var(--bad)}
+.exp{margin-top:8px;padding:8px 12px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 6px 6px 0;font-size:.92rem}
+.ex{margin-top:8px;font-size:.9rem;color:var(--muted)}
+.ex code{white-space:pre-wrap}
+textarea{width:100%;min-height:150px;margin-top:10px;background:var(--code-bg);color:var(--code-fg);border:1px solid var(--line);border-radius:8px;
+  padding:10px 12px;font-size:.88rem;line-height:1.5;resize:vertical;tab-size:4}
+.sol{margin-top:10px}
+.sol .lbl{font-family:var(--font-ui);font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.done{display:flex;gap:8px;align-items:center;font-family:var(--font-ui);font-weight:600;font-size:.9rem;cursor:pointer}
+.done input{accent-color:var(--ok);width:16px;height:16px}
+.result{margin-top:16px;padding:14px 16px;border-radius:10px;background:var(--accent-soft);border:1px solid var(--accent);display:none}
+.result.show{display:block}
+.result b{font-family:var(--font-ui);font-size:1.1rem}
+@media (prefers-reduced-motion:no-preference){.q{transition:border-color .2s}}
+@media (max-width:480px){.tab{padding:6px 10px;font-size:.84rem}.q{padding:14px}}
+</style>
+
+<header class="top wrap">
+  <div class="eyebrow">Java Programming · Mock Exam Set 4 · ชุดที่ 4 · Medium + Hard</div>
+  <h1>Arrays &amp; Methods · Set 4</h1>
+  <p class="sub">90 questions in three parts, mixed medium and hard (each question is tagged MED or HARD). Focus of this set: Recursion & classic algorithms. Answers are checked on the page and every question keeps its model solution.<br>90 ข้อ 3 ส่วน ผสมระดับปานกลางและยาก (แต่ละข้อมีป้าย MED/HARD) จุดเน้นของชุดนี้: การเรียกซ้ำและอัลกอริทึมคลาสสิก ตรวจคำตอบได้ทันที และทุกข้อมีเฉลย</p>
+  <div class="rules">
+    <div class="rule"><b>Part 1 · Multiple choice</b><span>30 × 1 point · ปรนัย 30 ข้อ</span></div>
+    <div class="rule"><b>Part 2 · Write the code</b><span>30 tasks, self-marked · เขียนโปรแกรม 30 ข้อ</span></div>
+    <div class="rule"><b>Part 3 · Fill in the blank</b><span>30 × 1 point · เติมคำ 30 ข้อ</span></div>
+  </div>
+</header>
+
+<div class="bar"><div class="wrap">
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-mcq" data-part="mcq" aria-selected="true">Part 1 <span class="n" id="n-mcq">0/30</span></button>
+    <button class="tab" role="tab" id="tab-code" data-part="code" aria-selected="false">Part 2 <span class="n" id="n-code">0/30</span></button>
+    <button class="tab" role="tab" id="tab-fill" data-part="fill" aria-selected="false">Part 3 <span class="n" id="n-fill">0/30</span></button>
+  </div>
+  <div class="total" id="total">0<small>/90</small></div>
+  <button class="btn ghost" id="reset" type="button">Reset · เริ่มใหม่</button>
+</div></div>
+
+<main class="wrap">
+  <section class="part active" id="part-mcq">
+    <div class="part-head"><div><h2>Part 1 · Multiple choice · ปรนัย</h2><p>Choose one answer, then press Check. · เลือกคำตอบหนึ่งข้อ แล้วกด ตรวจ</p></div>
+      <div class="actions"><button class="btn primary" type="button" data-checkall="mcq">Check all · ตรวจทั้งหมด</button><button class="btn" type="button" data-showall="mcq">Show answers · เฉลย</button></div></div>
+    <div id="list-mcq"></div>
+    <div class="result" id="res-mcq"></div>
+  </section>
+  <section class="part" id="part-code">
+    <div class="part-head"><div><h2>Part 2 · Write the code · เขียนโปรแกรม</h2><p>Write each method in the box, compare with the model answer, then tick Done. · เขียนเมธอดในช่อง เทียบกับเฉลย แล้วติ๊ก ทำได้แล้ว</p></div>
+      <div class="actions"><button class="btn" type="button" data-showall="code">Show all answers · เฉลยทั้งหมด</button></div></div>
+    <div id="list-code"></div>
+  </section>
+  <section class="part" id="part-fill">
+    <div class="part-head"><div><h2>Part 3 · Fill in the blank · เติมคำในช่องว่าง</h2><p>Type the missing code in the yellow box. · พิมพ์โค้ดที่หายไปในช่องสีเหลือง</p></div>
+      <div class="actions"><button class="btn primary" type="button" data-checkall="fill">Check all · ตรวจทั้งหมด</button><button class="btn" type="button" data-showall="fill">Show answers · เฉลย</button></div></div>
+    <div id="list-fill"></div>
+    <div class="result" id="res-fill"></div>
+  </section>
+</main>
+
+<script>
+const MCQ = [
+{lv:"M",en:"A recursive method counts the even values from index <code>i</code> to the end of the array. What is printed?",
+ th:"เมธอดเรียกซ้ำนับจำนวนเลขคู่ตั้งแต่ดัชนี <code>i</code> ไปจนสุดอาร์เรย์ โปรแกรมพิมพ์อะไร",
+ code:"static int countEven(int[] a, int i) {\n    if (i == a.length) return 0;\n    return (a[i] % 2 == 0 ? 1 : 0) + countEven(a, i + 1);\n}\npublic static void main(String[] args) {\n    System.out.println(countEven(new int[]{2, 5, 8, 10, 3}, 0));\n}",
+ opts:["3","2","5","0"],ans:0,
+ exp:"2, 8 and 10 are even; each level adds 1 or 0 and passes the rest of the array on. / 2, 8, 10 เป็นเลขคู่ แต่ละชั้นบวก 1 หรือ 0 แล้วส่งส่วนที่เหลือต่อไป"},
+{lv:"H",en:"<code>max</code> splits the range in half and recurses on both halves. A one-element array <code>calls</code> is passed along and incremented on every entry. How many times is <code>max</code> called for an array of 5 elements?",
+ th:"<code>max</code> แบ่งช่วงครึ่งหนึ่งแล้วเรียกซ้ำทั้งสองครึ่ง อาร์เรย์หนึ่งช่อง <code>calls</code> ถูกส่งต่อและเพิ่มค่าทุกครั้งที่เข้าเมธอด สำหรับอาร์เรย์ 5 สมาชิก <code>max</code> ถูกเรียกทั้งหมดกี่ครั้ง",
+ code:"static int max(int[] a, int lo, int hi, int[] calls) {\n    calls[0]++;\n    if (lo == hi) return a[lo];\n    int mid = (lo + hi) / 2;\n    int l = max(a, lo, mid, calls);\n    int r = max(a, mid + 1, hi, calls);\n    return l > r ? l : r;\n}\npublic static void main(String[] args) {\n    int[] calls = {0};\n    max(new int[]{4, 9, 1, 7, 3}, 0, 4, calls);\n    System.out.println(calls[0]);\n}",
+ opts:["9","5","7","11"],ans:0,
+ exp:"calls(1) = 1, calls(2) = 3, calls(3) = 1 + calls(2) + calls(1) = 5, calls(5) = 1 + calls(3) + calls(2) = 9. / calls(1)=1, calls(2)=3, calls(3)=5, calls(5)=1+5+3=9"},
+{lv:"M",en:"Bubble sort is run on a reverse-sorted array of four elements. How many <b>swaps</b> are performed in total?",
+ th:"รัน bubble sort บนอาร์เรย์ 4 สมาชิกที่เรียงกลับด้าน มีการ<b>สลับ</b>ทั้งหมดกี่ครั้ง",
+ code:"int[] a = {4, 3, 2, 1};\nint swaps = 0;\nfor (int i = 0; i < a.length - 1; i++) {\n    for (int j = 0; j < a.length - 1 - i; j++) {\n        if (a[j] > a[j + 1]) {\n            int t = a[j]; a[j] = a[j + 1]; a[j + 1] = t;\n            swaps++;\n        }\n    }\n}\nSystem.out.println(swaps);",
+ opts:["6","3","4","12"],ans:0,
+ exp:"Every pair is out of order: 3 + 2 + 1 = 6 swaps, one per inversion. / ทุกคู่เรียงผิด: 3 + 2 + 1 = 6 ครั้ง หนึ่งครั้งต่อหนึ่ง inversion"},
+{lv:"M",en:"The recursive call happens <b>before</b> the print. What is the output?",
+ th:"การเรียกซ้ำเกิดขึ้น<b>ก่อน</b>การพิมพ์ ผลลัพธ์คืออะไร",
+ code:"static void f(int[] a, int i) {\n    if (i == a.length) return;\n    f(a, i + 1);\n    System.out.print(a[i] + \" \");\n}\npublic static void main(String[] args) {\n    f(new int[]{1, 2, 3}, 0);\n}",
+ opts:["3 2 1 ","1 2 3 ","1 2 3 3 2 1 ","Nothing is printed"],ans:0,
+ exp:"Each level waits for the deeper call to finish, so the last element prints first. / แต่ละชั้นรอให้การเรียกที่ลึกกว่าเสร็จก่อน สมาชิกตัวสุดท้ายจึงพิมพ์ก่อน"},
+{lv:"H",en:"This binary search keeps moving left whenever it sees the key, so that it finds the <b>first</b> occurrence. What is printed?",
+ th:"การค้นหาแบบทวิภาคนี้ขยับไปทางซ้ายต่อทุกครั้งที่เจอคีย์ เพื่อหาตำแหน่งที่พบ<b>ครั้งแรก</b> โปรแกรมพิมพ์อะไร",
+ code:"static int first(int[] a, int key) {\n    int lo = 0, hi = a.length - 1, ans = -1;\n    while (lo <= hi) {\n        int mid = (lo + hi) / 2;\n        if (a[mid] >= key) {\n            if (a[mid] == key) ans = mid;\n            hi = mid - 1;\n        } else {\n            lo = mid + 1;\n        }\n    }\n    return ans;\n}\npublic static void main(String[] args) {\n    System.out.println(first(new int[]{1, 2, 2, 2, 3, 5}, 2));\n}",
+ opts:["1","2","3","-1"],ans:0,
+ exp:"mid=2 (value 2) records 2 and moves hi to 1; mid=0 (value 1) moves lo to 1; mid=1 (value 2) records 1; stops. / mid=2 บันทึก 2 แล้ว hi=1; mid=0 ค่า 1 เลื่อน lo=1; mid=1 ค่า 2 บันทึก 1 แล้วหยุด"},
+{lv:"M",en:"Two pointers start at both ends of a sorted array and count pairs whose sum equals 7. What is printed?",
+ th:"ตัวชี้สองตัวเริ่มจากปลายทั้งสองข้างของอาร์เรย์ที่เรียงแล้ว และนับคู่ที่บวกกันได้ 7 โปรแกรมพิมพ์อะไร",
+ code:"int[] a = {1, 2, 3, 4, 5, 6};\nint i = 0, j = a.length - 1, c = 0;\nwhile (i < j) {\n    int s = a[i] + a[j];\n    if (s == 7) { c++; i++; j--; }\n    else if (s < 7) i++;\n    else j--;\n}\nSystem.out.println(c);",
+ opts:["3","6","2","4"],ans:0,
+ exp:"(1,6), (2,5), (3,4) each sum to 7; after each hit both pointers move inward. / (1,6), (2,5), (3,4) บวกได้ 7 ทั้งหมด หลังเจอแต่ละคู่ตัวชี้ทั้งสองขยับเข้าใน"},
+{lv:"H",en:"A prefix-sum array <code>p</code> of length n+1 is built so that <code>p[k]</code> is the sum of the first <code>k</code> elements. What does the last line print?",
+ th:"สร้างอาร์เรย์ผลรวมสะสม <code>p</code> ความยาว n+1 โดย <code>p[k]</code> คือผลรวมของสมาชิก <code>k</code> ตัวแรก บรรทัดสุดท้ายพิมพ์อะไร",
+ code:"int[] a = {3, 1, 4, 1, 5, 9};\nint[] p = new int[a.length + 1];\nfor (int i = 0; i < a.length; i++) {\n    p[i + 1] = p[i] + a[i];\n}\nSystem.out.println(p[5] - p[2]);",
+ opts:["10","9","14","5"],ans:0,
+ exp:"p = {0,3,4,8,9,14,23}; p[5] - p[2] = 14 - 4 = 10, the sum of a[2..4] = 4+1+5. / p = {0,3,4,8,9,14,23}; 14 - 4 = 10 คือผลรวม a[2..4]"},
+{lv:"M",en:"The number of ways to climb a staircase taking 1 or 2 steps at a time is tabulated in an array. What is printed for 5 steps?",
+ th:"จำนวนวิธีขึ้นบันไดโดยก้าวทีละ 1 หรือ 2 ขั้นถูกเก็บเป็นตารางในอาร์เรย์ โปรแกรมพิมพ์อะไรสำหรับ 5 ขั้น",
+ code:"int[] w = new int[6];\nw[0] = 1;\nw[1] = 1;\nfor (int i = 2; i < w.length; i++) {\n    w[i] = w[i - 1] + w[i - 2];\n}\nSystem.out.println(w[5]);",
+ opts:["8","5","13","6"],ans:0,
+ exp:"w = {1,1,2,3,5,8}: each step count is the sum of the two before it. / w = {1,1,2,3,5,8} แต่ละค่าคือผลบวกของสองค่าก่อนหน้า"},
+{lv:"H",en:"The classic coin-change table counts the number of ways to make each amount. Coins are processed one at a time so that order does not matter. How many ways make 5?",
+ th:"ตารางแลกเหรียญแบบคลาสสิกนับจำนวนวิธีสร้างแต่ละจำนวนเงิน เหรียญถูกประมวลผลทีละชนิดเพื่อไม่ให้ลำดับมีผล มีกี่วิธีที่ได้ 5",
+ code:"int[] coins = {1, 2, 5};\nint[] ways = new int[6];\nways[0] = 1;\nfor (int i = 0; i < coins.length; i++) {\n    int c = coins[i];\n    for (int v = c; v <= 5; v++) {\n        ways[v] += ways[v - c];\n    }\n}\nSystem.out.println(ways[5]);",
+ opts:["4","3","5","6"],ans:0,
+ exp:"{5}, {2,2,1}, {2,1,1,1}, {1,1,1,1,1} — four unordered ways. / {5}, {2,2,1}, {2,1,1,1}, {1,1,1,1,1} รวมสี่วิธี"},
+{lv:"M",en:"The inner loop runs from 0 up to and including <code>i</code>. How many times does <code>c++</code> execute for <code>n = 5</code>?",
+ th:"ลูปในวนจาก 0 ถึง <code>i</code> (รวม) คำสั่ง <code>c++</code> ทำงานกี่ครั้งเมื่อ <code>n = 5</code>",
+ code:"int n = 5, c = 0;\nfor (int i = 0; i < n; i++) {\n    for (int j = 0; j <= i; j++) {\n        c++;\n    }\n}\nSystem.out.println(c);",
+ opts:["15","10","25","20"],ans:0,
+ exp:"1 + 2 + 3 + 4 + 5 = 15, which is n(n+1)/2. / 1 + 2 + 3 + 4 + 5 = 15 หรือ n(n+1)/2"},
+{lv:"H",en:"<code>isEven</code> and <code>isOdd</code> call each other (mutual recursion). What is printed?",
+ th:"<code>isEven</code> กับ <code>isOdd</code> เรียกกันไปมา (mutual recursion) โปรแกรมพิมพ์อะไร",
+ code:"static boolean isEven(int n) {\n    if (n == 0) return true;\n    return isOdd(n - 1);\n}\nstatic boolean isOdd(int n) {\n    if (n == 0) return false;\n    return isEven(n - 1);\n}\npublic static void main(String[] args) {\n    System.out.println(isEven(7) + \" \" + isOdd(4));\n}",
+ opts:["false false","true true","false true","StackOverflowError"],ans:0,
+ exp:"isEven(7)→isOdd(6)→isEven(5)→isOdd(4)→isEven(3)→isOdd(2)→isEven(1)→isOdd(0) = false; isOdd(4)→isEven(3)→isOdd(2)→isEven(1)→isOdd(0) = false. / ทั้งสองสายการเรียกสลับกันลงไปจนจบที่ isOdd(0) ซึ่งคืน false"},
+{lv:"M",en:"Selection sort is stopped after the outer loop has run <b>twice</b> (i = 0 and i = 1). What does the array look like at that moment?",
+ th:"หยุด selection sort หลังลูปนอกทำงาน<b>สองรอบ</b> (i = 0 และ i = 1) ตอนนั้นอาร์เรย์มีค่าอย่างไร",
+ code:"int[] a = {5, 2, 9, 1, 7};\nfor (int i = 0; i < 2; i++) {\n    int min = i;\n    for (int j = i + 1; j < a.length; j++) {\n        if (a[j] < a[min]) min = j;\n    }\n    int t = a[i]; a[i] = a[min]; a[min] = t;\n}\nSystem.out.println(Arrays.toString(a));",
+ opts:["[1, 2, 9, 5, 7]","[1, 2, 5, 9, 7]","[1, 2, 5, 7, 9]","[2, 5, 9, 1, 7]"],ans:0,
+ exp:"Round 0 swaps 5 and 1 → {1,2,9,5,7}. Round 1 finds 2 already in place. / รอบ 0 สลับ 5 กับ 1 ได้ {1,2,9,5,7} รอบ 1 พบว่า 2 อยู่ถูกที่แล้ว"},
+{lv:"H",en:"This recursive sum uses <code>a.length - 1</code> as its base case. It works for non-empty arrays. What happens when it is called on an <b>empty</b> array?",
+ th:"ผลรวมเรียกซ้ำนี้ใช้ <code>a.length - 1</code> เป็นกรณีฐาน ใช้ได้กับอาร์เรย์ที่ไม่ว่าง จะเกิดอะไรขึ้นเมื่อเรียกกับอาร์เรย์<b>ว่าง</b>",
+ code:"static int sum(int[] a, int i) {\n    if (i == a.length - 1) return a[i];\n    return a[i] + sum(a, i + 1);\n}\npublic static void main(String[] args) {\n    System.out.println(sum(new int[0], 0));\n}",
+ opts:["ArrayIndexOutOfBoundsException","Prints 0","StackOverflowError","NullPointerException"],ans:0,
+ exp:"a.length - 1 is -1, so i == -1 is false and a[0] is read from an empty array. / a.length - 1 เป็น -1 เงื่อนไขฐานเป็นเท็จ จึงอ่าน a[0] จากอาร์เรย์ว่าง"},
+{lv:"H",en:"The merge loop below stops as soon as <b>one</b> input is exhausted and the leftovers are never copied. What is printed?",
+ th:"ลูปรวมด้านล่างหยุดทันทีที่อินพุต<b>ตัวใดตัวหนึ่ง</b>หมด และไม่ได้คัดลอกส่วนที่เหลือ โปรแกรมพิมพ์อะไร",
+ code:"int[] a = {1, 4, 7}, b = {2, 3, 9};\nint[] r = new int[6];\nint i = 0, j = 0, k = 0;\nwhile (i < a.length && j < b.length) {\n    r[k++] = (a[i] <= b[j]) ? a[i++] : b[j++];\n}\nSystem.out.println(Arrays.toString(r));",
+ opts:["[1, 2, 3, 4, 7, 0]","[1, 2, 3, 4, 7, 9]","[1, 2, 3, 4, 0, 0]","ArrayIndexOutOfBoundsException"],ans:0,
+ exp:"1,2,3,4,7 are placed, then i reaches 3 and the loop ends; 9 is never copied, so r[5] stays 0. / วาง 1,2,3,4,7 แล้ว i ถึง 3 ลูปจบ 9 ไม่ถูกคัดลอก r[5] จึงเป็น 0"},
+{lv:"M",en:"A recursive palindrome check compares the two ends and recurses inward. What is printed?",
+ th:"การตรวจพาลินโดรมแบบเรียกซ้ำเทียบปลายทั้งสองแล้วเรียกซ้ำเข้าด้านใน โปรแกรมพิมพ์อะไร",
+ code:"static boolean pal(int[] a, int i, int j) {\n    if (i >= j) return true;\n    return a[i] == a[j] && pal(a, i + 1, j - 1);\n}\npublic static void main(String[] args) {\n    System.out.println(pal(new int[]{1, 2, 3, 2, 1}, 0, 4) + \" \" + pal(new int[]{1, 2, 2}, 0, 2));\n}",
+ opts:["true false","true true","false false","false true"],ans:0,
+ exp:"{1,2,3,2,1} mirrors; {1,2,2} fails at the first comparison (1 ≠ 2). / {1,2,3,2,1} สมมาตร ส่วน {1,2,2} ตกที่การเทียบแรก (1 ≠ 2)"},
+{lv:"H",en:"<code>countCalls</code> does not compute a sum at all; it only returns how many times it was entered while splitting the range in half like a divide-and-conquer sum would. What is printed for an array of length 8?",
+ th:"<code>countCalls</code> ไม่ได้คำนวณผลรวม แต่คืนจำนวนครั้งที่ถูกเรียกขณะแบ่งครึ่งช่วงแบบเดียวกับผลรวมแบบแบ่งแล้วเอาชนะ โปรแกรมพิมพ์อะไรสำหรับอาร์เรย์ความยาว 8",
+ code:"static int countCalls(int[] a, int lo, int hi) {\n    if (lo == hi) return 1;\n    int mid = (lo + hi) / 2;\n    return 1 + countCalls(a, lo, mid) + countCalls(a, mid + 1, hi);\n}\npublic static void main(String[] args) {\n    System.out.println(countCalls(new int[8], 0, 7));\n}",
+ opts:["15","8","16","7"],ans:0,
+ exp:"A full binary tree of calls with 8 leaves has 8 + 4 + 2 + 1 = 15 nodes. / ต้นไม้การเรียกแบบทวิภาคเต็มที่มี 8 ใบ มีโหนด 8 + 4 + 2 + 1 = 15"},
+{lv:"M",en:"Which loop structure executes its body approximately <code>n²/2</code> times?",
+ th:"โครงสร้างลูปใดทำงานในส่วน body ประมาณ <code>n²/2</code> ครั้ง",
+ opts:["for (int i = 0; i < n; i++) for (int j = i + 1; j < n; j++)","for (int i = 0; i < n; i++) for (int j = 0; j < n; j++)","for (int i = 0; i < n; i++) for (int j = 0; j < 10; j++)","for (int i = 1; i < n; i *= 2)"],ans:0,
+ exp:"Starting j at i+1 visits each unordered pair once: n(n-1)/2. The others are n², 10n and log n. / เริ่ม j ที่ i+1 จะเยี่ยมแต่ละคู่ครั้งเดียว: n(n-1)/2 ส่วนที่เหลือคือ n², 10n และ log n"},
+{lv:"H",en:"<code>gen</code> explores every subset by either skipping or taking each element, and counts subsets whose sum is 5. What is printed?",
+ th:"<code>gen</code> สำรวจทุกเซตย่อยโดยข้ามหรือหยิบสมาชิกแต่ละตัว และนับเซตย่อยที่ผลรวมเป็น 5 โปรแกรมพิมพ์อะไร",
+ code:"static int gen(int[] a, int i, int sum) {\n    if (i == a.length) {\n        return (sum == 5) ? 1 : 0;\n    }\n    return gen(a, i + 1, sum)          // skip a[i]\n         + gen(a, i + 1, sum + a[i]);  // take a[i]\n}\npublic static void main(String[] args) {\n    System.out.println(gen(new int[]{1, 2, 3, 4}, 0, 0));\n}",
+ opts:["2","3","4","1"],ans:0,
+ exp:"Subsets of {1,2,3,4} summing to 5: {1,4} and {2,3}. / เซตย่อยของ {1,2,3,4} ที่รวมได้ 5: {1,4} และ {2,3}"},
+{lv:"M",en:"A recursive linear search returns the index of the first match or -1. The two results are <b>added</b>. What is printed?",
+ th:"การค้นหาเชิงเส้นแบบเรียกซ้ำคืนดัชนีที่พบครั้งแรกหรือ -1 ผลลัพธ์ทั้งสองถูก<b>บวก</b>กัน โปรแกรมพิมพ์อะไร",
+ code:"static int find(int[] a, int k, int i) {\n    if (i == a.length) return -1;\n    if (a[i] == k) return i;\n    return find(a, k, i + 1);\n}\npublic static void main(String[] args) {\n    System.out.println(find(new int[]{4, 8, 8, 2}, 8, 0) + find(new int[]{4, 8}, 9, 0));\n}",
+ opts:["0","1-1","1","-1"],ans:0,
+ exp:"The first call returns 1 (first 8), the second returns -1; int + int = 0. / การเรียกแรกคืน 1 (เลข 8 ตัวแรก) การเรียกที่สองคืน -1 บวกกันเป็น 0"},
+{lv:"H",en:"Three reversals are applied to the array. What is the final content?",
+ th:"มีการกลับลำดับสามครั้งกับอาร์เรย์ ผลลัพธ์สุดท้ายคืออะไร",
+ code:"static void rev(int[] a, int i, int j) {\n    while (i < j) {\n        int t = a[i]; a[i] = a[j]; a[j] = t;\n        i++; j--;\n    }\n}\npublic static void main(String[] args) {\n    int[] a = {1, 2, 3, 4, 5};\n    rev(a, 0, 4);\n    rev(a, 0, 1);\n    rev(a, 2, 4);\n    System.out.println(Arrays.toString(a));\n}",
+ opts:["[4, 5, 1, 2, 3]","[3, 4, 5, 1, 2]","[5, 4, 3, 2, 1]","[1, 2, 3, 4, 5]"],ans:0,
+ exp:"{5,4,3,2,1} → reverse first two {4,5,3,2,1} → reverse last three {4,5,1,2,3}: a right rotation by 2. / {5,4,3,2,1} → กลับสองตัวแรก {4,5,3,2,1} → กลับสามตัวท้าย {4,5,1,2,3} คือหมุนขวา 2"},
+{lv:"M",en:"<code>lowerBound(a, key)</code> returns the index of the first element that is <code>≥ key</code> in a sorted array (or <code>a.length</code>). Which expression counts how many times <code>key</code> occurs?",
+ th:"<code>lowerBound(a, key)</code> คืนดัชนีของสมาชิกตัวแรกที่ <code>≥ key</code> ในอาร์เรย์ที่เรียงแล้ว (หรือ <code>a.length</code>) นิพจน์ใดนับจำนวนครั้งที่ <code>key</code> ปรากฏ",
+ opts:["lowerBound(a, key + 1) - lowerBound(a, key)","lowerBound(a, key) - lowerBound(a, key - 1)","lowerBound(a, key) + 1","a.length - lowerBound(a, key)"],ans:0,
+ exp:"All copies of key sit between the first index ≥ key and the first index ≥ key+1. / สำเนาของ key ทั้งหมดอยู่ระหว่างดัชนีแรกที่ ≥ key กับดัชนีแรกที่ ≥ key+1"},
+{lv:"H",en:"<code>perm</code> builds every arrangement of the positions using a <code>boolean[] used</code> array and counts the complete ones. What is printed for 4 positions?",
+ th:"<code>perm</code> สร้างการจัดเรียงทุกแบบของตำแหน่งโดยใช้อาร์เรย์ <code>boolean[] used</code> และนับแบบที่ครบ โปรแกรมพิมพ์อะไรสำหรับ 4 ตำแหน่ง",
+ code:"static int perm(int[] a, boolean[] used, int depth) {\n    if (depth == a.length) return 1;\n    int total = 0;\n    for (int i = 0; i < a.length; i++) {\n        if (used[i]) continue;\n        used[i] = true;\n        total += perm(a, used, depth + 1);\n        used[i] = false;\n    }\n    return total;\n}\npublic static void main(String[] args) {\n    System.out.println(perm(new int[4], new boolean[4], 0));\n}",
+ opts:["24","16","4","256"],ans:0,
+ exp:"4 choices, then 3, 2, 1: 4! = 24 permutations. / เลือกได้ 4, 3, 2, 1: 4! = 24 แบบ"},
+{lv:"H",en:"This recursive sum has <b>no base case</b>. What actually happens when it runs on a 3-element array?",
+ th:"ผลรวมเรียกซ้ำนี้<b>ไม่มีกรณีฐาน</b> จะเกิดอะไรขึ้นจริง ๆ เมื่อรันกับอาร์เรย์ 3 สมาชิก",
+ code:"static int f(int[] a, int i) {\n    return a[i] + f(a, i + 1);\n}\npublic static void main(String[] args) {\n    System.out.println(f(new int[]{1, 2, 3}, 0));\n}",
+ opts:["ArrayIndexOutOfBoundsException","StackOverflowError","Prints 6","Compile error: missing return"],ans:0,
+ exp:"i reaches 3 after only three calls and a[3] fails long before the stack is exhausted. / i ถึง 3 หลังเรียกเพียงสามครั้ง และ a[3] ล้มเหลวก่อนที่สแตกจะเต็มนานมาก"},
+{lv:"M",en:"The loop keeps adding elements while the running total would stay at most 10. What is printed?",
+ th:"ลูปบวกสมาชิกต่อไปตราบที่ผลรวมสะสมยังไม่เกิน 10 โปรแกรมพิมพ์อะไร",
+ code:"int[] a = {3, 6, 2, 8, 1};\nint s = 0, i = 0;\nwhile (i < a.length && s + a[i] <= 10) {\n    s += a[i];\n    i++;\n}\nSystem.out.println(i + \" \" + s);",
+ opts:["2 9","3 11","2 11","3 9"],ans:0,
+ exp:"3 → 9; adding 2 would give 11 > 10, so the loop stops with i = 2, s = 9. / 3 → 9 ถ้าบวก 2 จะได้ 11 > 10 จึงหยุดที่ i = 2, s = 9"},
+{lv:"H",en:"Fibonacci with a memo array passed as a parameter. <code>calls[0]</code> is incremented on every entry, including calls that return from the memo immediately. What is printed?",
+ th:"ฟีโบนักชีที่ส่งอาร์เรย์ memo เป็นพารามิเตอร์ <code>calls[0]</code> เพิ่มทุกครั้งที่เข้าเมธอด รวมถึงการเรียกที่คืนค่าจาก memo ทันที โปรแกรมพิมพ์อะไร",
+ code:"static int f(int n, int[] memo, int[] calls) {\n    calls[0]++;\n    if (n < 2) return n;\n    if (memo[n] != 0) return memo[n];\n    return memo[n] = f(n - 1, memo, calls) + f(n - 2, memo, calls);\n}\npublic static void main(String[] args) {\n    int[] calls = {0};\n    f(9, new int[10], calls);\n    System.out.println(calls[0]);\n}",
+ opts:["17","109","9","55"],ans:0,
+ exp:"The left branch descends f(9)…f(1): 9 calls. Each level 2..9 then makes one second call f(n-2) that returns at once from the memo or the base case: 8 calls. 9 + 8 = 17. / กิ่งซ้ายเดินลง f(9)…f(1) = 9 ครั้ง แล้วแต่ละชั้น 2..9 เรียก f(n-2) อีกหนึ่งครั้งซึ่งคืนค่าทันทีจาก memo หรือกรณีฐาน = 8 ครั้ง รวม 17"},
+{lv:"M",en:"A recursive method is written to process the inclusive range <code>a[lo..hi]</code>. Which call processes the <b>whole</b> array correctly?",
+ th:"เมธอดเรียกซ้ำเขียนให้ประมวลผลช่วง <code>a[lo..hi]</code> แบบรวมปลาย การเรียกใดประมวลผล<b>ทั้ง</b>อาร์เรย์ได้ถูกต้อง",
+ opts:["f(a, 0, a.length - 1)","f(a, 0, a.length)","f(a, 1, a.length)","f(a, 1, a.length - 1)"],ans:0,
+ exp:"Inclusive bounds run from the first index 0 to the last index a.length - 1. / ขอบเขตแบบรวมปลายคือตั้งแต่ดัชนี 0 ถึง a.length - 1"},
+{lv:"H",en:"A sliding window of size 3 is moved across the array by adding the entering element and subtracting the leaving one. What is the best window sum?",
+ th:"หน้าต่างขนาด 3 เลื่อนไปตามอาร์เรย์โดยบวกตัวที่เข้ามาและลบตัวที่ออกไป ผลรวมหน้าต่างที่ดีที่สุดคือเท่าใด",
+ code:"int[] a = {2, 1, 5, 1, 3, 2};\nint k = 3;\nint w = a[0] + a[1] + a[2], best = w;\nfor (int i = k; i < a.length; i++) {\n    w += a[i] - a[i - k];\n    if (w > best) best = w;\n}\nSystem.out.println(best);",
+ opts:["9","8","7","6"],ans:0,
+ exp:"Window sums: 8, 7, 9, 6. The best is 5+1+3 = 9. / ผลรวมหน้าต่าง: 8, 7, 9, 6 ดีที่สุดคือ 5+1+3 = 9"},
+{lv:"M",en:"<code>f</code> prints before <b>and</b> after its recursive call. What is the output of <code>f(3)</code>?",
+ th:"<code>f</code> พิมพ์ทั้งก่อน<b>และ</b>หลังการเรียกซ้ำ ผลลัพธ์ของ <code>f(3)</code> คืออะไร",
+ code:"static void f(int n) {\n    if (n == 0) return;\n    System.out.print(n);\n    f(n - 1);\n    System.out.print(n);\n}",
+ opts:["321123","123321","333222111","321"],ans:0,
+ exp:"Going down prints 3,2,1; unwinding prints 1,2,3. / ขาลงพิมพ์ 3,2,1 ขาคืนพิมพ์ 1,2,3"},
+{lv:"H",en:"A merge-sort skeleton counts how many times the merge step would run (the actual merging is omitted). What is printed for 8 elements?",
+ th:"โครงของ merge sort นับว่าขั้นตอน merge จะทำงานกี่ครั้ง (ละการรวมจริงไว้) โปรแกรมพิมพ์อะไรสำหรับ 8 สมาชิก",
+ code:"static int ms(int[] a, int lo, int hi) {\n    if (lo >= hi) return 0;\n    int mid = (lo + hi) / 2;\n    int merges = ms(a, lo, mid) + ms(a, mid + 1, hi);\n    return merges + 1;   // one merge for this range\n}\npublic static void main(String[] args) {\n    System.out.println(ms(new int[8], 0, 7));\n}",
+ opts:["7","8","15","3"],ans:0,
+ exp:"Every split of a range with ≥2 elements produces one merge: 4 + 2 + 1 = 7 internal nodes. / ทุกการแบ่งช่วงที่มี ≥2 สมาชิกทำให้เกิด merge หนึ่งครั้ง: 4 + 2 + 1 = 7"},
+{lv:"M",en:"A recursive method doubles each element in place while walking the array. What is printed?",
+ th:"เมธอดเรียกซ้ำคูณแต่ละสมาชิกด้วย 2 ในที่เดิมขณะเดินผ่านอาร์เรย์ โปรแกรมพิมพ์อะไร",
+ code:"static void dbl(int[] a, int i) {\n    if (i == a.length) return;\n    a[i] *= 2;\n    dbl(a, i + 1);\n}\npublic static void main(String[] args) {\n    int[] x = {1, 2, 3};\n    dbl(x, 0);\n    System.out.println(x[2]);\n}",
+ opts:["6","3","0","12"],ans:0,
+ exp:"The array is shared through the reference, so every level's change persists: x = {2,4,6}. / อาร์เรย์ถูกแชร์ผ่านการอ้างอิง การเปลี่ยนแปลงทุกชั้นจึงคงอยู่: x = {2,4,6}"}
+];
+
+// ____ marks the blank. acc = accepted answers (whitespace-insensitive, case-insensitive).
+const FILL = [
+{lv:"M",en:"<code>count</code> recursively counts how many times <code>key</code> appears from index <code>i</code> onward. Complete the recursive call.",
+ th:"<code>count</code> นับแบบเรียกซ้ำว่า <code>key</code> ปรากฏกี่ครั้งตั้งแต่ดัชนี <code>i</code> เป็นต้นไป เติมการเรียกซ้ำ",
+ code:"static int count(int[] a, int key, int i) {\n    if (i == a.length) return 0;\n    return (a[i] == key ? 1 : 0) + count(a, key, ____);\n}",acc:["i+1"]},
+{lv:"H",en:"A binary search that finds the <b>first</b> occurrence keeps searching to the left after a match. Complete the update of <code>hi</code>.",
+ th:"การค้นหาแบบทวิภาคที่หาตำแหน่งที่พบ<b>ครั้งแรก</b> จะค้นต่อทางซ้ายหลังเจอคีย์ เติมการอัปเดต <code>hi</code>",
+ code:"static int firstIndex(int[] a, int key) {\n    int lo = 0, hi = a.length - 1, ans = -1;\n    while (lo <= hi) {\n        int mid = (lo + hi) / 2;\n        if (a[mid] >= key) {\n            if (a[mid] == key) ans = mid;\n            hi = ____;\n        } else {\n            lo = mid + 1;\n        }\n    }\n    return ans;\n}",acc:["mid-1"]},
+{lv:"M",en:"After each outer pass of bubble sort the largest remaining value is already at the end, so the inner loop can stop earlier each time. Complete the inner bound.",
+ th:"หลังลูปนอกของ bubble sort แต่ละรอบ ค่าที่มากที่สุดที่เหลือจะอยู่ท้ายแล้ว ลูปในจึงหยุดเร็วขึ้นได้ทุกรอบ เติมขอบเขตของลูปใน",
+ code:"for (int i = 0; i < a.length - 1; i++) {\n    for (int j = 0; j < a.length - 1 - ____; j++) {\n        if (a[j] > a[j + 1]) {\n            int t = a[j]; a[j] = a[j + 1]; a[j + 1] = t;\n        }\n    }\n}",acc:["i"]},
+{lv:"H",en:"Merge sort splits <code>a[lo..hi]</code> at <code>mid</code>, sorts both halves recursively and then merges. Complete the second recursive call.",
+ th:"Merge sort แบ่ง <code>a[lo..hi]</code> ที่ <code>mid</code> เรียงทั้งสองครึ่งแบบเรียกซ้ำ แล้วค่อยรวม เติมการเรียกซ้ำครั้งที่สอง",
+ code:"static void mergeSort(int[] a, int lo, int hi) {\n    if (lo >= hi) return;\n    int mid = (lo + hi) / 2;\n    mergeSort(a, lo, mid);\n    mergeSort(a, ____, hi);\n    merge(a, lo, mid, hi);\n}",acc:["mid+1"]},
+{lv:"M",en:"<code>max</code> returns the largest value from index <code>i</code> to the end. Complete the recursive call inside <code>Math.max</code>.",
+ th:"<code>max</code> คืนค่าที่มากที่สุดตั้งแต่ดัชนี <code>i</code> ถึงท้ายอาร์เรย์ เติมการเรียกซ้ำภายใน <code>Math.max</code>",
+ code:"static int max(int[] a, int i) {\n    if (i == a.length - 1) return a[i];\n    return Math.max(a[i], max(a, ____));\n}",acc:["i+1"]},
+{lv:"H",en:"The coin-change table counts the ways to form each amount. For coin <code>c</code>, the ways to make <code>v</code> grow by the ways to make the amount that remains after using <code>c</code>. Complete the index.",
+ th:"ตารางแลกเหรียญนับวิธีสร้างแต่ละจำนวนเงิน สำหรับเหรียญ <code>c</code> จำนวนวิธีสร้าง <code>v</code> เพิ่มขึ้นเท่ากับจำนวนวิธีสร้างเงินที่เหลือหลังใช้ <code>c</code> เติมดัชนี",
+ code:"int[] ways = new int[target + 1];\nways[0] = 1;\nfor (int i = 0; i < coins.length; i++) {\n    int c = coins[i];\n    for (int v = c; v <= target; v++) {\n        ways[v] += ways[____];\n    }\n}",acc:["v-c"]},
+{lv:"M",en:"A two-pointer palindrome check moves both indexes toward the middle. Complete the second update.",
+ th:"การตรวจพาลินโดรมแบบตัวชี้สองตัวเลื่อนดัชนีทั้งสองเข้าหากลาง เติมการอัปเดตตัวที่สอง",
+ code:"int i = 0, j = a.length - 1;\nwhile (i < j) {\n    if (a[i] != a[j]) return false;\n    i++;\n    ____;\n}\nreturn true;",acc:["j--","j-=1","j=j-1"]},
+{lv:"H",en:"<code>p</code> is a prefix-sum array of length n+1 with <code>p[k]</code> = sum of the first <code>k</code> elements. Complete <code>rangeSum</code> so it returns the sum of <code>a[l..r]</code> inclusive.",
+ th:"<code>p</code> เป็นอาร์เรย์ผลรวมสะสมความยาว n+1 โดย <code>p[k]</code> = ผลรวมของ <code>k</code> ตัวแรก เติม <code>rangeSum</code> ให้คืนผลรวมของ <code>a[l..r]</code> แบบรวมปลาย",
+ code:"static int rangeSum(int[] p, int l, int r) {\n    return p[r + 1] - p[____];\n}",acc:["l"]},
+{lv:"M",en:"<code>print</code> prints the array recursively. Complete the base-case condition that stops when the index runs off the end.",
+ th:"<code>print</code> พิมพ์อาร์เรย์แบบเรียกซ้ำ เติมเงื่อนไขกรณีฐานที่หยุดเมื่อดัชนีเลยท้ายอาร์เรย์",
+ code:"static void print(int[] a, int i) {\n    if (i ____ a.length) return;\n    System.out.print(a[i] + \" \");\n    print(a, i + 1);\n}",acc:["==",">="]},
+{lv:"H",en:"Generating permutations with backtracking: after exploring with element <code>i</code> taken, it must be released so other branches can use it. Complete the line.",
+ th:"การสร้างการเรียงสับเปลี่ยนด้วย backtracking: หลังสำรวจโดยหยิบสมาชิก <code>i</code> แล้ว ต้องคืนสถานะให้กิ่งอื่นใช้ได้ เติมบรรทัดนี้",
+ code:"static void perm(int[] a, boolean[] used, int[] cur, int depth) {\n    if (depth == a.length) { System.out.println(Arrays.toString(cur)); return; }\n    for (int i = 0; i < a.length; i++) {\n        if (used[i]) continue;\n        used[i] = true;\n        cur[depth] = a[i];\n        perm(a, used, cur, depth + 1);\n        used[i] = ____;\n    }\n}",acc:["false"]},
+{lv:"M",en:"Ways to climb <code>n</code> stairs taking 1 or 2 steps: each entry is the sum of the two entries before it. Complete the recurrence.",
+ th:"จำนวนวิธีขึ้นบันได <code>n</code> ขั้นโดยก้าว 1 หรือ 2 ขั้น: แต่ละช่องคือผลบวกของสองช่องก่อนหน้า เติมความสัมพันธ์เวียนเกิด",
+ code:"int[] w = new int[n + 1];\nw[0] = 1;\nw[1] = 1;\nfor (int i = 2; i <= n; i++) {\n    w[i] = w[i - 1] + w[____];\n}",acc:["i-2"]},
+{lv:"H",en:"<code>lowerBound</code> returns the first index with <code>a[i] ≥ key</code> and <code>upperBound</code> the first index with <code>a[i] &gt; key</code>. Complete <code>countOf</code>.",
+ th:"<code>lowerBound</code> คืนดัชนีแรกที่ <code>a[i] ≥ key</code> และ <code>upperBound</code> คืนดัชนีแรกที่ <code>a[i] &gt; key</code> เติม <code>countOf</code>",
+ code:"static int countOf(int[] a, int key) {\n    return upperBound(a, key) - ____(a, key);\n}",acc:["lowerBound"]},
+{lv:"M",en:"Selection sort has found the index <code>min</code> of the smallest remaining value. Complete the three-line swap.",
+ th:"Selection sort หาดัชนี <code>min</code> ของค่าที่น้อยที่สุดที่เหลือได้แล้ว เติมการสลับสามบรรทัด",
+ code:"int t = a[i];\na[i] = a[min];\na[____] = t;",acc:["min"]},
+{lv:"H",en:"The merge step has finished the main loop; the left half may still have elements left. Complete the loop that copies the rest of the left half (it must also advance <code>i</code>).",
+ th:"ขั้นตอน merge จบลูปหลักแล้ว ครึ่งซ้ายอาจยังมีสมาชิกเหลือ เติมลูปที่คัดลอกส่วนที่เหลือของครึ่งซ้าย (ต้องเลื่อน <code>i</code> ด้วย)",
+ code:"while (i <= mid) {\n    tmp[k++] = a[____];\n}\nwhile (j <= hi) {\n    tmp[k++] = a[j++];\n}",acc:["i++"]},
+{lv:"M",en:"<code>sumFirst</code> adds the first <code>n</code> elements recursively, taking the last of them and recursing on the rest. Complete the call.",
+ th:"<code>sumFirst</code> บวก <code>n</code> ตัวแรกแบบเรียกซ้ำ โดยหยิบตัวสุดท้ายของช่วงแล้วเรียกซ้ำกับส่วนที่เหลือ เติมการเรียก",
+ code:"static int sumFirst(int[] a, int n) {\n    if (n == 0) return 0;\n    return a[n - 1] + sumFirst(a, ____);\n}",acc:["n-1"]},
+{lv:"H",en:"<code>subset</code> decides whether some subset of <code>a[i..]</code> sums to <code>target</code>: either skip <code>a[i]</code> or take it. Complete the 'take' branch.",
+ th:"<code>subset</code> ตัดสินว่ามีเซตย่อยของ <code>a[i..]</code> ที่รวมได้ <code>target</code> หรือไม่ โดยข้าม <code>a[i]</code> หรือหยิบมัน เติมสาขา 'หยิบ'",
+ code:"static boolean subset(int[] a, int i, int target) {\n    if (target == 0) return true;\n    if (i == a.length) return false;\n    return subset(a, i + 1, target) || subset(a, i + 1, ____);\n}",acc:["target-a[i]"]},
+{lv:"M",en:"A sliding window of width <code>k</code> is moved one step: the new element enters and the element <code>k</code> positions back leaves. Complete the index of the leaving element.",
+ th:"หน้าต่างกว้าง <code>k</code> เลื่อนไปหนึ่งก้าว: สมาชิกใหม่เข้ามาและสมาชิกที่อยู่ถอยหลังไป <code>k</code> ตำแหน่งออกไป เติมดัชนีของสมาชิกที่ออก",
+ code:"for (int i = k; i < a.length; i++) {\n    w += a[i] - a[____];\n    if (w > best) best = w;\n}",acc:["i-k"]},
+{lv:"H",en:"This <code>lowerBound</code> uses a half-open range <code>[lo, hi)</code> with <code>hi = a.length</code> and loops while <code>lo &lt; hi</code>. When <code>a[mid]</code> is not smaller than the key, <code>mid</code> itself may be the answer. Complete the update.",
+ th:"<code>lowerBound</code> นี้ใช้ช่วงครึ่งเปิด <code>[lo, hi)</code> โดย <code>hi = a.length</code> และวนขณะ <code>lo &lt; hi</code> เมื่อ <code>a[mid]</code> ไม่น้อยกว่าคีย์ <code>mid</code> เองอาจเป็นคำตอบ เติมการอัปเดต",
+ code:"static int lowerBound(int[] a, int key) {\n    int lo = 0, hi = a.length;\n    while (lo < hi) {\n        int mid = (lo + hi) / 2;\n        if (a[mid] < key) lo = mid + 1;\n        else hi = ____;\n    }\n    return lo;\n}",acc:["mid"]},
+{lv:"M",en:"<code>contains</code> is true if the current element matches <b>or</b> the rest of the array contains the key. Complete the operator.",
+ th:"<code>contains</code> เป็นจริงถ้าสมาชิกปัจจุบันตรง<b>หรือ</b>ส่วนที่เหลือของอาร์เรย์มีคีย์ เติมตัวดำเนินการ",
+ code:"static boolean contains(int[] a, int k, int i) {\n    if (i == a.length) return false;\n    return a[i] == k ____ contains(a, k, i + 1);\n}",acc:["||"]},
+{lv:"H",en:"Longest increasing subsequence in O(n²): <code>len[i]</code> is the best length ending at <code>i</code>. For every earlier <code>j</code> with a smaller value, extend it if that gives something longer. Complete the assignment.",
+ th:"ลำดับย่อยเพิ่มขึ้นที่ยาวที่สุดแบบ O(n²): <code>len[i]</code> คือความยาวดีสุดที่จบที่ <code>i</code> สำหรับทุก <code>j</code> ก่อนหน้าที่มีค่าน้อยกว่า ให้ต่อขยายถ้าได้ยาวขึ้น เติมการกำหนดค่า",
+ code:"int[] len = new int[a.length];\nint best = 0;\nfor (int i = 0; i < a.length; i++) {\n    len[i] = 1;\n    for (int j = 0; j < i; j++) {\n        if (a[j] < a[i] && len[j] + 1 > len[i]) len[i] = ____;\n    }\n    best = Math.max(best, len[i]);\n}",acc:["len[j]+1"]},
+{lv:"M",en:"Recursive in-place reversal swaps the ends and recurses on the inner range. Complete the second argument.",
+ th:"การกลับลำดับในที่เดิมแบบเรียกซ้ำสลับปลายทั้งสองแล้วเรียกซ้ำกับช่วงด้านใน เติมอาร์กิวเมนต์ตัวที่สอง",
+ code:"static void rev(int[] a, int i, int j) {\n    if (i >= j) return;\n    int t = a[i]; a[i] = a[j]; a[j] = t;\n    rev(a, i + 1, ____);\n}",acc:["j-1"]},
+{lv:"H",en:"Count exactly: with <code>n = 6</code>, how many times does the body of this nested loop execute? Fill in the number.",
+ th:"นับให้แม่นยำ: เมื่อ <code>n = 6</code> body ของลูปซ้อนนี้ทำงานกี่ครั้ง เติมตัวเลข",
+ code:"int n = 6, c = 0;\nfor (int i = 0; i < n; i++) {\n    for (int j = i; j < n; j++) {\n        c++;\n    }\n}\n// c == ____",acc:["21"]},
+{lv:"M",en:"A divide-and-conquer sum over <code>a[lo..hi]</code>. Complete the base case for a range of exactly one element.",
+ th:"ผลรวมแบบแบ่งแล้วเอาชนะบน <code>a[lo..hi]</code> เติมกรณีฐานสำหรับช่วงที่มีสมาชิกเพียงตัวเดียว",
+ code:"static int sum(int[] a, int lo, int hi) {\n    if (lo == hi) return ____;\n    int mid = (lo + hi) / 2;\n    return sum(a, lo, mid) + sum(a, mid + 1, hi);\n}",acc:["a[lo]","a[hi]"]},
+{lv:"H",en:"A memo array is passed as a parameter and was pre-filled with -1 to mean 'not computed yet' (because 0 can be a real answer). Complete the memo check.",
+ th:"อาร์เรย์ memo ถูกส่งเป็นพารามิเตอร์และถูกเติมด้วย -1 ไว้ก่อน เพื่อหมายถึง 'ยังไม่ได้คำนวณ' (เพราะ 0 อาจเป็นคำตอบจริง) เติมการตรวจ memo",
+ code:"// caller: int[] memo = new int[n + 1]; Arrays.fill(memo, -1); ways(n, memo);\nstatic int ways(int n, int[] memo) {\n    if (n < 0) return 0;\n    if (n == 0) return 1;\n    if (memo[n] != ____) return memo[n];\n    return memo[n] = ways(n - 1, memo) + ways(n - 2, memo) + ways(n - 3, memo);\n}",acc:["-1"]},
+{lv:"M",en:"<code>countEven</code> adds 1 for an even element and 0 otherwise, then recurses. Complete the conditional expression.",
+ th:"<code>countEven</code> บวก 1 ถ้าสมาชิกเป็นเลขคู่ มิฉะนั้นบวก 0 แล้วเรียกซ้ำ เติมนิพจน์เงื่อนไข",
+ code:"static int countEven(int[] a, int i) {\n    if (i == a.length) return 0;\n    return (a[i] % 2 == 0 ? ____ : 0) + countEven(a, i + 1);\n}",acc:["1"]},
+{lv:"H",en:"To find the k-th smallest value (0-based) you only need to run selection sort until position <code>k</code> is settled. Complete the loop bound.",
+ th:"การหาค่าที่น้อยเป็นอันดับ k (นับจาก 0) ต้องรัน selection sort แค่จนตำแหน่ง <code>k</code> นิ่ง เติมขอบเขตของลูป",
+ code:"static int kthSmallest(int[] a, int k) {\n    int[] b = a.clone();\n    for (int i = 0; i <= ____; i++) {\n        int min = i;\n        for (int j = i + 1; j < b.length; j++) if (b[j] < b[min]) min = j;\n        int t = b[i]; b[i] = b[min]; b[min] = t;\n    }\n    return b[k];\n}",acc:["k"]},
+{lv:"M",en:"<code>printRev</code> prints the array backwards by recursing <b>first</b> and printing afterwards. Complete the print.",
+ th:"<code>printRev</code> พิมพ์อาร์เรย์กลับหลังโดยเรียกซ้ำ<b>ก่อน</b>แล้วค่อยพิมพ์ เติมการพิมพ์",
+ code:"static void printRev(int[] a, int i) {\n    if (i == a.length) return;\n    printRev(a, i + 1);\n    System.out.print(a[____] + \" \");\n}",acc:["i"]},
+{lv:"H",en:"Two-pointer search for a pair with a given sum in a sorted array. When the current sum is too small the left pointer must move. Complete it.",
+ th:"ค้นหาคู่ที่บวกได้ค่าที่กำหนดในอาร์เรย์ที่เรียงแล้วด้วยตัวชี้สองตัว เมื่อผลรวมปัจจุบันน้อยเกินไปต้องเลื่อนตัวชี้ซ้าย เติมให้สมบูรณ์",
+ code:"int i = 0, j = a.length - 1;\nwhile (i < j) {\n    int s = a[i] + a[j];\n    if (s == target) return new int[]{i, j};\n    if (s < target) ____;\n    else j--;\n}\nreturn new int[]{-1, -1};",acc:["i++","i+=1","i=i+1"]},
+{lv:"M",en:"<code>depth</code> counts how many times <code>n</code> can be halved before reaching 1 (the depth of a binary split). Complete the operator.",
+ th:"<code>depth</code> นับว่า <code>n</code> แบ่งครึ่งได้กี่ครั้งก่อนถึง 1 (ความลึกของการแบ่งแบบทวิภาค) เติมตัวดำเนินการ",
+ code:"static int depth(int n) {\n    if (n <= 1) return 0;\n    return 1 + depth(n ____ 2);\n}",acc:["/"]},
+{lv:"H",en:"<code>f</code> holds a frequency count per score bucket. Turn it into a <b>cumulative</b> count in place, so that <code>f[i]</code> becomes the number of scores in buckets 0..i. Complete the operator.",
+ th:"<code>f</code> เก็บจำนวนนับต่อช่วงคะแนน แปลงให้เป็นจำนวน<b>สะสม</b>ในที่เดิม เพื่อให้ <code>f[i]</code> เป็นจำนวนคะแนนในช่วง 0..i เติมตัวดำเนินการ",
+ code:"for (int i = 1; i < f.length; i++) {\n    f[i] ____ f[i - 1];\n}",acc:["+="]}
+];
+
+const CODE = [
+{lv:"M",t:"Recursive occurrence count",
+ en:"Write <code>static int countRec(int[] a, int key, int i)</code> that returns how many times <code>key</code> appears in <code>a</code> from index <code>i</code> to the end, using recursion only (no loops). A caller starts it with <code>i = 0</code>.",
+ th:"เขียน <code>static int countRec(int[] a, int key, int i)</code> ที่คืนจำนวนครั้งที่ <code>key</code> ปรากฏใน <code>a</code> ตั้งแต่ดัชนี <code>i</code> ถึงท้าย โดยใช้การเรียกซ้ำเท่านั้น (ห้ามใช้ลูป) ผู้เรียกจะเริ่มด้วย <code>i = 0</code>",
+ ex:"countRec({3, 1, 3, 3, 2}, 3, 0)  →  3\ncountRec({1, 2}, 9, 0)           →  0",
+ sol:"static int countRec(int[] a, int key, int i) {\n    if (i == a.length) return 0;\n    int here = (a[i] == key) ? 1 : 0;\n    return here + countRec(a, key, i + 1);\n}"},
+{lv:"H",t:"Lower bound and occurrence count",
+ en:"For a sorted array write <code>static int lowerBound(int[] a, int key)</code> that returns the index of the first element that is <code>≥ key</code> (or <code>a.length</code> if none) in O(log n) using binary search. Then write <code>static int countOccurrences(int[] a, int key)</code> that calls <code>lowerBound</code> twice to count how many times <code>key</code> appears. No linear scans.",
+ th:"สำหรับอาร์เรย์ที่เรียงแล้ว เขียน <code>static int lowerBound(int[] a, int key)</code> ที่คืนดัชนีของสมาชิกตัวแรกที่ <code>≥ key</code> (หรือ <code>a.length</code> ถ้าไม่มี) ในเวลา O(log n) ด้วยการค้นหาแบบทวิภาค จากนั้นเขียน <code>static int countOccurrences(int[] a, int key)</code> ที่เรียก <code>lowerBound</code> สองครั้งเพื่อนับจำนวนครั้งที่ <code>key</code> ปรากฏ ห้ามไล่เชิงเส้น",
+ ex:"lowerBound({1, 2, 2, 2, 5}, 2)        →  1\nlowerBound({1, 2, 2, 2, 5}, 6)        →  5\ncountOccurrences({1, 2, 2, 2, 5}, 2)  →  3\ncountOccurrences({1, 2, 2, 2, 5}, 4)  →  0",
+ sol:"static int lowerBound(int[] a, int key) {\n    int lo = 0, hi = a.length;\n    while (lo < hi) {\n        int mid = (lo + hi) / 2;\n        if (a[mid] < key) lo = mid + 1;\n        else hi = mid;\n    }\n    return lo;\n}\n\nstatic int countOccurrences(int[] a, int key) {\n    return lowerBound(a, key + 1) - lowerBound(a, key);\n}"},
+{lv:"M",t:"Bubble sort with early exit",
+ en:"Write <code>static int bubbleSortPasses(int[] a)</code> that sorts the array ascending in place using bubble sort <b>with early exit</b>: after a pass with no swaps the array is sorted and the method stops. The outer loop runs at most <code>a.length - 1</code> times as usual. Return the number of passes performed (a final pass that made no swaps counts too, if it happens).",
+ th:"เขียน <code>static int bubbleSortPasses(int[] a)</code> ที่เรียงอาร์เรย์จากน้อยไปมากในที่เดิมด้วย bubble sort <b>แบบหยุดก่อนกำหนด</b>: หลังรอบที่ไม่มีการสลับเลย อาร์เรย์เรียงแล้วและเมธอดหยุด ลูปนอกวนได้ไม่เกิน <code>a.length - 1</code> รอบตามปกติ คืนจำนวนรอบที่ทำ (รอบสุดท้ายที่ไม่มีการสลับก็นับด้วยถ้าเกิดขึ้น)",
+ ex:"{1, 2, 3, 4}  →  sorted, returns 1\n{2, 1, 3, 4}  →  sorted, returns 2\n{4, 3, 2, 1}  →  sorted, returns 3   (the outer loop's limit is reached first)",
+ sol:"static int bubbleSortPasses(int[] a) {\n    int passes = 0;\n    boolean swapped = true;\n    for (int i = 0; i < a.length - 1 && swapped; i++) {\n        swapped = false;\n        passes++;\n        for (int j = 0; j < a.length - 1 - i; j++) {\n            if (a[j] > a[j + 1]) {\n                int t = a[j]; a[j] = a[j + 1]; a[j + 1] = t;\n                swapped = true;\n            }\n        }\n    }\n    return passes;\n}"},
+{lv:"H",t:"Merge sort",
+ en:"Write <code>static void mergeSort(int[] a, int lo, int hi)</code> that sorts <code>a[lo..hi]</code> ascending, and a helper <code>static void merge(int[] a, int lo, int mid, int hi)</code> that merges the two sorted halves <code>a[lo..mid]</code> and <code>a[mid+1..hi]</code> using a temporary array and copies the result back. Do not use <code>Arrays.sort</code>.",
+ th:"เขียน <code>static void mergeSort(int[] a, int lo, int hi)</code> ที่เรียง <code>a[lo..hi]</code> จากน้อยไปมาก และเมธอดช่วย <code>static void merge(int[] a, int lo, int mid, int hi)</code> ที่รวมสองครึ่งที่เรียงแล้ว <code>a[lo..mid]</code> กับ <code>a[mid+1..hi]</code> โดยใช้อาร์เรย์ชั่วคราวแล้วคัดลอกกลับ ห้ามใช้ <code>Arrays.sort</code>",
+ ex:"int[] a = {38, 27, 43, 3, 9, 82, 10};  mergeSort(a, 0, 6);  →  {3, 9, 10, 27, 38, 43, 82}",
+ sol:"static void mergeSort(int[] a, int lo, int hi) {\n    if (lo >= hi) return;\n    int mid = (lo + hi) / 2;\n    mergeSort(a, lo, mid);\n    mergeSort(a, mid + 1, hi);\n    merge(a, lo, mid, hi);\n}\n\nstatic void merge(int[] a, int lo, int mid, int hi) {\n    int[] tmp = new int[hi - lo + 1];\n    int i = lo, j = mid + 1, k = 0;\n    while (i <= mid && j <= hi) {\n        if (a[i] <= a[j]) tmp[k++] = a[i++];\n        else tmp[k++] = a[j++];\n    }\n    while (i <= mid) tmp[k++] = a[i++];\n    while (j <= hi) tmp[k++] = a[j++];\n    for (int t = 0; t < tmp.length; t++) a[lo + t] = tmp[t];\n}"},
+{lv:"M",t:"Recursive maximum",
+ en:"Write <code>static int maxRec(int[] a, int i)</code> that returns the largest value in <code>a[i..]</code> using recursion and no loops. Assume <code>i &lt; a.length</code> on the first call.",
+ th:"เขียน <code>static int maxRec(int[] a, int i)</code> ที่คืนค่าที่มากที่สุดใน <code>a[i..]</code> โดยใช้การเรียกซ้ำและไม่ใช้ลูป ถือว่า <code>i &lt; a.length</code> ในการเรียกครั้งแรก",
+ ex:"maxRec({3, 9, 4, 9, 1}, 0)  →  9\nmaxRec({-5, -2, -8}, 0)     →  -2",
+ sol:"static int maxRec(int[] a, int i) {\n    if (i == a.length - 1) return a[i];\n    int rest = maxRec(a, i + 1);\n    return a[i] > rest ? a[i] : rest;\n}"},
+{lv:"H",t:"Staircase with 1, 2 or 3 steps",
+ en:"A staircase has <code>n</code> steps and you may climb 1, 2 or 3 steps at a time. Write <code>static long climbWays(int n)</code> that returns the number of distinct ways to reach the top, using an array table <code>ways[0..n]</code> where <code>ways[0] = 1</code>. Do not use plain recursion (it is exponential).",
+ th:"บันไดมี <code>n</code> ขั้น และก้าวได้ครั้งละ 1, 2 หรือ 3 ขั้น เขียน <code>static long climbWays(int n)</code> ที่คืนจำนวนวิธีที่ต่างกันในการขึ้นถึงยอด โดยใช้ตารางอาร์เรย์ <code>ways[0..n]</code> ที่ <code>ways[0] = 1</code> ห้ามใช้การเรียกซ้ำธรรมดา (เวลาเป็นเลขชี้กำลัง)",
+ ex:"climbWays(3)  →  4    (1+1+1, 1+2, 2+1, 3)\nclimbWays(4)  →  7\nclimbWays(10) →  274",
+ sol:"static long climbWays(int n) {\n    long[] ways = new long[n + 1];\n    ways[0] = 1;\n    for (int i = 1; i <= n; i++) {\n        ways[i] = ways[i - 1];\n        if (i >= 2) ways[i] += ways[i - 2];\n        if (i >= 3) ways[i] += ways[i - 3];\n    }\n    return ways[n];\n}"},
+{lv:"M",t:"Recursive palindrome check",
+ en:"Write <code>static boolean isPalindromeRec(int[] a, int i, int j)</code> that returns true if <code>a[i..j]</code> reads the same in both directions, by comparing the two ends and recursing inward. The caller passes <code>0</code> and <code>a.length - 1</code>.",
+ th:"เขียน <code>static boolean isPalindromeRec(int[] a, int i, int j)</code> ที่คืน true ถ้า <code>a[i..j]</code> อ่านได้เหมือนกันทั้งสองทิศ โดยเทียบปลายทั้งสองแล้วเรียกซ้ำเข้าด้านใน ผู้เรียกส่ง <code>0</code> และ <code>a.length - 1</code>",
+ ex:"isPalindromeRec({1, 2, 3, 2, 1}, 0, 4)  →  true\nisPalindromeRec({1, 2, 3}, 0, 2)        →  false",
+ sol:"static boolean isPalindromeRec(int[] a, int i, int j) {\n    if (i >= j) return true;\n    if (a[i] != a[j]) return false;\n    return isPalindromeRec(a, i + 1, j - 1);\n}"},
+{lv:"H",t:"Prefix sums and range queries",
+ en:"Write <code>static int[] prefixSums(int[] a)</code> that returns an array <code>p</code> of length <code>a.length + 1</code> with <code>p[0] = 0</code> and <code>p[k]</code> = sum of the first <code>k</code> elements. Then write <code>static int rangeSum(int[] p, int l, int r)</code> that returns the sum of <code>a[l..r]</code> (inclusive) in O(1) using only <code>p</code>.",
+ th:"เขียน <code>static int[] prefixSums(int[] a)</code> ที่คืนอาร์เรย์ <code>p</code> ความยาว <code>a.length + 1</code> โดย <code>p[0] = 0</code> และ <code>p[k]</code> = ผลรวมของ <code>k</code> ตัวแรก จากนั้นเขียน <code>static int rangeSum(int[] p, int l, int r)</code> ที่คืนผลรวมของ <code>a[l..r]</code> (รวมปลาย) ในเวลา O(1) โดยใช้แค่ <code>p</code>",
+ ex:"p = prefixSums({3, 1, 4, 1, 5})  →  {0, 3, 4, 8, 9, 14}\nrangeSum(p, 1, 3)                →  6    (1 + 4 + 1)\nrangeSum(p, 0, 4)                →  14",
+ sol:"static int[] prefixSums(int[] a) {\n    int[] p = new int[a.length + 1];\n    for (int i = 0; i < a.length; i++) {\n        p[i + 1] = p[i] + a[i];\n    }\n    return p;\n}\n\nstatic int rangeSum(int[] p, int l, int r) {\n    return p[r + 1] - p[l];\n}"},
+{lv:"M",t:"Two-sum on a sorted array",
+ en:"Write <code>static int[] twoSumSorted(int[] a, int target)</code> for a <b>sorted</b> array. Use two pointers, one at each end, and move them inward until the pair sums to <code>target</code>. Return <code>{i, j}</code> or <code>{-1, -1}</code>. The solution must be O(n).",
+ th:"เขียน <code>static int[] twoSumSorted(int[] a, int target)</code> สำหรับอาร์เรย์ที่<b>เรียงแล้ว</b> ใช้ตัวชี้สองตัวที่ปลายแต่ละข้าง แล้วเลื่อนเข้าในจนคู่บวกได้ <code>target</code> คืน <code>{i, j}</code> หรือ <code>{-1, -1}</code> คำตอบต้องเป็น O(n)",
+ ex:"twoSumSorted({1, 3, 4, 6, 8}, 10)  →  {2, 3}\ntwoSumSorted({1, 3, 4, 6, 8}, 2)   →  {-1, -1}",
+ sol:"static int[] twoSumSorted(int[] a, int target) {\n    int i = 0, j = a.length - 1;\n    while (i < j) {\n        int s = a[i] + a[j];\n        if (s == target) return new int[]{i, j};\n        if (s < target) i++;\n        else j--;\n    }\n    return new int[]{-1, -1};\n}"},
+{lv:"H",t:"Subset sum (recursive)",
+ en:"Write <code>static boolean subsetSum(int[] a, int i, int target)</code> that returns true if some subset of the elements <code>a[i..]</code> adds up to exactly <code>target</code>. Use the skip/take recursion: either leave <code>a[i]</code> out or include it and reduce the target. All values are positive.",
+ th:"เขียน <code>static boolean subsetSum(int[] a, int i, int target)</code> ที่คืน true ถ้ามีเซตย่อยของสมาชิก <code>a[i..]</code> ที่รวมได้ <code>target</code> พอดี ใช้การเรียกซ้ำแบบข้าม/หยิบ: ไม่เอา <code>a[i]</code> หรือเอาแล้วลดเป้าหมาย ค่าทุกตัวเป็นบวก",
+ ex:"subsetSum({3, 34, 4, 12, 5, 2}, 0, 9)   →  true   (4 + 5)\nsubsetSum({3, 34, 4, 12, 5, 2}, 0, 30)  →  false",
+ sol:"static boolean subsetSum(int[] a, int i, int target) {\n    if (target == 0) return true;\n    if (i == a.length || target < 0) return false;\n    return subsetSum(a, i + 1, target) || subsetSum(a, i + 1, target - a[i]);\n}"},
+{lv:"M",t:"Divide-and-conquer sum",
+ en:"Write <code>static int sumRange(int[] a, int lo, int hi)</code> that returns the sum of <code>a[lo..hi]</code> by splitting the range in half and recursing on both halves (a one-element range is the base case). No loops.",
+ th:"เขียน <code>static int sumRange(int[] a, int lo, int hi)</code> ที่คืนผลรวมของ <code>a[lo..hi]</code> โดยแบ่งช่วงครึ่งหนึ่งแล้วเรียกซ้ำทั้งสองครึ่ง (ช่วงที่มีสมาชิกเดียวเป็นกรณีฐาน) ห้ามใช้ลูป",
+ ex:"sumRange({1, 2, 3, 4, 5, 6}, 0, 5)  →  21\nsumRange({1, 2, 3, 4, 5, 6}, 2, 3)  →  7",
+ sol:"static int sumRange(int[] a, int lo, int hi) {\n    if (lo == hi) return a[lo];\n    int mid = (lo + hi) / 2;\n    return sumRange(a, lo, mid) + sumRange(a, mid + 1, hi);\n}"},
+{lv:"H",t:"All permutations",
+ en:"Write <code>static int[][] permutations(int[] a)</code> that returns every permutation of <code>a</code> as rows of a 2D array (n! rows, each of length n). Use backtracking with a <code>boolean[] used</code> array and a current-row buffer; generate them in the order produced by trying indexes 0, 1, 2, … at each depth. Write a helper that carries the extra state.",
+ th:"เขียน <code>static int[][] permutations(int[] a)</code> ที่คืนการเรียงสับเปลี่ยนทั้งหมดของ <code>a</code> เป็นแถวของอาร์เรย์สองมิติ (n! แถว แต่ละแถวยาว n) ใช้ backtracking กับอาร์เรย์ <code>boolean[] used</code> และบัฟเฟอร์แถวปัจจุบัน สร้างตามลำดับที่ลองดัชนี 0, 1, 2, … ในแต่ละชั้น เขียนเมธอดช่วยที่ส่งสถานะเพิ่มเติม",
+ ex:"permutations({1, 2, 3})  →  {{1,2,3}, {1,3,2}, {2,1,3}, {2,3,1}, {3,1,2}, {3,2,1}}",
+ sol:"static int[][] permutations(int[] a) {\n    int n = a.length;\n    int total = 1;\n    for (int i = 2; i <= n; i++) total *= i;\n    int[][] out = new int[total][n];\n    int[] count = {0};\n    build(a, new boolean[n], new int[n], 0, out, count);\n    return out;\n}\n\nstatic void build(int[] a, boolean[] used, int[] cur, int depth, int[][] out, int[] count) {\n    if (depth == a.length) {\n        out[count[0]++] = cur.clone();\n        return;\n    }\n    for (int i = 0; i < a.length; i++) {\n        if (used[i]) continue;\n        used[i] = true;\n        cur[depth] = a[i];\n        build(a, used, cur, depth + 1, out, count);\n        used[i] = false;\n    }\n}"},
+{lv:"M",t:"Recursive binary search",
+ en:"Write <code>static int binarySearchRec(int[] a, int key, int lo, int hi)</code> that searches the sorted range <code>a[lo..hi]</code> recursively and returns the index of <code>key</code> or -1. The caller passes <code>0</code> and <code>a.length - 1</code>.",
+ th:"เขียน <code>static int binarySearchRec(int[] a, int key, int lo, int hi)</code> ที่ค้นหาในช่วงที่เรียงแล้ว <code>a[lo..hi]</code> แบบเรียกซ้ำ และคืนดัชนีของ <code>key</code> หรือ -1 ผู้เรียกส่ง <code>0</code> และ <code>a.length - 1</code>",
+ ex:"binarySearchRec({2, 4, 7, 9, 12}, 9, 0, 4)   →  3\nbinarySearchRec({2, 4, 7, 9, 12}, 5, 0, 4)   →  -1",
+ sol:"static int binarySearchRec(int[] a, int key, int lo, int hi) {\n    if (lo > hi) return -1;\n    int mid = (lo + hi) / 2;\n    if (a[mid] == key) return mid;\n    if (key < a[mid]) return binarySearchRec(a, key, lo, mid - 1);\n    return binarySearchRec(a, key, mid + 1, hi);\n}"},
+{lv:"H",t:"Coin change: number of ways",
+ en:"Write <code>static long coinWays(int[] coins, int target)</code> that returns how many <b>unordered</b> combinations of the given coin values sum to <code>target</code> (unlimited coins of each kind). Build a table <code>ways[0..target]</code> with <code>ways[0] = 1</code>, and process one coin at a time so that {1,2} and {2,1} are not counted twice.",
+ th:"เขียน <code>static long coinWays(int[] coins, int target)</code> ที่คืนจำนวนชุดเหรียญ<b>ที่ไม่สนลำดับ</b>ซึ่งรวมได้ <code>target</code> (เหรียญแต่ละชนิดใช้ได้ไม่จำกัด) สร้างตาราง <code>ways[0..target]</code> โดย <code>ways[0] = 1</code> และประมวลผลทีละเหรียญเพื่อไม่ให้นับ {1,2} กับ {2,1} ซ้ำ",
+ ex:"coinWays({1, 2, 5}, 5)    →  4\ncoinWays({2, 5, 3, 6}, 10) →  5",
+ sol:"static long coinWays(int[] coins, int target) {\n    long[] ways = new long[target + 1];\n    ways[0] = 1;\n    for (int i = 0; i < coins.length; i++) {\n        int c = coins[i];\n        for (int v = c; v <= target; v++) {\n            ways[v] += ways[v - c];\n        }\n    }\n    return ways[target];\n}"},
+{lv:"M",t:"k-th smallest by partial selection",
+ en:"Write <code>static int kthSmallest(int[] a, int k)</code> that returns the k-th smallest value (<code>k = 0</code> is the minimum) <b>without modifying</b> <code>a</code>. Copy the array, then run selection sort only until position <code>k</code> is final, and return that element.",
+ th:"เขียน <code>static int kthSmallest(int[] a, int k)</code> ที่คืนค่าที่น้อยเป็นอันดับ k (<code>k = 0</code> คือค่าต่ำสุด) โดย<b>ไม่แก้</b> <code>a</code> คัดลอกอาร์เรย์แล้วรัน selection sort แค่จนตำแหน่ง <code>k</code> นิ่ง แล้วคืนสมาชิกนั้น",
+ ex:"kthSmallest({7, 2, 9, 4, 1}, 0)  →  1\nkthSmallest({7, 2, 9, 4, 1}, 2)  →  4",
+ sol:"static int kthSmallest(int[] a, int k) {\n    int[] b = a.clone();\n    for (int i = 0; i <= k; i++) {\n        int min = i;\n        for (int j = i + 1; j < b.length; j++) {\n            if (b[j] < b[min]) min = j;\n        }\n        int t = b[i]; b[i] = b[min]; b[min] = t;\n    }\n    return b[k];\n}"},
+{lv:"H",t:"Longest increasing subsequence",
+ en:"Write <code>static int lengthOfLIS(int[] a)</code> that returns the length of the longest strictly increasing subsequence (elements need not be adjacent). Use the O(n²) table method: <code>len[i]</code> is the best length of a subsequence ending at index <code>i</code>.",
+ th:"เขียน <code>static int lengthOfLIS(int[] a)</code> ที่คืนความยาวของลำดับย่อยที่เพิ่มขึ้นอย่างเคร่งครัดที่ยาวที่สุด (สมาชิกไม่จำเป็นต้องติดกัน) ใช้วิธีตาราง O(n²): <code>len[i]</code> คือความยาวดีสุดของลำดับย่อยที่จบที่ดัชนี <code>i</code>",
+ ex:"lengthOfLIS({10, 9, 2, 5, 3, 7, 101, 18})  →  4   (2, 3, 7, 18)\nlengthOfLIS({5, 4, 3})                    →  1",
+ sol:"static int lengthOfLIS(int[] a) {\n    if (a.length == 0) return 0;\n    int[] len = new int[a.length];\n    int best = 0;\n    for (int i = 0; i < a.length; i++) {\n        len[i] = 1;\n        for (int j = 0; j < i; j++) {\n            if (a[j] < a[i] && len[j] + 1 > len[i]) len[i] = len[j] + 1;\n        }\n        if (len[i] > best) best = len[i];\n    }\n    return best;\n}"},
+{lv:"M",t:"Best window sum",
+ en:"Write <code>static int maxWindowSum(int[] a, int k)</code> that returns the largest sum of <code>k</code> consecutive elements in O(n): compute the first window, then slide it by adding the entering element and subtracting the leaving one. Assume <code>1 ≤ k ≤ a.length</code>.",
+ th:"เขียน <code>static int maxWindowSum(int[] a, int k)</code> ที่คืนผลรวมสูงสุดของสมาชิกติดกัน <code>k</code> ตัวในเวลา O(n): คำนวณหน้าต่างแรก แล้วเลื่อนโดยบวกตัวที่เข้าและลบตัวที่ออก ถือว่า <code>1 ≤ k ≤ a.length</code>",
+ ex:"maxWindowSum({2, 1, 5, 1, 3, 2}, 3)  →  9\nmaxWindowSum({-1, -2, -3}, 2)        →  -3",
+ sol:"static int maxWindowSum(int[] a, int k) {\n    int w = 0;\n    for (int i = 0; i < k; i++) w += a[i];\n    int best = w;\n    for (int i = k; i < a.length; i++) {\n        w += a[i] - a[i - k];\n        if (w > best) best = w;\n    }\n    return best;\n}"},
+{lv:"H",t:"Smallest missing positive",
+ en:"Write <code>static int smallestMissing(int[] a)</code> that returns the smallest positive integer (1, 2, 3, …) that does <b>not</b> appear in the array, in O(n) time. Hint: the answer is at most <code>a.length + 1</code>, so a <code>boolean[] seen</code> of size <code>a.length + 2</code> is enough; ignore values outside 1..a.length.",
+ th:"เขียน <code>static int smallestMissing(int[] a)</code> ที่คืนจำนวนเต็มบวกที่น้อยที่สุด (1, 2, 3, …) ซึ่ง<b>ไม่</b>ปรากฏในอาร์เรย์ ในเวลา O(n) คำใบ้: คำตอบไม่เกิน <code>a.length + 1</code> ดังนั้น <code>boolean[] seen</code> ขนาด <code>a.length + 2</code> ก็พอ ละเลยค่าที่อยู่นอกช่วง 1..a.length",
+ ex:"smallestMissing({3, 4, -1, 1})  →  2\nsmallestMissing({1, 2, 3})      →  4\nsmallestMissing({7, 8, 9})      →  1",
+ sol:"static int smallestMissing(int[] a) {\n    boolean[] seen = new boolean[a.length + 2];\n    for (int i = 0; i < a.length; i++) {\n        int x = a[i];\n        if (x >= 1 && x <= a.length) seen[x] = true;\n    }\n    int v = 1;\n    while (seen[v]) v++;\n    return v;\n}"},
+{lv:"M",t:"Recursive join",
+ en:"Write <code>static String joinRec(int[] a, int i)</code> that returns the elements from index <code>i</code> onward joined with <code>\"-\"</code>, using recursion and no loops. An empty remainder gives <code>\"\"</code>, and there must be no trailing dash.",
+ th:"เขียน <code>static String joinRec(int[] a, int i)</code> ที่คืนสมาชิกตั้งแต่ดัชนี <code>i</code> เป็นต้นไปเชื่อมด้วย <code>\"-\"</code> โดยใช้การเรียกซ้ำและไม่ใช้ลูป ส่วนที่เหลือว่างให้คืน <code>\"\"</code> และต้องไม่มีขีดต่อท้าย",
+ ex:"joinRec({4, 8, 15}, 0)  →  \"4-8-15\"\njoinRec({4, 8, 15}, 2)  →  \"15\"\njoinRec({}, 0)          →  \"\"",
+ sol:"static String joinRec(int[] a, int i) {\n    if (i >= a.length) return \"\";\n    if (i == a.length - 1) return String.valueOf(a[i]);\n    return a[i] + \"-\" + joinRec(a, i + 1);\n}"},
+{lv:"H",t:"Count subarrays with a given sum",
+ en:"Write <code>static int countSubarraysWithSum(int[] a, int target)</code> that returns how many <b>contiguous</b> subarrays sum to exactly <code>target</code>. Build a prefix-sum array first so each subarray sum is a subtraction; an O(n²) scan over all (l, r) pairs is acceptable. Values may be negative or zero.",
+ th:"เขียน <code>static int countSubarraysWithSum(int[] a, int target)</code> ที่คืนจำนวนอาร์เรย์ย่อย<b>ติดต่อกัน</b>ที่รวมได้ <code>target</code> พอดี สร้างอาร์เรย์ผลรวมสะสมก่อนเพื่อให้ผลรวมของแต่ละช่วงเป็นการลบ การไล่ทุกคู่ (l, r) แบบ O(n²) ยอมรับได้ ค่าอาจเป็นลบหรือศูนย์",
+ ex:"countSubarraysWithSum({1, 1, 1}, 2)         →  2\ncountSubarraysWithSum({1, 2, 3, -3, 3}, 3)  →  5   ([1,2], [3], [1,2,3,-3], [3,-3,3], [3])",
+ sol:"static int countSubarraysWithSum(int[] a, int target) {\n    int[] p = new int[a.length + 1];\n    for (int i = 0; i < a.length; i++) p[i + 1] = p[i] + a[i];\n    int count = 0;\n    for (int l = 0; l < a.length; l++) {\n        for (int r = l; r < a.length; r++) {\n            if (p[r + 1] - p[l] == target) count++;\n        }\n    }\n    return count;\n}"},
+{lv:"M",t:"Recursive minimum of the first n",
+ en:"Write <code>static int minRec(int[] a, int n)</code> that returns the smallest value among the first <code>n</code> elements, recursing on <code>n - 1</code>. The base case is <code>n == 1</code>.",
+ th:"เขียน <code>static int minRec(int[] a, int n)</code> ที่คืนค่าน้อยที่สุดใน <code>n</code> ตัวแรก โดยเรียกซ้ำด้วย <code>n - 1</code> กรณีฐานคือ <code>n == 1</code>",
+ ex:"minRec({5, 3, 8, 1, 9}, 5)  →  1\nminRec({5, 3, 8, 1, 9}, 3)  →  3",
+ sol:"static int minRec(int[] a, int n) {\n    if (n == 1) return a[0];\n    int rest = minRec(a, n - 1);\n    return a[n - 1] < rest ? a[n - 1] : rest;\n}"},
+{lv:"H",t:"Equal-sum partition",
+ en:"Write <code>static boolean canPartition(int[] a)</code> that returns true if the positive integers in <code>a</code> can be split into two groups with equal sums. If the total is odd return false; otherwise use a <code>boolean[] reachable</code> table of size <code>total/2 + 1</code> where <code>reachable[s]</code> means some subset sums to <code>s</code>, updating it from high to low for each element.",
+ th:"เขียน <code>static boolean canPartition(int[] a)</code> ที่คืน true ถ้าจำนวนเต็มบวกใน <code>a</code> แบ่งเป็นสองกลุ่มที่ผลรวมเท่ากันได้ ถ้าผลรวมเป็นเลขคี่ให้คืน false ไม่เช่นนั้นใช้ตาราง <code>boolean[] reachable</code> ขนาด <code>total/2 + 1</code> โดย <code>reachable[s]</code> หมายถึงมีเซตย่อยที่รวมได้ <code>s</code> อัปเดตจากค่าสูงไปต่ำสำหรับสมาชิกแต่ละตัว",
+ ex:"canPartition({1, 5, 11, 5})  →  true   ({1,5,5} and {11})\ncanPartition({1, 2, 3, 5})   →  false",
+ sol:"static boolean canPartition(int[] a) {\n    int total = 0;\n    for (int i = 0; i < a.length; i++) total += a[i];\n    if (total % 2 != 0) return false;\n    int half = total / 2;\n    boolean[] reachable = new boolean[half + 1];\n    reachable[0] = true;\n    for (int i = 0; i < a.length; i++) {\n        int x = a[i];\n        for (int s = half; s >= x; s--) {\n            if (reachable[s - x]) reachable[s] = true;\n        }\n    }\n    return reachable[half];\n}"},
+{lv:"M",t:"Running maximum",
+ en:"Write <code>static int[] cumulativeMax(int[] a)</code> that returns a new array where element <code>i</code> is the largest value among <code>a[0..i]</code>.",
+ th:"เขียน <code>static int[] cumulativeMax(int[] a)</code> ที่คืนอาร์เรย์ใหม่โดยสมาชิกที่ <code>i</code> คือค่าที่มากที่สุดใน <code>a[0..i]</code>",
+ ex:"cumulativeMax({3, 1, 4, 1, 5, 9, 2})  →  {3, 3, 4, 4, 5, 9, 9}",
+ sol:"static int[] cumulativeMax(int[] a) {\n    int[] r = new int[a.length];\n    for (int i = 0; i < a.length; i++) {\n        r[i] = (i == 0) ? a[0] : Math.max(r[i - 1], a[i]);\n    }\n    return r;\n}"},
+{lv:"M",t:"Remove duplicates from a sorted array in place",
+ en:"Write <code>static int removeDuplicatesSorted(int[] a)</code> for a sorted array. Overwrite the array so that its first <code>m</code> cells hold each distinct value once (in order) and return <code>m</code>. Use a write index and a read index (two pointers); do not allocate a new array.",
+ th:"เขียน <code>static int removeDuplicatesSorted(int[] a)</code> สำหรับอาร์เรย์ที่เรียงแล้ว เขียนทับอาร์เรย์ให้ <code>m</code> ช่องแรกเก็บค่าที่ไม่ซ้ำกันค่าละครั้ง (ตามลำดับ) แล้วคืน <code>m</code> ใช้ดัชนีเขียนและดัชนีอ่าน (ตัวชี้สองตัว) ห้ามจองอาร์เรย์ใหม่",
+ ex:"int[] a = {1, 1, 2, 2, 2, 3, 5, 5};  removeDuplicatesSorted(a)  →  4, and a starts with {1, 2, 3, 5}",
+ sol:"static int removeDuplicatesSorted(int[] a) {\n    if (a.length == 0) return 0;\n    int w = 1;\n    for (int r = 1; r < a.length; r++) {\n        if (a[r] != a[w - 1]) {\n            a[w++] = a[r];\n        }\n    }\n    return w;\n}"},
+{lv:"H",t:"All subset sums",
+ en:"Write <code>static int[] subsetSums(int[] a)</code> that returns an array of length <code>2<sup>n</sup></code> where entry <code>mask</code> is the sum of the elements whose bit is set in <code>mask</code> (bit <code>i</code> ↔ <code>a[i]</code>). Use <code>(mask &gt;&gt; i) &amp; 1</code> to test a bit. Assume <code>n ≤ 20</code>.",
+ th:"เขียน <code>static int[] subsetSums(int[] a)</code> ที่คืนอาร์เรย์ความยาว <code>2<sup>n</sup></code> โดยช่อง <code>mask</code> คือผลรวมของสมาชิกที่บิตใน <code>mask</code> เปิดอยู่ (บิต <code>i</code> ↔ <code>a[i]</code>) ใช้ <code>(mask &gt;&gt; i) &amp; 1</code> เพื่อทดสอบบิต ถือว่า <code>n ≤ 20</code>",
+ ex:"subsetSums({1, 2, 4})  →  {0, 1, 2, 3, 4, 5, 6, 7}\nsubsetSums({5, 3})     →  {0, 5, 3, 8}",
+ sol:"static int[] subsetSums(int[] a) {\n    int n = a.length;\n    int[] sums = new int[1 << n];\n    for (int mask = 0; mask < sums.length; mask++) {\n        int s = 0;\n        for (int i = 0; i < n; i++) {\n            if (((mask >> i) & 1) == 1) s += a[i];\n        }\n        sums[mask] = s;\n    }\n    return sums;\n}"},
+{lv:"M",t:"Recursive count across rows",
+ en:"Write <code>static int countRows(int[][] g, int r, int target)</code> that returns how many cells in rows <code>r</code> to the last row equal <code>target</code>. Recurse on the row index; a loop over one row's cells is allowed.",
+ th:"เขียน <code>static int countRows(int[][] g, int r, int target)</code> ที่คืนจำนวนช่องในแถว <code>r</code> ถึงแถวสุดท้ายที่มีค่าเท่ากับ <code>target</code> เรียกซ้ำตามดัชนีแถว อนุญาตให้ใช้ลูปภายในแถวเดียวได้",
+ ex:"countRows({{1, 2, 1}, {1, 1, 3}, {2, 2, 1}}, 0, 1)  →  5\ncountRows({{1, 2, 1}, {1, 1, 3}, {2, 2, 1}}, 2, 1)  →  1",
+ sol:"static int countRows(int[][] g, int r, int target) {\n    if (r == g.length) return 0;\n    int c = 0;\n    for (int j = 0; j < g[r].length; j++) {\n        if (g[r][j] == target) c++;\n    }\n    return c + countRows(g, r + 1, target);\n}"},
+{lv:"H",t:"Maximum path in a number triangle",
+ en:"A jagged array <code>tri</code> holds a number triangle (row <code>i</code> has <code>i + 1</code> entries). Starting at the top you move to one of the two adjacent entries in the next row (<code>j</code> or <code>j + 1</code>). Write <code>static int maxPathSum(int[][] tri)</code> that returns the largest possible sum of a top-to-bottom path, using a table (not exponential recursion).",
+ th:"อาร์เรย์ขั้นบันได <code>tri</code> เก็บสามเหลี่ยมตัวเลข (แถว <code>i</code> มี <code>i + 1</code> ช่อง) เริ่มจากยอดแล้วเลื่อนไปยังหนึ่งในสองช่องที่ติดกันในแถวถัดไป (<code>j</code> หรือ <code>j + 1</code>) เขียน <code>static int maxPathSum(int[][] tri)</code> ที่คืนผลรวมสูงสุดของเส้นทางจากยอดถึงฐาน โดยใช้ตาราง (ไม่ใช่การเรียกซ้ำแบบเลขชี้กำลัง)",
+ ex:"maxPathSum({{3}, {7, 4}, {2, 4, 6}, {8, 5, 9, 3}})  →  23   (3 → 7 → 4 → 9)",
+ sol:"static int maxPathSum(int[][] tri) {\n    int n = tri.length;\n    int[] best = tri[n - 1].clone();   // start from the bottom row\n    for (int i = n - 2; i >= 0; i--) {\n        for (int j = 0; j <= i; j++) {\n            best[j] = tri[i][j] + Math.max(best[j], best[j + 1]);\n        }\n    }\n    return best[0];\n}"},
+{lv:"M",t:"Recursive sorted check",
+ en:"Write <code>static boolean isSortedRec(int[] a, int i)</code> that returns true if <code>a[i..]</code> is in non-decreasing order, using recursion: compare <code>a[i]</code> with <code>a[i + 1]</code> and recurse. The caller passes <code>i = 0</code>.",
+ th:"เขียน <code>static boolean isSortedRec(int[] a, int i)</code> ที่คืน true ถ้า <code>a[i..]</code> เรียงแบบไม่ลดลง โดยใช้การเรียกซ้ำ: เทียบ <code>a[i]</code> กับ <code>a[i + 1]</code> แล้วเรียกซ้ำ ผู้เรียกส่ง <code>i = 0</code>",
+ ex:"isSortedRec({1, 3, 3, 7}, 0)  →  true\nisSortedRec({1, 5, 2}, 0)     →  false\nisSortedRec({}, 0)            →  true",
+ sol:"static boolean isSortedRec(int[] a, int i) {\n    if (i >= a.length - 1) return true;\n    if (a[i] > a[i + 1]) return false;\n    return isSortedRec(a, i + 1);\n}"},
+{lv:"H",t:"Next greater element",
+ en:"Write <code>static int[] nextGreater(int[] a)</code> that returns an array where element <code>i</code> is the first value to the <b>right</b> of <code>a[i]</code> that is strictly greater than it, or -1 if there is none. An O(n²) scan is acceptable.",
+ th:"เขียน <code>static int[] nextGreater(int[] a)</code> ที่คืนอาร์เรย์ซึ่งสมาชิกที่ <code>i</code> คือค่าแรกทาง<b>ขวา</b>ของ <code>a[i]</code> ที่มากกว่ามันอย่างเคร่งครัด หรือ -1 ถ้าไม่มี การไล่แบบ O(n²) ยอมรับได้",
+ ex:"nextGreater({4, 5, 2, 10, 8})  →  {5, 10, 10, -1, -1}\nnextGreater({3, 2, 1})         →  {-1, -1, -1}",
+ sol:"static int[] nextGreater(int[] a) {\n    int[] r = new int[a.length];\n    for (int i = 0; i < a.length; i++) {\n        r[i] = -1;\n        for (int j = i + 1; j < a.length; j++) {\n            if (a[j] > a[i]) { r[i] = a[j]; break; }\n        }\n    }\n    return r;\n}"},
+{lv:"M",t:"Pairs divisible by k",
+ en:"Write <code>static int countPairsDivisible(int[] a, int k)</code> that returns the number of index pairs <code>i &lt; j</code> whose sum <code>a[i] + a[j]</code> is divisible by <code>k</code>. All values are non-negative.",
+ th:"เขียน <code>static int countPairsDivisible(int[] a, int k)</code> ที่คืนจำนวนคู่ดัชนี <code>i &lt; j</code> ที่ผลบวก <code>a[i] + a[j]</code> หารด้วย <code>k</code> ลงตัว ค่าทุกตัวไม่เป็นลบ",
+ ex:"countPairsDivisible({1, 2, 3, 4, 5}, 3)  →  4   ((1,2), (1,5), (2,4), (4,5))",
+ sol:"static int countPairsDivisible(int[] a, int k) {\n    int c = 0;\n    for (int i = 0; i < a.length; i++) {\n        for (int j = i + 1; j < a.length; j++) {\n            if ((a[i] + a[j]) % k == 0) c++;\n        }\n    }\n    return c;\n}"}
+];
+
+
+const KEY='java-mock-exam-set4';
+let state={mcq:{},fill:{},code:{},done:{},tab:'mcq'};
+try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&typeof s==='object')state=Object.assign(state,s);}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function h(tag,attrs,...kids){const el=document.createElement(tag);for(const k in attrs||{}){if(k==='html')el.innerHTML=attrs[k];else if(k.startsWith('on'))el.addEventListener(k.slice(2),attrs[k]);else el.setAttribute(k,attrs[k]);}
+  for(const c of kids){if(c==null)continue;el.append(c.nodeType?c:document.createTextNode(c));}return el;}
+function lv(q){if(!q.lv)return null;return h('span',{class:'lv '+q.lv,title:q.lv==='H'?'Hard · ยาก':'Medium · ปานกลาง'},q.lv==='H'?'HARD':'MED');}
+function shuffled(n,seed){const idx=[...Array(n).keys()];let s=seed*2654435761%4294967296+12345;for(let i=n-1;i>0;i--){s=(s*1103515245+12345)%2147483648;const j=s%(i+1);[idx[i],idx[j]]=[idx[j],idx[i]];}return idx;}
+const LET='ABCD';
+
+// ---------- Part 1: MCQ ----------
+const mcqEls=[];
+MCQ.forEach((q,i)=>{
+  const order=shuffled(q.opts.length,i+7);
+  const card=h('div',{class:'q',id:'mcq-'+(i+1)});
+  card.append(h('div',{class:'qh'},h('div',{class:'num'},String(i+1)),h('div',{class:'qt'},h('div',{class:'en',html:q.en}),h('div',{class:'th',html:q.th})),lv(q)));
+  if(q.code)card.append(h('pre',{},q.code));
+  const opts=h('div',{class:'opts'});
+  order.forEach((oi,k)=>{
+    const id=`m${i}o${oi}`;
+    const inp=h('input',{type:'radio',name:'m'+i,id,value:String(oi)});
+    if(state.mcq[i]===oi)inp.checked=true;
+    inp.addEventListener('change',()=>{state.mcq[i]=oi;save();});
+    opts.append(h('label',{class:'opt',for:id},inp,h('span',{class:'k'},LET[k]),h('code',{},q.opts[oi])));
+  });
+  card.append(opts);
+  const fb=h('span',{class:'fb'});const exp=h('div',{class:'exp',html:q.exp});exp.hidden=true;
+  const foot=h('div',{class:'foot'},h('button',{class:'btn',type:'button',onclick:()=>checkMcq(i,true)},'Check · ตรวจ'),fb);
+  card.append(foot,exp);
+  mcqEls.push({card,opts,fb,exp,order});
+  document.getElementById('list-mcq').append(card);
+});
+function checkMcq(i,reveal){
+  const q=MCQ[i],e=mcqEls[i],sel=state.mcq[i];
+  e.opts.querySelectorAll('.opt').forEach(o=>o.classList.remove('ok','bad'));
+  e.card.classList.remove('ok','bad');
+  if(sel===undefined&&!reveal){e.fb.className='fb';e.fb.textContent='';return null;}
+  const labels=e.opts.querySelectorAll('.opt');
+  labels.forEach(l=>{const v=+l.querySelector('input').value;if(v===q.ans)l.classList.add('ok');else if(v===sel)l.classList.add('bad');});
+  const ok=sel===q.ans;
+  e.card.classList.add(ok?'ok':'bad');
+  e.fb.className='fb '+(ok?'ok':'bad');
+  e.fb.textContent=sel===undefined?'Not answered · ยังไม่ได้ตอบ':ok?'Correct · ถูกต้อง':'Incorrect · ไม่ถูกต้อง';
+  e.exp.hidden=false;
+  updateScore();
+  return ok;
+}
+
+// ---------- Part 3: Fill ----------
+const fillEls=[];
+function norm(s){return s.replace(/\s+/g,'').toLowerCase();}
+FILL.forEach((q,i)=>{
+  const card=h('div',{class:'q',id:'fill-'+(i+1)});
+  card.append(h('div',{class:'qh'},h('div',{class:'num'},String(i+1)),h('div',{class:'qt'},h('div',{class:'en',html:q.en}),h('div',{class:'th',html:q.th})),lv(q)));
+  const pre=h('pre');
+  const parts=q.code.split('____');
+  let inp;
+  parts.forEach((p,k)=>{pre.append(p);if(k<parts.length-1){inp=h('input',{class:'blank',type:'text',id:'f'+i,autocomplete:'off',spellcheck:'false','aria-label':'blank '+(i+1)});
+    inp.value=state.fill[i]||'';inp.addEventListener('input',()=>{state.fill[i]=inp.value;save();inp.classList.remove('ok','bad');});
+    inp.addEventListener('keydown',ev=>{if(ev.key==='Enter')checkFill(i,true);});pre.append(inp);}});
+  card.append(pre);
+  const fb=h('span',{class:'fb'});const ans=h('div',{class:'exp'});ans.hidden=true;
+  ans.innerHTML='Answer · เฉลย: '+q.acc.map(a=>'<code>'+esc(a)+'</code>').join(' or ');
+  card.append(h('div',{class:'foot'},h('button',{class:'btn',type:'button',onclick:()=>checkFill(i,true)},'Check · ตรวจ'),fb),ans);
+  fillEls.push({card,inp,fb,ans});
+  document.getElementById('list-fill').append(card);
+});
+function checkFill(i,reveal){
+  const q=FILL[i],e=fillEls[i],v=state.fill[i]||'';
+  const ok=v.trim()!==''&&q.acc.some(a=>norm(a)===norm(v));
+  e.inp.classList.remove('ok','bad');e.card.classList.remove('ok','bad');
+  if(!reveal&&v.trim()==='')return null;
+  e.inp.classList.add(ok?'ok':'bad');e.card.classList.add(ok?'ok':'bad');
+  e.fb.className='fb '+(ok?'ok':'bad');
+  e.fb.textContent=v.trim()===''?'Not answered · ยังไม่ได้ตอบ':ok?'Correct · ถูกต้อง':'Incorrect · ไม่ถูกต้อง';
+  e.ans.hidden=ok;
+  updateScore();
+  return ok;
+}
+
+// ---------- Part 2: Code ----------
+const codeEls=[];
+CODE.forEach((q,i)=>{
+  const card=h('div',{class:'q',id:'code-'+(i+1)});
+  card.append(h('div',{class:'qh'},h('div',{class:'num'},String(i+1)),h('div',{class:'qt'},h('div',{class:'title'},q.t),h('div',{class:'en',html:q.en}),h('div',{class:'th',html:q.th})),lv(q)));
+  card.append(h('div',{class:'ex',html:'Examples · ตัวอย่าง:<br><code>'+esc(q.ex)+'</code>'}));
+  const ta=h('textarea',{id:'c'+i,placeholder:'// Write your Java code here · เขียนโค้ด Java ที่นี่',spellcheck:'false'});
+  ta.value=state.code[i]||'';ta.addEventListener('input',()=>{state.code[i]=ta.value;save();});
+  ta.addEventListener('keydown',ev=>{if(ev.key==='Tab'){ev.preventDefault();const s=ta.selectionStart;ta.setRangeText('    ',s,ta.selectionEnd,'end');ta.dispatchEvent(new Event('input'));}});
+  card.append(ta);
+  const sol=h('div',{class:'sol'},h('div',{class:'lbl'},'Model answer · เฉลย'),h('pre',{},q.sol));sol.hidden=true;
+  const btn=h('button',{class:'btn',type:'button'},'Show model answer · ดูเฉลย');
+  btn.addEventListener('click',()=>{sol.hidden=!sol.hidden;btn.textContent=sol.hidden?'Show model answer · ดูเฉลย':'Hide model answer · ซ่อนเฉลย';});
+  const chk=h('input',{type:'checkbox',id:'d'+i});chk.checked=!!state.done[i];
+  chk.addEventListener('change',()=>{state.done[i]=chk.checked;card.classList.toggle('ok',chk.checked);save();updateScore();});
+  card.classList.toggle('ok',chk.checked);
+  card.append(h('div',{class:'foot'},btn,h('label',{class:'done',for:'d'+i},chk,'Done · ทำได้แล้ว')),sol);
+  codeEls.push({card,sol,btn});
+  document.getElementById('list-code').append(card);
+});
+
+// ---------- Scoring, tabs, bulk actions ----------
+function updateScore(){
+  const m=MCQ.reduce((n,q,i)=>n+(state.mcq[i]===q.ans?1:0),0);
+  const f=FILL.reduce((n,q,i)=>n+((state.fill[i]||'').trim()&&q.acc.some(a=>norm(a)===norm(state.fill[i]))?1:0),0);
+  const c=CODE.reduce((n,q,i)=>n+(state.done[i]?1:0),0);
+  document.getElementById('n-mcq').textContent=m+'/30';
+  document.getElementById('n-fill').textContent=f+'/30';
+  document.getElementById('n-code').textContent=c+'/30';
+  document.getElementById('total').innerHTML=(m+f+c)+'<small>/90</small>';
+  return {m,f,c};
+}
+function showTab(p){
+  state.tab=p;save();
+  document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.part===p?'true':'false'));
+  document.querySelectorAll('.part').forEach(s=>s.classList.toggle('active',s.id==='part-'+p));
+}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{showTab(t.dataset.part);window.scrollTo({top:0});}));
+document.querySelectorAll('[data-checkall]').forEach(b=>b.addEventListener('click',()=>{
+  const p=b.dataset.checkall,arr=p==='mcq'?MCQ:FILL,fn=p==='mcq'?checkMcq:checkFill;
+  let ok=0,ans=0;arr.forEach((q,i)=>{const r=fn(i,true);if(r)ok++;if(p==='mcq'?state.mcq[i]!==undefined:(state.fill[i]||'').trim())ans++;});
+  const res=document.getElementById('res-'+p);
+  res.innerHTML=`<b>${ok} / ${arr.length}</b> correct · ตอบถูก ${ok} จาก ${arr.length} ข้อ (${ans} answered · ตอบแล้ว ${ans} ข้อ)`;
+  res.classList.add('show');updateScore();res.scrollIntoView({block:'nearest'});
+}));
+document.querySelectorAll('[data-showall]').forEach(b=>b.addEventListener('click',()=>{
+  const p=b.dataset.showall;
+  if(p==='mcq')MCQ.forEach((q,i)=>checkMcq(i,true));
+  else if(p==='fill')FILL.forEach((q,i)=>{checkFill(i,true);fillEls[i].ans.hidden=false;});
+  else codeEls.forEach(e=>{e.sol.hidden=false;e.btn.textContent='Hide model answer · ซ่อนเฉลย';});
+  updateScore();
+}));
+document.getElementById('reset').addEventListener('click',()=>{
+  const btn=document.getElementById('reset');
+  if(btn.dataset.arm!=='1'){btn.dataset.arm='1';btn.textContent='Press again to clear everything · กดอีกครั้งเพื่อล้างทั้งหมด';setTimeout(()=>{btn.dataset.arm='';btn.textContent='Reset · เริ่มใหม่';},4000);return;}
+  state={mcq:{},fill:{},code:{},done:{},tab:state.tab};save();location.reload();
+});
+const hashTab=(location.hash||'').slice(1);
+showTab(['mcq','code','fill'].includes(hashTab)?hashTab:(state.tab||'mcq'));
+updateScore();
+</script>

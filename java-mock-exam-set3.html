@@ -1,0 +1,690 @@
+<title>Java Arrays & Methods Set 3</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Sarabun:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a sticky score bar, three part tabs, one column of question cards (max 760px) */
+:root{
+  --bg:#f3f5f2; --surface:#ffffff; --fg:#1b2129; --muted:#5c6670; --line:#d7dcd9;
+  --accent:#1f5f6b; --accent-fg:#ffffff; --accent-soft:#e3eef0;
+  --ok:#1d7a4a; --ok-soft:#e1f2e7; --bad:#b4372f; --bad-soft:#f9e4e1;
+  --code-bg:#eef1ee; --code-fg:#1b2129; --blank-bg:#fff7d6;
+  --font-ui:"IBM Plex Sans Thai","Sarabun",system-ui,sans-serif;
+  --font-body:"Sarabun","IBM Plex Sans Thai",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#14191d; --surface:#1d2429; --fg:#e6eaec; --muted:#9aa5ad; --line:#323c43;
+  --accent:#63b8c6; --accent-fg:#0f1a1d; --accent-soft:#1f3337;
+  --ok:#5fcf8c; --ok-soft:#1b3326; --bad:#ef8a80; --bad-soft:#3b2220;
+  --code-bg:#0f1416; --code-fg:#e6eaec; --blank-bg:#3a3415; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#14191d; --surface:#1d2429; --fg:#e6eaec; --muted:#9aa5ad; --line:#323c43;
+  --accent:#63b8c6; --accent-fg:#0f1a1d; --accent-soft:#1f3337;
+  --ok:#5fcf8c; --ok-soft:#1b3326; --bad:#ef8a80; --bad-soft:#3b2220;
+  --code-bg:#0f1416; --code-fg:#e6eaec; --blank-bg:#3a3415; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+h1,h2,h3{font-family:var(--font-ui);text-wrap:balance;margin:0}
+code,pre,textarea,input.blank{font-family:var(--font-mono)}
+code{font-size:.92em;background:var(--code-bg);color:var(--code-fg);padding:.05em .35em;border-radius:4px}
+.wrap{max-width:760px;margin:0 auto}
+header.top{padding-block:28px 12px}
+.eyebrow{font-family:var(--font-ui);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font-size:clamp(1.5rem,4vw,2.1rem);font-weight:700;line-height:1.2;margin-top:4px}
+.sub{color:var(--muted);margin-top:6px;max-width:60ch}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:18px}
+.rule{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--surface);font-size:.92rem}
+.rule b{font-family:var(--font-ui);display:block}
+.rule span{color:var(--muted)}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding-block:10px}
+.bar .wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tabs{display:flex;gap:4px;flex:1 1 auto;min-width:0}
+.tab{font-family:var(--font-ui);font-weight:600;font-size:.9rem;border:1px solid var(--line);background:var(--surface);color:var(--fg);
+  border-radius:999px;padding:6px 14px;cursor:pointer;display:flex;gap:8px;align-items:center;white-space:nowrap}
+.tab[aria-selected="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.tab .n{font-variant-numeric:tabular-nums;font-weight:500;opacity:.85}
+.total{font-family:var(--font-ui);font-weight:600;font-variant-numeric:tabular-nums;margin-left:auto}
+.total small{color:var(--muted);font-weight:500}
+.btn{font-family:var(--font-ui);font-weight:600;font-size:.88rem;border:1px solid var(--line);background:var(--surface);color:var(--fg);
+  border-radius:6px;padding:7px 12px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.btn.ghost{background:transparent}
+.btn:focus-visible,.tab:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+section.part{display:none;padding-block:18px}
+section.part.active{display:block}
+.part-head{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px}
+.part-head h2{font-size:1.25rem}
+.part-head p{margin:2px 0 0;color:var(--muted);font-size:.95rem}
+.part-head .actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+
+.q{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:12px}
+.q.ok{border-color:var(--ok)} .q.bad{border-color:var(--bad)}
+.qh{display:flex;gap:10px;align-items:baseline}
+.num{font-family:var(--font-ui);font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;min-width:2.2em}
+.qt{flex:1;min-width:0}
+.qt .en{font-weight:500}
+.qt .th{color:var(--muted);font-size:.95rem}
+.qt .title{font-family:var(--font-ui);font-weight:600;font-size:1.05rem}
+.lv{font-family:var(--font-ui);font-size:.7rem;font-weight:700;letter-spacing:.06em;border-radius:4px;padding:1px 6px;align-self:center;white-space:nowrap;border:1px solid var(--line);color:var(--muted)}
+.lv.H{border-color:var(--accent);color:var(--accent)}
+pre{background:var(--code-bg);color:var(--code-fg);border-radius:8px;padding:12px 14px;margin:10px 0 0;overflow-x:auto;font-size:.88rem;line-height:1.5;tab-size:4}
+input.blank{background:var(--blank-bg);color:var(--code-fg);border:1px solid var(--line);border-bottom:2px solid var(--accent);border-radius:4px;
+  font-size:inherit;padding:1px 6px;width:14ch;max-width:100%;margin:0 2px}
+input.blank.ok{border-color:var(--ok);background:var(--ok-soft)} input.blank.bad{border-color:var(--bad);background:var(--bad-soft)}
+.opts{display:grid;gap:6px;margin-top:10px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:8px 10px;cursor:pointer}
+.opt:hover{border-color:var(--accent)}
+.opt input{margin-top:4px;accent-color:var(--accent)}
+.opt .k{font-family:var(--font-ui);font-weight:600;color:var(--muted);min-width:1.2em}
+.opt code{background:transparent;padding:0;font-size:.9em}
+.opt.ok{border-color:var(--ok);background:var(--ok-soft)} .opt.bad{border-color:var(--bad);background:var(--bad-soft)}
+.foot{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.fb{font-family:var(--font-ui);font-weight:600;font-size:.9rem}
+.fb.ok{color:var(--ok)} .fb.bad{color:var(--bad)}
+.exp{margin-top:8px;padding:8px 12px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 6px 6px 0;font-size:.92rem}
+.ex{margin-top:8px;font-size:.9rem;color:var(--muted)}
+.ex code{white-space:pre-wrap}
+textarea{width:100%;min-height:150px;margin-top:10px;background:var(--code-bg);color:var(--code-fg);border:1px solid var(--line);border-radius:8px;
+  padding:10px 12px;font-size:.88rem;line-height:1.5;resize:vertical;tab-size:4}
+.sol{margin-top:10px}
+.sol .lbl{font-family:var(--font-ui);font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.done{display:flex;gap:8px;align-items:center;font-family:var(--font-ui);font-weight:600;font-size:.9rem;cursor:pointer}
+.done input{accent-color:var(--ok);width:16px;height:16px}
+.result{margin-top:16px;padding:14px 16px;border-radius:10px;background:var(--accent-soft);border:1px solid var(--accent);display:none}
+.result.show{display:block}
+.result b{font-family:var(--font-ui);font-size:1.1rem}
+@media (prefers-reduced-motion:no-preference){.q{transition:border-color .2s}}
+@media (max-width:480px){.tab{padding:6px 10px;font-size:.84rem}.q{padding:14px}}
+</style>
+
+<header class="top wrap">
+  <div class="eyebrow">Java Programming · Mock Exam Set 3 · ชุดที่ 3 · Medium + Hard</div>
+  <h1>Arrays &amp; Methods · Set 3</h1>
+  <p class="sub">90 questions in three parts, mixed medium and hard (each question is tagged MED or HARD). Focus of this set: Methods in depth & array types. Answers are checked on the page and every question keeps its model solution.<br>90 ข้อ 3 ส่วน ผสมระดับปานกลางและยาก (แต่ละข้อมีป้าย MED/HARD) จุดเน้นของชุดนี้: เมธอดเชิงลึกและอาร์เรย์ชนิดต่าง ๆ ตรวจคำตอบได้ทันที และทุกข้อมีเฉลย</p>
+  <div class="rules">
+    <div class="rule"><b>Part 1 · Multiple choice</b><span>30 × 1 point · ปรนัย 30 ข้อ</span></div>
+    <div class="rule"><b>Part 2 · Write the code</b><span>30 tasks, self-marked · เขียนโปรแกรม 30 ข้อ</span></div>
+    <div class="rule"><b>Part 3 · Fill in the blank</b><span>30 × 1 point · เติมคำ 30 ข้อ</span></div>
+  </div>
+</header>
+
+<div class="bar"><div class="wrap">
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-mcq" data-part="mcq" aria-selected="true">Part 1 <span class="n" id="n-mcq">0/30</span></button>
+    <button class="tab" role="tab" id="tab-code" data-part="code" aria-selected="false">Part 2 <span class="n" id="n-code">0/30</span></button>
+    <button class="tab" role="tab" id="tab-fill" data-part="fill" aria-selected="false">Part 3 <span class="n" id="n-fill">0/30</span></button>
+  </div>
+  <div class="total" id="total">0<small>/90</small></div>
+  <button class="btn ghost" id="reset" type="button">Reset · เริ่มใหม่</button>
+</div></div>
+
+<main class="wrap">
+  <section class="part active" id="part-mcq">
+    <div class="part-head"><div><h2>Part 1 · Multiple choice · ปรนัย</h2><p>Choose one answer, then press Check. · เลือกคำตอบหนึ่งข้อ แล้วกด ตรวจ</p></div>
+      <div class="actions"><button class="btn primary" type="button" data-checkall="mcq">Check all · ตรวจทั้งหมด</button><button class="btn" type="button" data-showall="mcq">Show answers · เฉลย</button></div></div>
+    <div id="list-mcq"></div>
+    <div class="result" id="res-mcq"></div>
+  </section>
+  <section class="part" id="part-code">
+    <div class="part-head"><div><h2>Part 2 · Write the code · เขียนโปรแกรม</h2><p>Write each method in the box, compare with the model answer, then tick Done. · เขียนเมธอดในช่อง เทียบกับเฉลย แล้วติ๊ก ทำได้แล้ว</p></div>
+      <div class="actions"><button class="btn" type="button" data-showall="code">Show all answers · เฉลยทั้งหมด</button></div></div>
+    <div id="list-code"></div>
+  </section>
+  <section class="part" id="part-fill">
+    <div class="part-head"><div><h2>Part 3 · Fill in the blank · เติมคำในช่องว่าง</h2><p>Type the missing code in the yellow box. · พิมพ์โค้ดที่หายไปในช่องสีเหลือง</p></div>
+      <div class="actions"><button class="btn primary" type="button" data-checkall="fill">Check all · ตรวจทั้งหมด</button><button class="btn" type="button" data-showall="fill">Show answers · เฉลย</button></div></div>
+    <div id="list-fill"></div>
+    <div class="result" id="res-fill"></div>
+  </section>
+</main>
+
+<script>
+const MCQ = [
+{lv:"M",en:"Two overloads of <code>f</code> accept an <code>int</code> and a <code>double</code>. Four calls are made with a literal int, a double, a <code>char</code> and a <code>long</code>. Using Java's widening rules, what is printed?",
+ th:"<code>f</code> มีสองเวอร์ชันรับ <code>int</code> และ <code>double</code> ถูกเรียกสี่ครั้งด้วยลิเทอรัล int, double, <code>char</code> และ <code>long</code> ตามกฎการขยายชนิดของ Java โปรแกรมพิมพ์อะไร",
+ code:"static String f(int x)    { return \"I\"; }\nstatic String f(double x) { return \"D\"; }\npublic static void main(String[] args) {\n    System.out.println(f(5) + f(5.0) + f('a') + f(5L));\n}",
+ opts:["IDID","IDDD","IIID","Compile error: no f(char) or f(long)"],ans:0,
+ exp:"char widens to int; long cannot become int, so it widens to double. / char ขยายเป็น int ได้ ส่วน long แปลงเป็น int ไม่ได้จึงขยายเป็น double"},
+{lv:"H",en:"A fixed-arity method <code>g(int, int)</code> and a varargs method <code>g(int...)</code> have the same name. Java prefers a fixed-arity match and uses varargs only when no other overload applies. What is printed?",
+ th:"เมธอดแบบจำนวนพารามิเตอร์คงที่ <code>g(int, int)</code> กับเมธอด varargs <code>g(int...)</code> ใช้ชื่อเดียวกัน Java จะเลือกแบบคงที่ก่อน และใช้ varargs เฉพาะเมื่อไม่มีเวอร์ชันอื่นที่เข้ากัน โปรแกรมพิมพ์อะไร",
+ code:"static String g(int a, int b) { return \"two \"; }\nstatic String g(int... a)     { return \"var\" + a.length + \" \"; }\npublic static void main(String[] args) {\n    System.out.println(g(1, 2) + g(1) + g() + g(1, 2, 3));\n}",
+ opts:["two var1 var0 var3 ","var2 var1 var0 var3 ","two two var0 var3 ","Compile error: ambiguous call g(1, 2)"],ans:0,
+ exp:"Only g(1, 2) matches the two-parameter version exactly; every other call falls back to varargs. / มีเพียง g(1, 2) ที่ตรงกับเวอร์ชันสองพารามิเตอร์พอดี การเรียกอื่นใช้ varargs"},
+{lv:"M",en:"<code>find</code> returns the index of a name, or the <b>negative</b> array length when the name is absent. Two results are added. What is printed?",
+ th:"<code>find</code> คืนดัชนีของชื่อ หรือคืนความยาวอาร์เรย์แบบ<b>ติดลบ</b>เมื่อไม่พบชื่อ นำสองผลลัพธ์มาบวกกัน โปรแกรมพิมพ์อะไร",
+ code:"static int find(String[] names, String key) {\n    for (int i = 0; i < names.length; i++) {\n        if (names[i].equals(key)) return i;\n    }\n    return -names.length;\n}\npublic static void main(String[] args) {\n    String[] a = {\"ann\", \"bob\", \"cat\"};\n    String[] b = {\"x\", \"y\"};\n    System.out.println(find(a, \"cat\") + find(b, \"z\"));\n}",
+ opts:["0","2-2","4","-1"],ans:0,
+ exp:"find(a, \"cat\") = 2 and find(b, \"z\") = -2; int + int = 0, no string concatenation. / find(a, \"cat\") = 2, find(b, \"z\") = -2 บวกเป็น int ได้ 0 ไม่ใช่การต่อสตริง"},
+{lv:"H",en:"<code>trim</code> returns a copy of its argument without the first and last element, using <code>Arrays.copyOfRange</code> (end index exclusive). The result of one call is fed straight into another. What is printed?",
+ th:"<code>trim</code> คืนสำเนาของอาร์กิวเมนต์โดยตัดสมาชิกตัวแรกและตัวสุดท้ายออก ด้วย <code>Arrays.copyOfRange</code> (ดัชนีสิ้นสุดไม่รวม) ผลของการเรียกครั้งหนึ่งถูกส่งต่อเข้าอีกครั้งทันที โปรแกรมพิมพ์อะไร",
+ code:"static int[] trim(int[] a) {\n    return Arrays.copyOfRange(a, 1, a.length - 1);\n}\npublic static void main(String[] args) {\n    int[] a = {1, 2, 3, 4, 5, 6};\n    int[] b = trim(trim(a));\n    System.out.println(b.length + \" \" + b[0] + \" \" + a.length);\n}",
+ opts:["2 3 6","2 3 4","4 2 6","2 2 2"],ans:0,
+ exp:"trim(a) = {2,3,4,5}; trim of that = {3,4}. copyOfRange makes new arrays, so a keeps length 6. / trim(a) = {2,3,4,5} แล้ว trim อีกครั้ง = {3,4} copyOfRange สร้างอาร์เรย์ใหม่ a จึงยังยาว 6"},
+{lv:"M",en:"<code>allTrue</code> is a predicate method. It is applied to an initialised array, a freshly allocated <code>boolean[2]</code> and an empty array. What is printed?",
+ th:"<code>allTrue</code> เป็นเมธอดเงื่อนไข ถูกใช้กับอาร์เรย์ที่กำหนดค่าแล้ว, <code>boolean[2]</code> ที่เพิ่งจอง และอาร์เรย์ว่าง โปรแกรมพิมพ์อะไร",
+ code:"static boolean allTrue(boolean[] f) {\n    for (int i = 0; i < f.length; i++) {\n        if (!f[i]) return false;\n    }\n    return true;\n}\npublic static void main(String[] args) {\n    boolean[] f = {true, true, false};\n    boolean[] g = new boolean[2];\n    System.out.println(allTrue(f) + \" \" + allTrue(g) + \" \" + allTrue(new boolean[0]));\n}",
+ opts:["false false true","false true true","false false false","true false true"],ans:0,
+ exp:"new boolean[2] is {false, false}. An empty array never hits the if, so the method returns true (vacuous truth). / new boolean[2] คือ {false, false} อาร์เรย์ว่างไม่เข้า if เลยจึงคืน true"},
+{lv:"H",en:"<code>scale</code> builds and returns a <b>new</b> array. The caller calls it but never stores the result. What is printed?",
+ th:"<code>scale</code> สร้างและคืนอาร์เรย์<b>ใหม่</b> ผู้เรียกเรียกเมธอดแต่ไม่ได้เก็บผลลัพธ์ โปรแกรมพิมพ์อะไร",
+ code:"static double[] scale(double[] a, double k) {\n    double[] r = new double[a.length];\n    for (int i = 0; i < a.length; i++) r[i] = a[i] * k;\n    return r;\n}\npublic static void main(String[] args) {\n    double[] p = {1.5, 2.0};\n    scale(p, 2);\n    System.out.println(p[0] + p[1]);\n}",
+ opts:["3.5","7.0","1.52.0","3.04.0"],ans:0,
+ exp:"scale never writes to p; the returned array is discarded. 1.5 + 2.0 = 3.5 (numeric addition first). / scale ไม่เคยเขียนลง p อาร์เรย์ที่คืนถูกทิ้ง 1.5 + 2.0 = 3.5"},
+{lv:"M",en:"A CSV line with an <b>empty field in the middle</b> is split on commas. What is printed?",
+ th:"บรรทัด CSV ที่มีช่อง<b>ว่างอยู่ตรงกลาง</b>ถูกแยกด้วยจุลภาค โปรแกรมพิมพ์อะไร",
+ code:"String line = \"a,b,,c\";\nString[] parts = line.split(\",\");\nSystem.out.println(parts.length + \" [\" + parts[2] + \"]\");",
+ opts:["4 []","3 [c]","4 [c]","3 []"],ans:0,
+ exp:"split keeps empty strings between separators (only trailing empties are dropped), so parts = {\"a\",\"b\",\"\",\"c\"}. / split เก็บสตริงว่างระหว่างตัวคั่นไว้ (ตัดเฉพาะตัวว่างท้ายสุด) ได้ {\"a\",\"b\",\"\",\"c\"}"},
+{lv:"H",en:"Two overloads named <code>upper</code> exist: one receives a <code>char[]</code>, the other a <code>String</code>. Both try to upper-case their argument. What is printed?",
+ th:"มี <code>upper</code> สองเวอร์ชัน: รับ <code>char[]</code> และรับ <code>String</code> ทั้งคู่พยายามเปลี่ยนอาร์กิวเมนต์เป็นตัวพิมพ์ใหญ่ โปรแกรมพิมพ์อะไร",
+ code:"static void upper(char[] c) {\n    for (int i = 0; i < c.length; i++) c[i] = Character.toUpperCase(c[i]);\n}\nstatic void upper(String s) {\n    s = s.toUpperCase();\n}\npublic static void main(String[] args) {\n    String s = \"hi\";\n    char[] c = s.toCharArray();\n    upper(s);\n    upper(c);\n    System.out.println(s + new String(c));\n}",
+ opts:["hiHI","HIHI","hihi","HIhi"],ans:0,
+ exp:"Strings are immutable and the parameter s is a local copy of the reference, so the String version has no effect. The char[] is modified in place. / String เปลี่ยนค่าไม่ได้และ s เป็นสำเนาของการอ้างอิง เวอร์ชัน String จึงไม่มีผล ส่วน char[] ถูกแก้ในที่เดิม"},
+{lv:"M",en:"Two small methods are composed in different orders. What is printed?",
+ th:"เมธอดเล็ก ๆ สองตัวถูกเรียกซ้อนกันคนละลำดับ โปรแกรมพิมพ์อะไร",
+ code:"static int sq(int x)  { return x * x; }\nstatic int inc(int x) { return x + 1; }\npublic static void main(String[] args) {\n    System.out.println(sq(inc(2)) - inc(sq(2)));\n}",
+ opts:["4","0","-4","9"],ans:0,
+ exp:"sq(inc(2)) = sq(3) = 9; inc(sq(2)) = inc(4) = 5; 9 - 5 = 4. / sq(inc(2)) = 9, inc(sq(2)) = 5, ผลต่าง 4"},
+{lv:"H",en:"Two parallel arrays store names and scores. The loop looks for the best score using a strict <code>&gt;</code>. Two students tie for the top score. Whose name is printed?",
+ th:"อาร์เรย์คู่ขนานเก็บชื่อและคะแนน ลูปหาคะแนนสูงสุดด้วย <code>&gt;</code> แบบเคร่งครัด มีนักศึกษาสองคนคะแนนสูงสุดเท่ากัน ชื่อใครถูกพิมพ์",
+ code:"String[] names = {\"Ann\", \"Bob\", \"Cat\"};\nint[] scores   = {80, 92, 92};\nint best = 0;\nfor (int i = 1; i < scores.length; i++) {\n    if (scores[i] > scores[best]) best = i;\n}\nSystem.out.println(names[best]);",
+ opts:["Bob","Cat","Ann","92"],ans:0,
+ exp:"With > a later equal score does not replace the current best, so the FIRST 92 (Bob) wins. / ด้วย > คะแนนที่เท่ากันทีหลังไม่แทนที่ค่าเดิม ตัวแรกที่ได้ 92 (Bob) จึงชนะ"},
+{lv:"M",en:"A method is declared to return <code>int</code> but its return expression involves a <code>double</code>. What happens?",
+ th:"เมธอดประกาศคืน <code>int</code> แต่นิพจน์ที่ return มี <code>double</code> อยู่ จะเกิดอะไรขึ้น",
+ code:"static int half(int n) {\n    return n / 2.0;\n}",
+ opts:["Compile error: possible lossy conversion from double to int","It compiles and half(5) returns 2","It compiles and half(5) returns 2.5","Runtime exception when called"],ans:0,
+ exp:"n / 2.0 is a double; Java will not narrow it to int silently. Cast explicitly or use n / 2. / n / 2.0 เป็น double Java ไม่ย่อเป็น int ให้เอง ต้องแคสต์หรือใช้ n / 2"},
+{lv:"H",en:"Two methods call <b>each other</b> (mutual recursion). Trace <code>f(3)</code> carefully. What is printed?",
+ th:"เมธอดสองตัวเรียก<b>กันและกัน</b> (mutual recursion) ไล่ค่า <code>f(3)</code> อย่างระมัดระวัง โปรแกรมพิมพ์อะไร",
+ code:"static int f(int n) {\n    if (n == 0) return 0;\n    return g(n - 1) + n;\n}\nstatic int g(int n) {\n    if (n == 0) return 1;\n    return f(n - 1) * 2;\n}\npublic static void main(String[] args) {\n    System.out.println(f(3));\n}",
+ opts:["7","6","9","StackOverflowError"],ans:0,
+ exp:"f(1) = g(0) + 1 = 2; g(2) = f(1) * 2 = 4; f(3) = g(2) + 3 = 7. / f(1) = 2, g(2) = 4, f(3) = 7"},
+{lv:"M",en:"A <code>boolean[]</code> is set at every even index and then <b>toggled</b> at every index divisible by 3. How many elements end up true?",
+ th:"<code>boolean[]</code> ถูกตั้งเป็น true ที่ดัชนีคู่ทุกตัว แล้ว<b>สลับค่า</b>ที่ดัชนีที่หารด้วย 3 ลงตัว สุดท้ายมีกี่ช่องที่เป็น true",
+ code:"boolean[] b = new boolean[6];\nfor (int i = 0; i < b.length; i += 2) b[i] = true;\nfor (int i = 0; i < b.length; i += 3) b[i] = !b[i];\nint c = 0;\nfor (int i = 0; i < b.length; i++) {\n    if (b[i]) c++;\n}\nSystem.out.println(c);",
+ opts:["3","4","2","5"],ans:0,
+ exp:"After pass 1: indexes 0,2,4 true. Pass 2 toggles 0 (→false) and 3 (→true). True at 2,3,4. / รอบแรก 0,2,4 เป็น true รอบสองสลับ 0 (เป็น false) และ 3 (เป็น true) เหลือ 2,3,4"},
+{lv:"H",en:"<code>sum(int[])</code> delegates to a range version <code>sum(int[], from, to)</code> where <code>to</code> is exclusive. What is printed?",
+ th:"<code>sum(int[])</code> ส่งต่อไปยังเวอร์ชันระบุช่วง <code>sum(int[], from, to)</code> โดย <code>to</code> ไม่รวม โปรแกรมพิมพ์อะไร",
+ code:"static int sum(int[] a) {\n    return sum(a, 0, a.length);\n}\nstatic int sum(int[] a, int from, int to) {\n    int s = 0;\n    for (int i = from; i < to; i++) s += a[i];\n    return s;\n}\npublic static void main(String[] args) {\n    int[] a = {1, 2, 3, 4};\n    System.out.println(sum(a) - sum(a, 1, 3));\n}",
+ opts:["5","3","1","6"],ans:0,
+ exp:"sum(a) = 10; sum(a, 1, 3) adds a[1] + a[2] = 5; 10 - 5 = 5. / sum(a) = 10, sum(a, 1, 3) = 2 + 3 = 5, ผลต่าง 5"},
+{lv:"M",en:"A variable is declared inside a loop body and then used after the loop. What happens?",
+ th:"ตัวแปรถูกประกาศภายในตัวลูป แล้วถูกใช้หลังลูปจบ จะเกิดอะไรขึ้น",
+ code:"for (int i = 0; i < 3; i++) {\n    int sq = i * i;\n}\nSystem.out.println(sq);",
+ opts:["Compile error: cannot find symbol sq","Prints 4","Prints 0","Prints 9"],ans:0,
+ exp:"sq's scope is the loop body block; it does not exist outside it. / ขอบเขตของ sq คือบล็อกของลูป นอกบล็อกไม่มีตัวแปรนี้"},
+{lv:"H",en:"<code>dup</code> modifies the array it receives, then clones it and modifies the clone. Watch the string concatenation order in the print statement. What is printed?",
+ th:"<code>dup</code> แก้อาร์เรย์ที่รับมา แล้ว clone และแก้สำเนา สังเกตลำดับการต่อสตริงในคำสั่งพิมพ์ โปรแกรมพิมพ์อะไร",
+ code:"static int[] dup(int[] a) {\n    a[0] = -1;\n    int[] r = a.clone();\n    r[1] = -2;\n    return r;\n}\npublic static void main(String[] args) {\n    int[] x = {1, 2, 3};\n    int[] y = dup(x);\n    System.out.println(x[0] + x[1] + \" \" + y[0] + y[1]);\n}",
+ opts:["1 -1-2","1 -3","-12 -1-2","3 -3"],ans:0,
+ exp:"x = {-1,2,3}, y = {-1,-2,3}. Left of the first string: -1 + 2 = 1. After a string, + concatenates: \"-1\" then \"-2\". / x = {-1,2,3}, y = {-1,-2,3} ก่อนสตริงเป็นการบวก (1) หลังสตริงเป็นการต่อ"},
+{lv:"M",en:"A <code>String[]</code> is allocated but only one slot is filled. The loop compares each slot with the literal <code>\"ok\"</code> written <b>first</b>. What happens?",
+ th:"จอง <code>String[]</code> แต่เติมค่าเพียงช่องเดียว ลูปเปรียบเทียบแต่ละช่องโดยเขียนลิเทอรัล <code>\"ok\"</code> ไว้<b>ข้างหน้า</b> จะเกิดอะไรขึ้น",
+ code:"String[] s = new String[3];\ns[1] = \"ok\";\nint c = 0;\nfor (int i = 0; i < s.length; i++) {\n    if (\"ok\".equals(s[i])) c++;\n}\nSystem.out.println(c);",
+ opts:["Prints 1","NullPointerException","Prints 3","Prints 0"],ans:0,
+ exp:"\"ok\".equals(null) is simply false; x.equals(\"ok\") would throw on the null slots. / \"ok\".equals(null) ได้ false เฉย ๆ ถ้าเขียน x.equals(\"ok\") จะโยน exception ที่ช่อง null"},
+{lv:"H",en:"<code>valid</code> chains three checks with <code>&amp;&amp;</code>; the null check comes first on purpose. How many inputs are counted as valid?",
+ th:"<code>valid</code> ต่อเงื่อนไขสามข้อด้วย <code>&amp;&amp;</code> โดยตั้งใจตรวจ null ก่อน มีอินพุตกี่ตัวที่นับว่าถูกต้อง",
+ code:"static boolean valid(String s) {\n    return s != null && s.length() >= 3 && Character.isDigit(s.charAt(0));\n}\npublic static void main(String[] args) {\n    String[] in = {null, \"12\", \"9ab\", \"x99\"};\n    int c = 0;\n    for (int i = 0; i < in.length; i++) {\n        if (valid(in[i])) c++;\n    }\n    System.out.println(c);\n}",
+ opts:["1","2","NullPointerException","0"],ans:0,
+ exp:"null fails the first test (no exception thanks to short-circuit), \"12\" is too short, \"x99\" starts with a letter; only \"9ab\" passes. / null ตกเงื่อนไขแรก (ไม่ error เพราะ short-circuit), \"12\" สั้นไป, \"x99\" ขึ้นต้นด้วยตัวอักษร เหลือ \"9ab\""},
+{lv:"M",en:"Three doubles are summed and printed with <code>printf</code> using one decimal place. What is printed?",
+ th:"บวก double สามค่าแล้วพิมพ์ด้วย <code>printf</code> ทศนิยมหนึ่งตำแหน่ง โปรแกรมพิมพ์อะไร",
+ code:"double[] d = {0.1, 0.2, 0.3};\ndouble s = 0;\nfor (int i = 0; i < d.length; i++) s += d[i];\nSystem.out.printf(\"%.1f\", s);",
+ opts:["0.6","0.6000000000000001","0.5","1"],ans:0,
+ exp:"The raw sum is 0.6000000000000001, but %.1f rounds the display to 0.6. / ผลรวมดิบคือ 0.6000000000000001 แต่ %.1f ปัดการแสดงผลเป็น 0.6"},
+{lv:"H",en:"<code>divmod</code> returns quotient and remainder in an array. It is called with a <b>negative</b> dividend. What is printed?",
+ th:"<code>divmod</code> คืนผลหารและเศษในอาร์เรย์ ถูกเรียกด้วยตัวตั้ง<b>ติดลบ</b> โปรแกรมพิมพ์อะไร",
+ code:"static int[] divmod(int a, int b) {\n    return new int[]{a / b, a % b};\n}\npublic static void main(String[] args) {\n    int[] r = divmod(-7, 2);\n    System.out.println(r[0] + \",\" + r[1]);\n}",
+ opts:["-3,-1","-4,1","-3,1","-4,-1"],ans:0,
+ exp:"Java integer division truncates toward zero (-3) and the remainder takes the sign of the dividend (-1). / การหารจำนวนเต็มใน Java ปัดเข้าหาศูนย์ (-3) และเศษมีเครื่องหมายตามตัวตั้ง (-1)"},
+{lv:"M",en:"<code>join</code> takes a separator plus a varargs list of strings. It is called with three parts and then with none. What is printed?",
+ th:"<code>join</code> รับตัวคั่นและรายการสตริงแบบ varargs ถูกเรียกด้วยสามส่วน แล้วเรียกโดยไม่มีส่วนใดเลย โปรแกรมพิมพ์อะไร",
+ code:"static String join(String sep, String... parts) {\n    String r = \"\";\n    for (int i = 0; i < parts.length; i++) {\n        if (i > 0) r += sep;\n        r += parts[i];\n    }\n    return r;\n}\npublic static void main(String[] args) {\n    System.out.println(join(\"-\", \"a\", \"b\", \"c\") + \"|\" + join(\"-\") + \"|\");\n}",
+ opts:["a-b-c||","a-b-c|-|","-a-b-c||","Compile error: join(\"-\") needs at least one part"],ans:0,
+ exp:"The separator goes only between parts. With zero parts the loop never runs and \"\" is returned. / ตัวคั่นอยู่ระหว่างส่วนเท่านั้น เมื่อไม่มีส่วนใด ลูปไม่ทำงานและคืน \"\""},
+{lv:"H",en:"<code>shift</code> moves a lowercase letter forward by <code>k</code> places and wraps around the alphabet. The word <code>xyz</code> is shifted by 3. What is printed?",
+ th:"<code>shift</code> เลื่อนตัวอักษรพิมพ์เล็กไปข้างหน้า <code>k</code> ตำแหน่งและวนกลับต้นตัวอักษร คำว่า <code>xyz</code> ถูกเลื่อน 3 โปรแกรมพิมพ์อะไร",
+ code:"static char shift(char c, int k) {\n    return (char) ('a' + (c - 'a' + k) % 26);\n}\npublic static void main(String[] args) {\n    char[] w = \"xyz\".toCharArray();\n    for (int i = 0; i < w.length; i++) w[i] = shift(w[i], 3);\n    System.out.println(new String(w));\n}",
+ opts:["abc","{|}","xyz","Compile error: int cannot be converted to char"],ans:0,
+ exp:"x→(23+3)%26=0→a, y→b, z→c. The cast to char is required because 'a' + int is an int. / x→(23+3)%26=0→a, y→b, z→c ต้องแคสต์เป็น char เพราะ 'a' + int เป็น int"},
+{lv:"M",en:"<code>tag</code> copies its parameter into a local variable and appends the first character of <code>s</code> <code>n</code> times. Two results are concatenated. What is printed?",
+ th:"<code>tag</code> คัดลอกพารามิเตอร์ลงตัวแปรท้องถิ่นแล้วต่อท้ายด้วยตัวอักษรแรกของ <code>s</code> จำนวน <code>n</code> ครั้ง ผลลัพธ์สองค่าถูกต่อกัน โปรแกรมพิมพ์อะไร",
+ code:"static String tag(String s, int n) {\n    String r = s;\n    for (int i = 0; i < n; i++) r += s.charAt(0);\n    return r;\n}\npublic static void main(String[] args) {\n    System.out.println(tag(\"ab\", 2) + tag(\"x\", 0));\n}",
+ opts:["abaax","ababx","abaaxx","aabbx"],ans:0,
+ exp:"tag(\"ab\", 2) = \"ab\" + 'a' + 'a' = \"abaa\"; tag(\"x\", 0) runs the loop zero times and returns \"x\". / tag(\"ab\", 2) = \"abaa\" ส่วน tag(\"x\", 0) ไม่เข้าลูปจึงคืน \"x\""},
+{lv:"H",en:"<code>inRange</code> is written with De Morgan's law: <code>!(x &lt; lo || x &gt; hi)</code>. How many values of the array are inside the <b>inclusive</b> range 0..10?",
+ th:"<code>inRange</code> เขียนตามกฎของ De Morgan: <code>!(x &lt; lo || x &gt; hi)</code> มีค่าในอาร์เรย์กี่ตัวที่อยู่ในช่วง 0..10 แบบ<b>รวมปลาย</b>",
+ code:"static boolean inRange(int x, int lo, int hi) {\n    return !(x < lo || x > hi);\n}\npublic static void main(String[] args) {\n    int[] v = {5, 10, 0, 11, -1};\n    int c = 0;\n    for (int i = 0; i < v.length; i++) {\n        if (inRange(v[i], 0, 10)) c++;\n    }\n    System.out.println(c);\n}",
+ opts:["3","2","1","4"],ans:0,
+ exp:"!(x < 0 || x > 10) is the same as 0 <= x <= 10: 5, 10 and 0 qualify. / !(x < 0 || x > 10) เท่ากับ 0 <= x <= 10: 5, 10 และ 0 ผ่าน"},
+{lv:"M",en:"<code>len</code> returns -1 for a null array instead of throwing. Only the second row of a jagged 2D array has been allocated. What is printed?",
+ th:"<code>len</code> คืน -1 สำหรับอาร์เรย์ null แทนที่จะโยน exception อาร์เรย์สองมิติแบบขั้นบันไดถูกจองเฉพาะแถวที่สอง โปรแกรมพิมพ์อะไร",
+ code:"static int len(int[] a) {\n    if (a == null) return -1;\n    return a.length;\n}\npublic static void main(String[] args) {\n    int[][] m = new int[2][];\n    m[1] = new int[4];\n    System.out.println(len(m[0]) + len(m[1]));\n}",
+ opts:["3","-14","4","NullPointerException"],ans:0,
+ exp:"m[0] is null → -1; m[1].length = 4; -1 + 4 = 3. / m[0] เป็น null → -1, m[1].length = 4 รวม 3"},
+{lv:"H",en:"A <code>String[]</code> containing one capitalised word is sorted with <code>Arrays.sort</code>, which uses <code>compareTo</code> (character codes). Which element is first?",
+ th:"<code>String[]</code> ที่มีคำขึ้นต้นด้วยตัวพิมพ์ใหญ่หนึ่งคำถูกเรียงด้วย <code>Arrays.sort</code> ซึ่งใช้ <code>compareTo</code> (รหัสตัวอักษร) สมาชิกตัวแรกคืออะไร",
+ code:"String[] s = {\"banana\", \"Apple\", \"cherry\"};\nArrays.sort(s);\nSystem.out.println(s[0]);",
+ opts:["Apple","banana","cherry","Compile error: Arrays.sort needs int[]"],ans:0,
+ exp:"Uppercase letters (65–90) sort before lowercase (97–122), so \"Apple\" comes first regardless of alphabet. / ตัวพิมพ์ใหญ่ (65–90) มาก่อนตัวพิมพ์เล็ก (97–122) \"Apple\" จึงอยู่หน้าสุด"},
+{lv:"M",en:"<code>idx</code> returns the position of a value. Its results are used to compute an <b>index</b> into the same array. What is printed?",
+ th:"<code>idx</code> คืนตำแหน่งของค่า ผลลัพธ์ถูกนำไปคำนวณเป็น<b>ดัชนี</b>ของอาร์เรย์เดิม โปรแกรมพิมพ์อะไร",
+ code:"static int idx(int[] a, int v) {\n    for (int i = 0; i < a.length; i++) {\n        if (a[i] == v) return i;\n    }\n    return -1;\n}\npublic static void main(String[] args) {\n    int[] a = {4, 8, 15};\n    System.out.println(a[idx(a, 15) - idx(a, 8)]);\n}",
+ opts:["8","15","4","1"],ans:0,
+ exp:"idx(a,15) = 2, idx(a,8) = 1, so a[1] = 8. / idx(a,15) = 2, idx(a,8) = 1 ดังนั้น a[1] = 8"},
+{lv:"H",en:"A program declares one method taking <code>int[]</code> and another taking <code>int...</code>, both named <code>h</code>. What happens?",
+ th:"โปรแกรมประกาศเมธอดหนึ่งรับ <code>int[]</code> และอีกเมธอดรับ <code>int...</code> ชื่อ <code>h</code> ทั้งคู่ จะเกิดอะไรขึ้น",
+ code:"static String h(int[] a)  { return \"array\"; }\nstatic String h(int... a) { return \"varargs\"; }",
+ opts:["Compile error: both methods have the same signature","h(new int[]{1}) prints array and h(1) prints varargs","The varargs version is always chosen","The array version is always chosen"],ans:0,
+ exp:"A varargs parameter int... IS an int[] parameter at the signature level, so the two declarations clash. / พารามิเตอร์ varargs int... ก็คือ int[] ในระดับลายเซ็น ทั้งสองจึงชนกัน"},
+{lv:"M",en:"<code>words</code> counts the words in a sentence after trimming, splitting on runs of whitespace, and treats a blank string as zero words. What is printed?",
+ th:"<code>words</code> นับคำในประโยคหลังตัดช่องว่างหัวท้าย แยกด้วยช่องว่างที่ติดกันหลายตัว และถือว่าสตริงว่างมีศูนย์คำ โปรแกรมพิมพ์อะไร",
+ code:"static int words(String s) {\n    if (s.trim().isEmpty()) return 0;\n    return s.trim().split(\"\\\\s+\").length;\n}\npublic static void main(String[] args) {\n    System.out.println(words(\"  the quick  fox \") + words(\"\"));\n}",
+ opts:["3","30","4","5"],ans:0,
+ exp:"After trim the text is \"the quick  fox\"; \\\\s+ merges the double space, giving 3 words; \"\" gives 0. / หลัง trim เป็น \"the quick  fox\" \\\\s+ รวมช่องว่างซ้อน ได้ 3 คำ ส่วน \"\" ได้ 0"},
+{lv:"H",en:"<code>rms</code> computes the root-mean-square of an array with <code>Math.sqrt</code>. Its result is printed directly and again after <code>Math.round</code>, which rounds half up to the nearest <code>long</code>. What is printed?",
+ th:"<code>rms</code> คำนวณค่ารากที่สองของค่าเฉลี่ยกำลังสองด้วย <code>Math.sqrt</code> ผลลัพธ์ถูกพิมพ์ตรง ๆ และอีกครั้งหลังผ่าน <code>Math.round</code> ซึ่งปัดครึ่งขึ้นเป็น <code>long</code> โปรแกรมพิมพ์อะไร",
+ code:"static double rms(double[] a) {\n    double s = 0;\n    for (int i = 0; i < a.length; i++) s += a[i] * a[i];\n    return Math.sqrt(s / a.length);\n}\npublic static void main(String[] args) {\n    double[] d = {3, 4, 0, 0};\n    System.out.println(rms(d) + \" \" + Math.round(rms(d)));\n}",
+ opts:["2.5 3","2.5 2","3.5 4","6.25 6"],ans:0,
+ exp:"(9 + 16 + 0 + 0) / 4 = 6.25, sqrt = 2.5; Math.round(2.5) rounds half up to 3. / (9 + 16) / 4 = 6.25 รากที่สองคือ 2.5 และ Math.round(2.5) ปัดครึ่งขึ้นเป็น 3"}
+];
+
+// ____ marks the blank. acc = accepted answers (whitespace-insensitive, case-insensitive).
+const FILL = [
+{lv:"M",en:"<code>area</code> is overloaded: one version computes a circle from a double radius, the other a rectangle from two int sides and returns an int. Complete the second return type.",
+ th:"<code>area</code> ถูกโอเวอร์โหลด: เวอร์ชันหนึ่งคำนวณวงกลมจากรัศมี double อีกเวอร์ชันคำนวณสี่เหลี่ยมจากด้าน int สองด้านและคืน int เติมชนิดคืนค่าของเวอร์ชันที่สอง",
+ code:"static double area(double r) {\n    return Math.PI * r * r;\n}\nstatic ____ area(int w, int h) {\n    return w * h;\n}",acc:["int"]},
+{lv:"H",en:"The one-argument <code>max</code> delegates to a range version whose <code>to</code> bound is <b>exclusive</b>. Complete the delegating call so the whole array is covered.",
+ th:"<code>max</code> แบบอาร์กิวเมนต์เดียวส่งต่อไปยังเวอร์ชันระบุช่วงที่ขอบ <code>to</code> <b>ไม่รวม</b> เติมการเรียกให้ครอบคลุมทั้งอาร์เรย์",
+ code:"static int max(int[] a, int from, int to) {\n    int m = a[from];\n    for (int i = from + 1; i < to; i++) if (a[i] > m) m = a[i];\n    return m;\n}\nstatic int max(int[] a) {\n    return max(a, 0, ____);\n}",acc:["a.length"]},
+{lv:"M",en:"A predicate that is true when the string is missing <b>or</b> empty. The null test must come first so the second test is never run on null. Complete the operator.",
+ th:"เมธอดเงื่อนไขที่เป็นจริงเมื่อสตริงเป็น null <b>หรือ</b>ว่าง การตรวจ null ต้องมาก่อนเพื่อไม่ให้ตรวจข้อที่สองกับ null เติมตัวดำเนินการ",
+ code:"static boolean isBlank(String s) {\n    return s == null ____ s.isEmpty();\n}",acc:["||"]},
+{lv:"H",en:"<code>weakest</code> scans two parallel arrays and returns the <b>name</b> of the student with the lowest score. Complete the return statement.",
+ th:"<code>weakest</code> ไล่อาร์เรย์คู่ขนานสองตัวและคืน<b>ชื่อ</b>ของนักศึกษาที่คะแนนต่ำสุด เติมคำสั่ง return",
+ code:"static String weakest(String[] names, int[] scores) {\n    int m = 0;\n    for (int i = 1; i < scores.length; i++) {\n        if (scores[i] < scores[m]) m = i;\n    }\n    return ____;\n}",acc:["names[m]"]},
+{lv:"M",en:"Count the vowels in a word by reading its characters one index at a time. Complete the method call that returns the character at index <code>i</code>.",
+ th:"นับสระในคำโดยอ่านตัวอักษรทีละดัชนี เติมการเรียกเมธอดที่คืนตัวอักษรที่ดัชนี <code>i</code>",
+ code:"int v = 0;\nfor (int i = 0; i < word.length(); i++) {\n    char c = word.____(i);\n    if (\"aeiou\".indexOf(c) >= 0) v++;\n}",acc:["charAt"]},
+{lv:"H",en:"<code>isValidId</code> accepts only strings of exactly six digits. The loop must leave the method as soon as a non-digit is found. Complete the statement.",
+ th:"<code>isValidId</code> รับเฉพาะสตริงที่เป็นตัวเลขหกหลักพอดี ลูปต้องออกจากเมธอดทันทีที่พบตัวที่ไม่ใช่ตัวเลข เติมคำสั่ง",
+ code:"static boolean isValidId(String id) {\n    if (id.length() != 6) return false;\n    for (int i = 0; i < id.length(); i++) {\n        if (!Character.isDigit(id.charAt(i))) ____;\n    }\n    return true;\n}",acc:["return false"]},
+{lv:"M",en:"<code>splitName</code> returns first and last name in a 2-element array. The last name starts right after the space. Complete the substring start index.",
+ th:"<code>splitName</code> คืนชื่อและนามสกุลในอาร์เรย์ 2 ช่อง นามสกุลเริ่มถัดจากช่องว่าง เติมดัชนีเริ่มของ substring",
+ code:"static String[] splitName(String full) {\n    int sp = full.indexOf(' ');\n    String first = full.substring(0, sp);\n    String last  = full.substring(____);\n    return new String[]{first, last};\n}",acc:["sp+1"]},
+{lv:"H",en:"<code>rev</code> reverses a string recursively: reverse everything after the first character, then put the first character at the end. Complete the expression that is appended.",
+ th:"<code>rev</code> กลับสตริงแบบเรียกซ้ำ: กลับส่วนที่อยู่หลังตัวอักษรแรก แล้วนำตัวอักษรแรกไปต่อท้าย เติมนิพจน์ที่ถูกต่อท้าย",
+ code:"static String rev(String s) {\n    if (s.length() <= 1) return s;\n    return rev(s.substring(1)) + ____;\n}",acc:["s.charAt(0)","s.substring(0,1)"]},
+{lv:"M",en:"Flip the booking state of seat <code>i</code> (booked becomes free and vice versa). Complete the operator.",
+ th:"สลับสถานะการจองของที่นั่ง <code>i</code> (จองแล้วกลายเป็นว่าง และกลับกัน) เติมตัวดำเนินการ",
+ code:"static void toggle(boolean[] seats, int i) {\n    seats[i] = ____seats[i];\n}",acc:["!"]},
+{lv:"H",en:"<code>countNeg</code> counts negative values recursively, one index per call. Complete the recursive call.",
+ th:"<code>countNeg</code> นับค่าลบแบบเรียกซ้ำ ทีละดัชนีต่อการเรียก เติมการเรียกซ้ำ",
+ code:"static int countNeg(int[] a, int i) {\n    if (i == a.length) return 0;\n    return (a[i] < 0 ? 1 : 0) + countNeg(a, ____);\n}",acc:["i+1"]},
+{lv:"M",en:"<code>scale</code> multiplies every reading by <code>k</code> and returns the result as a <b>new</b> array of doubles. Complete the return type.",
+ th:"<code>scale</code> คูณทุกค่าที่อ่านได้ด้วย <code>k</code> และคืนผลลัพธ์เป็นอาร์เรย์ double <b>ใหม่</b> เติมชนิดคืนค่า",
+ code:"static ____ scale(double[] a, double k) {\n    double[] r = new double[a.length];\n    for (int i = 0; i < a.length; i++) r[i] = a[i] * k;\n    return r;\n}",acc:["double[]"]},
+{lv:"H",en:"A line such as <code>\"12,7,30\"</code> is split into strings; each piece must be converted to an int. Complete the conversion.",
+ th:"บรรทัดเช่น <code>\"12,7,30\"</code> ถูกแยกเป็นสตริง แต่ละชิ้นต้องถูกแปลงเป็น int เติมการแปลง",
+ code:"String[] parts = line.split(\",\");\nint[] nums = new int[parts.length];\nfor (int i = 0; i < parts.length; i++) {\n    nums[i] = Integer.____(parts[i].trim());\n}",acc:["parseInt"]},
+{lv:"M",en:"Bubble sort on a <code>String[]</code> must use the method that compares strings alphabetically and returns a positive number when the first is larger. Complete it.",
+ th:"Bubble sort บน <code>String[]</code> ต้องใช้เมธอดที่เทียบสตริงตามตัวอักษรและคืนค่าบวกเมื่อตัวแรกมากกว่า เติมให้สมบูรณ์",
+ code:"for (int i = 0; i < a.length - 1; i++) {\n    for (int j = 0; j < a.length - 1 - i; j++) {\n        if (a[j].____(a[j + 1]) > 0) {\n            String t = a[j]; a[j] = a[j + 1]; a[j + 1] = t;\n        }\n    }\n}",acc:["compareTo"]},
+{lv:"H",en:"<code>allPass</code> combines every check into one boolean using an accumulator, instead of returning early. Complete the operator so a single failure makes the result false.",
+ th:"<code>allPass</code> รวมทุกการตรวจเป็น boolean เดียวด้วยตัวสะสม แทนการ return ก่อนกำหนด เติมตัวดำเนินการให้ความล้มเหลวเพียงครั้งเดียวทำให้ผลเป็น false",
+ code:"static boolean allPass(int[] scores, int min) {\n    boolean ok = true;\n    for (int i = 0; i < scores.length; i++) {\n        ok = ok ____ (scores[i] >= min);\n    }\n    return ok;\n}",acc:["&&","&"]},
+{lv:"M",en:"Convert a digit character such as <code>'7'</code> into the number 7 using character arithmetic. Complete the expression.",
+ th:"แปลงตัวอักษรตัวเลขเช่น <code>'7'</code> เป็นจำนวน 7 ด้วยการคำนวณรหัสตัวอักษร เติมนิพจน์",
+ code:"static int digitValue(char c) {\n    return c - ____;\n}",acc:["'0'","48"]},
+{lv:"H",en:"Text is first split into lines, then each line into words, producing a jagged <code>String[][]</code>. Complete the inner split.",
+ th:"ข้อความถูกแยกเป็นบรรทัดก่อน แล้วแต่ละบรรทัดแยกเป็นคำ ได้ <code>String[][]</code> แบบขั้นบันได เติมการแยกชั้นใน",
+ code:"String[] lines = text.split(\"\\n\");\nString[][] words = new String[lines.length][];\nfor (int i = 0; i < lines.length; i++) {\n    words[i] = lines[i].____(\" \");\n}",acc:["split"]},
+{lv:"M",en:"<code>countTrue</code> counts how many flags are set. A boolean can be used directly as the condition. Complete it.",
+ th:"<code>countTrue</code> นับจำนวนธงที่เป็น true สามารถใช้ boolean เป็นเงื่อนไขได้โดยตรง เติมให้สมบูรณ์",
+ code:"static int countTrue(boolean[] flags) {\n    int c = 0;\n    for (int i = 0; i < flags.length; i++) {\n        if (____) c++;\n    }\n    return c;\n}",acc:["flags[i]","flags[i]==true"]},
+{lv:"H",en:"<code>map</code> applies the helper <code>square</code> to every element and stores the results in a new array. Complete the argument passed to the helper.",
+ th:"<code>map</code> นำเมธอดช่วย <code>square</code> ไปใช้กับทุกสมาชิกและเก็บผลในอาร์เรย์ใหม่ เติมอาร์กิวเมนต์ที่ส่งให้เมธอดช่วย",
+ code:"static int square(int x) { return x * x; }\n\nstatic int[] map(int[] a) {\n    int[] r = new int[a.length];\n    for (int i = 0; i < a.length; i++) {\n        r[i] = square(____);\n    }\n    return r;\n}",acc:["a[i]"]},
+{lv:"M",en:"Keep a running maximum while reading values, using the library method from <code>Math</code> instead of an <code>if</code>. Complete the call.",
+ th:"เก็บค่าสูงสุดสะสมระหว่างอ่านค่า โดยใช้เมธอดไลบรารีจาก <code>Math</code> แทน <code>if</code> เติมการเรียก",
+ code:"int best = a[0];\nfor (int i = 1; i < a.length; i++) {\n    best = Math.____(best, a[i]);\n}",acc:["max"]},
+{lv:"H",en:"Java has no default parameters, so <code>greet(name)</code> is implemented by calling the two-parameter version with a default greeting word. Complete the call.",
+ th:"Java ไม่มีพารามิเตอร์ค่าเริ่มต้น <code>greet(name)</code> จึงทำโดยเรียกเวอร์ชันสองพารามิเตอร์ด้วยคำทักทายเริ่มต้น เติมการเรียก",
+ code:"static String greet(String name, String word) {\n    return word + \", \" + name;\n}\nstatic String greet(String name) {\n    return greet(name, ____);   // greet(\"Ann\") == \"Hello, Ann\"\n}",acc:["\"Hello\""]},
+{lv:"M",en:"<code>reverse</code> reverses a word by swapping characters in a char array, then builds a String from the array. Complete the construction.",
+ th:"<code>reverse</code> กลับคำโดยสลับตัวอักษรในอาร์เรย์ char แล้วสร้าง String จากอาร์เรย์ เติมการสร้าง",
+ code:"static String reverse(String s) {\n    char[] c = s.toCharArray();\n    for (int i = 0, j = c.length - 1; i < j; i++, j--) {\n        char t = c[i]; c[i] = c[j]; c[j] = t;\n    }\n    return new ____(c);\n}",acc:["String"]},
+{lv:"H",en:"<code>startsWithAll</code> returns true only when every word begins with <code>ch</code>; an empty word fails. Complete the final return.",
+ th:"<code>startsWithAll</code> คืน true เฉพาะเมื่อทุกคำขึ้นต้นด้วย <code>ch</code> คำว่างถือว่าไม่ผ่าน เติมการ return สุดท้าย",
+ code:"static boolean startsWithAll(String[] words, char ch) {\n    for (int i = 0; i < words.length; i++) {\n        if (words[i].isEmpty() || words[i].charAt(0) != ch) return false;\n    }\n    return ____;\n}",acc:["true"]},
+{lv:"M",en:"Two parallel arrays: <code>passed[i]</code> says whether student <code>i</code> passed and <code>scores[i]</code> is their score. Total only the scores of students who passed. Complete it.",
+ th:"อาร์เรย์คู่ขนานสองตัว: <code>passed[i]</code> บอกว่านักศึกษา <code>i</code> ผ่านหรือไม่ และ <code>scores[i]</code> คือคะแนน รวมเฉพาะคะแนนของคนที่ผ่าน เติมให้สมบูรณ์",
+ code:"int total = 0;\nfor (int i = 0; i < scores.length; i++) {\n    if (passed[i]) total += ____;\n}",acc:["scores[i]"]},
+{lv:"H",en:"<code>bucket(score)</code> returns 0–4. Its result is used directly as an index into the <code>labels</code> array to pick a text label. Complete the expression.",
+ th:"<code>bucket(score)</code> คืนค่า 0–4 ผลลัพธ์ถูกใช้เป็นดัชนีของอาร์เรย์ <code>labels</code> โดยตรงเพื่อเลือกป้ายข้อความ เติมนิพจน์",
+ code:"static int bucket(int score) { return Math.min(score / 20, 4); }\n\nstatic String label(int score) {\n    String[] labels = {\"F\", \"D\", \"C\", \"B\", \"A\"};\n    return labels[____(score)];\n}",acc:["bucket"]},
+{lv:"M",en:"Reset every name in the array to the placeholder <code>\"-\"</code> with one library call. Complete it.",
+ th:"รีเซ็ตทุกชื่อในอาร์เรย์เป็นค่าแทน <code>\"-\"</code> ด้วยการเรียกไลบรารีครั้งเดียว เติมให้สมบูรณ์",
+ code:"Arrays.____(names, \"-\");",acc:["fill"]},
+{lv:"H",en:"A <code>void</code> method should do nothing when it receives <code>null</code>. Complete the guard clause.",
+ th:"เมธอด <code>void</code> ควรไม่ทำอะไรเมื่อได้รับ <code>null</code> เติมประโยคป้องกัน",
+ code:"static void printAll(String[] a) {\n    if (a == null) ____;\n    for (int i = 0; i < a.length; i++) System.out.println(a[i]);\n}",acc:["return"]},
+{lv:"M",en:"<code>isLeap</code> implements the leap-year rule: divisible by 4 but not by 100, <b>or</b> divisible by 400. Complete the operator.",
+ th:"<code>isLeap</code> ใช้กฎปีอธิกสุรทิน: หาร 4 ลงตัวแต่หาร 100 ไม่ลงตัว <b>หรือ</b>หาร 400 ลงตัว เติมตัวดำเนินการ",
+ code:"static boolean isLeap(int y) {\n    return (y % 4 == 0 && y % 100 != 0) ____ y % 400 == 0;\n}",acc:["||"]},
+{lv:"H",en:"<code>avgInts</code> reuses the varargs <code>avg(double...)</code> by converting its int array to a double array and forwarding that array. Complete the forwarding call.",
+ th:"<code>avgInts</code> ใช้ <code>avg(double...)</code> แบบ varargs ซ้ำ โดยแปลงอาร์เรย์ int เป็นอาร์เรย์ double แล้วส่งต่ออาร์เรย์นั้น เติมการเรียกส่งต่อ",
+ code:"static double avg(double... v) {\n    double s = 0;\n    for (int i = 0; i < v.length; i++) s += v[i];\n    return v.length == 0 ? 0 : s / v.length;\n}\nstatic double avgInts(int[] a) {\n    double[] d = new double[a.length];\n    for (int i = 0; i < a.length; i++) d[i] = a[i];\n    return avg(____);\n}",acc:["d"]},
+{lv:"M",en:"Count only the letters in a string, skipping digits, spaces and punctuation, using a <code>Character</code> helper. Complete the call.",
+ th:"นับเฉพาะตัวอักษรในสตริง ข้ามตัวเลข ช่องว่าง และเครื่องหมาย โดยใช้เมธอดช่วยของ <code>Character</code> เติมการเรียก",
+ code:"int letters = 0;\nfor (int i = 0; i < s.length(); i++) {\n    if (Character.____(s.charAt(i))) letters++;\n}",acc:["isLetter","isAlphabetic"]},
+{lv:"H",en:"<code>indexOfIgnoreCase</code> finds a name regardless of letter case. Complete the comparison so <code>\"ann\"</code> matches <code>\"Ann\"</code>.",
+ th:"<code>indexOfIgnoreCase</code> ค้นหาชื่อโดยไม่สนตัวพิมพ์เล็กใหญ่ เติมการเปรียบเทียบให้ <code>\"ann\"</code> ตรงกับ <code>\"Ann\"</code>",
+ code:"static int indexOfIgnoreCase(String[] names, String key) {\n    for (int i = 0; i < names.length; i++) {\n        if (names[i].____(key)) return i;\n    }\n    return -1;\n}",acc:["equalsIgnoreCase"]}
+];
+
+const CODE = [
+{lv:"M",t:"Vowel counter with a helper",
+ en:"Write <code>static boolean isVowel(char c)</code> that returns true for <code>a e i o u</code> in either case, and <code>static int countVowels(String s)</code> that uses it to count the vowels in a sentence. Walk the string as a <code>char[]</code>.",
+ th:"เขียน <code>static boolean isVowel(char c)</code> ที่คืน true สำหรับ <code>a e i o u</code> ทั้งพิมพ์เล็กและใหญ่ และ <code>static int countVowels(String s)</code> ที่ใช้มันนับสระในประโยค ให้ไล่สตริงในรูป <code>char[]</code>",
+ ex:"countVowels(\"Hello World\")  →  3\ncountVowels(\"xyz\")          →  0",
+ sol:"static boolean isVowel(char c) {\n    c = Character.toLowerCase(c);\n    return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u';\n}\n\nstatic int countVowels(String s) {\n    int n = 0;\n    for (int i = 0; i < s.length(); i++) {\n        if (isVowel(s.charAt(i))) n++;\n    }\n    return n;\n}"},
+{lv:"H",t:"Password validator",
+ en:"A sign-up form needs <code>static boolean isValidPassword(String p)</code>. A password is valid when it has at least 8 characters, contains at least one digit, one uppercase letter and one lowercase letter, and contains no spaces. Decompose the work into small helper predicates such as <code>hasDigit</code>, <code>hasUpper</code>, <code>hasLower</code> and <code>hasSpace</code>, each taking a <code>char[]</code> or <code>String</code>.",
+ th:"ฟอร์มสมัครสมาชิกต้องการ <code>static boolean isValidPassword(String p)</code> รหัสผ่านถูกต้องเมื่อมีอย่างน้อย 8 ตัวอักษร มีตัวเลขอย่างน้อยหนึ่งตัว ตัวพิมพ์ใหญ่หนึ่งตัว ตัวพิมพ์เล็กหนึ่งตัว และไม่มีช่องว่าง ให้แยกงานเป็นเมธอดเงื่อนไขเล็ก ๆ เช่น <code>hasDigit</code>, <code>hasUpper</code>, <code>hasLower</code>, <code>hasSpace</code> ที่รับ <code>char[]</code> หรือ <code>String</code>",
+ ex:"isValidPassword(\"Secret123\")   →  true\nisValidPassword(\"secret123\")   →  false   (no uppercase)\nisValidPassword(\"Secret 123\")  →  false   (space)",
+ sol:"static boolean hasDigit(char[] c) {\n    for (int i = 0; i < c.length; i++) if (Character.isDigit(c[i])) return true;\n    return false;\n}\nstatic boolean hasUpper(char[] c) {\n    for (int i = 0; i < c.length; i++) if (Character.isUpperCase(c[i])) return true;\n    return false;\n}\nstatic boolean hasLower(char[] c) {\n    for (int i = 0; i < c.length; i++) if (Character.isLowerCase(c[i])) return true;\n    return false;\n}\nstatic boolean hasSpace(char[] c) {\n    for (int i = 0; i < c.length; i++) if (c[i] == ' ') return true;\n    return false;\n}\n\nstatic boolean isValidPassword(String p) {\n    if (p == null || p.length() < 8) return false;\n    char[] c = p.toCharArray();\n    return hasDigit(c) && hasUpper(c) && hasLower(c) && !hasSpace(c);\n}"},
+{lv:"M",t:"Parse a CSV line of integers",
+ en:"Write <code>static int[] parseInts(String csv)</code> that splits a comma-separated line, trims spaces around each piece and converts each piece to an int. An empty or blank line returns an empty array.",
+ th:"เขียน <code>static int[] parseInts(String csv)</code> ที่แยกบรรทัดที่คั่นด้วยจุลภาค ตัดช่องว่างรอบแต่ละชิ้น และแปลงแต่ละชิ้นเป็น int บรรทัดว่างหรือมีแต่ช่องว่างให้คืนอาร์เรย์ว่าง",
+ ex:"parseInts(\"12, 7 ,30\")  →  {12, 7, 30}\nparseInts(\"   \")         →  {}",
+ sol:"static int[] parseInts(String csv) {\n    if (csv.trim().isEmpty()) return new int[0];\n    String[] parts = csv.split(\",\");\n    int[] r = new int[parts.length];\n    for (int i = 0; i < parts.length; i++) {\n        r[i] = Integer.parseInt(parts[i].trim());\n    }\n    return r;\n}"},
+{lv:"H",t:"Longest word",
+ en:"Write <code>static String longestWord(String sentence)</code> that returns the longest word, where words are separated by one or more spaces. If several words share the maximum length return the one that appears <b>first</b>. Return <code>\"\"</code> for a blank sentence. Write a helper <code>static String[] words(String s)</code> that handles trimming and splitting.",
+ th:"เขียน <code>static String longestWord(String sentence)</code> ที่คืนคำที่ยาวที่สุด โดยคำคั่นด้วยช่องว่างหนึ่งตัวขึ้นไป ถ้ามีหลายคำยาวเท่ากันให้คืนคำที่ปรากฏ<b>ก่อน</b> ประโยคว่างให้คืน <code>\"\"</code> ให้เขียนเมธอดช่วย <code>static String[] words(String s)</code> ที่จัดการ trim และ split",
+ ex:"longestWord(\"the  quick brown fox\")  →  \"quick\"\nlongestWord(\"   \")                   →  \"\"",
+ sol:"static String[] words(String s) {\n    s = s.trim();\n    if (s.isEmpty()) return new String[0];\n    return s.split(\"\\\\s+\");\n}\n\nstatic String longestWord(String sentence) {\n    String best = \"\";\n    String[] w = words(sentence);\n    for (int i = 0; i < w.length; i++) {\n        if (w[i].length() > best.length()) best = w[i];\n    }\n    return best;\n}"},
+{lv:"M",t:"Normalise readings",
+ en:"Sensor readings are stored in a <code>double[]</code>. Write <code>static double[] normalize(double[] a)</code> that returns a <b>new</b> array where every value is divided by the largest value, so the maximum becomes 1.0. Write and use <code>static double maxOf(double[] a)</code>. Assume the maximum is positive.",
+ th:"ค่าที่อ่านจากเซ็นเซอร์เก็บใน <code>double[]</code> เขียน <code>static double[] normalize(double[] a)</code> ที่คืนอาร์เรย์<b>ใหม่</b>ซึ่งทุกค่าถูกหารด้วยค่าสูงสุด ทำให้ค่าสูงสุดกลายเป็น 1.0 ให้เขียนและใช้ <code>static double maxOf(double[] a)</code> ถือว่าค่าสูงสุดเป็นบวก",
+ ex:"normalize({2.0, 4.0, 1.0})  →  {0.5, 1.0, 0.25}",
+ sol:"static double maxOf(double[] a) {\n    double m = a[0];\n    for (int i = 1; i < a.length; i++) if (a[i] > m) m = a[i];\n    return m;\n}\n\nstatic double[] normalize(double[] a) {\n    double m = maxOf(a);\n    double[] r = new double[a.length];\n    for (int i = 0; i < a.length; i++) r[i] = a[i] / m;\n    return r;\n}"},
+{lv:"H",t:"Format and search names",
+ en:"Two parallel arrays hold first and last names. Write <code>static String[] fullNames(String[] first, String[] last)</code> that returns strings in the form <code>\"Last, First\"</code>, and <code>static int indexOfName(String[] names, String key)</code> that finds a full name ignoring letter case, returning -1 when absent.",
+ th:"อาร์เรย์คู่ขนานสองตัวเก็บชื่อและนามสกุล เขียน <code>static String[] fullNames(String[] first, String[] last)</code> ที่คืนสตริงรูปแบบ <code>\"Last, First\"</code> และ <code>static int indexOfName(String[] names, String key)</code> ที่ค้นหาชื่อเต็มโดยไม่สนตัวพิมพ์เล็กใหญ่ คืน -1 ถ้าไม่พบ",
+ ex:"fullNames({\"Ann\", \"Bob\"}, {\"Lee\", \"Ray\"})  →  {\"Lee, Ann\", \"Ray, Bob\"}\nindexOfName({\"Lee, Ann\", \"Ray, Bob\"}, \"ray, bob\")  →  1",
+ sol:"static String[] fullNames(String[] first, String[] last) {\n    String[] r = new String[first.length];\n    for (int i = 0; i < first.length; i++) {\n        r[i] = last[i] + \", \" + first[i];\n    }\n    return r;\n}\n\nstatic int indexOfName(String[] names, String key) {\n    for (int i = 0; i < names.length; i++) {\n        if (names[i].equalsIgnoreCase(key)) return i;\n    }\n    return -1;\n}"},
+{lv:"M",t:"Boolean array utilities",
+ en:"Write <code>static int countTrue(boolean[] b)</code> that returns how many flags are set, and <code>static boolean[] invert(boolean[] b)</code> that returns a <b>new</b> array with every flag flipped (the input must stay unchanged).",
+ th:"เขียน <code>static int countTrue(boolean[] b)</code> ที่คืนจำนวนธงที่เป็น true และ <code>static boolean[] invert(boolean[] b)</code> ที่คืนอาร์เรย์<b>ใหม่</b>ที่ทุกธงถูกกลับค่า (อินพุตต้องไม่เปลี่ยน)",
+ ex:"countTrue({true, false, true})  →  2\ninvert({true, false})           →  {false, true}",
+ sol:"static int countTrue(boolean[] b) {\n    int c = 0;\n    for (int i = 0; i < b.length; i++) if (b[i]) c++;\n    return c;\n}\n\nstatic boolean[] invert(boolean[] b) {\n    boolean[] r = new boolean[b.length];\n    for (int i = 0; i < b.length; i++) r[i] = !b[i];\n    return r;\n}"},
+{lv:"H",t:"Caesar cipher",
+ en:"Write <code>static String caesar(String s, int k)</code> that shifts every <b>lowercase</b> letter by <code>k</code> positions, wrapping around the alphabet, and leaves every other character unchanged. <code>k</code> may be negative or larger than 26. Write a helper <code>static char shiftChar(char c, int k)</code>.",
+ th:"เขียน <code>static String caesar(String s, int k)</code> ที่เลื่อนตัวอักษร<b>พิมพ์เล็ก</b>ทุกตัวไป <code>k</code> ตำแหน่งแบบวนรอบตัวอักษร และคงตัวอักษรอื่นไว้ <code>k</code> อาจเป็นลบหรือมากกว่า 26 ได้ ให้เขียนเมธอดช่วย <code>static char shiftChar(char c, int k)</code>",
+ ex:"caesar(\"abc xyz!\", 3)   →  \"def abc!\"\ncaesar(\"def\", -3)        →  \"abc\"\ncaesar(\"a\", 27)          →  \"b\"",
+ sol:"static char shiftChar(char c, int k) {\n    if (c < 'a' || c > 'z') return c;\n    int off = ((c - 'a' + k) % 26 + 26) % 26;\n    return (char) ('a' + off);\n}\n\nstatic String caesar(String s, int k) {\n    char[] c = s.toCharArray();\n    for (int i = 0; i < c.length; i++) c[i] = shiftChar(c[i], k);\n    return new String(c);\n}"},
+{lv:"M",t:"Clamp an array",
+ en:"Write <code>static int clampOne(int x, int lo, int hi)</code> that returns <code>x</code> limited to the range <code>[lo, hi]</code>, and <code>static int[] clamp(int[] a, int lo, int hi)</code> that returns a <b>new</b> array with every element clamped.",
+ th:"เขียน <code>static int clampOne(int x, int lo, int hi)</code> ที่คืน <code>x</code> ที่ถูกจำกัดอยู่ในช่วง <code>[lo, hi]</code> และ <code>static int[] clamp(int[] a, int lo, int hi)</code> ที่คืนอาร์เรย์<b>ใหม่</b>ที่ทุกสมาชิกถูกจำกัดช่วง",
+ ex:"clamp({-5, 50, 120, 99}, 0, 100)  →  {0, 50, 100, 99}",
+ sol:"static int clampOne(int x, int lo, int hi) {\n    if (x < lo) return lo;\n    if (x > hi) return hi;\n    return x;\n}\n\nstatic int[] clamp(int[] a, int lo, int hi) {\n    int[] r = new int[a.length];\n    for (int i = 0; i < a.length; i++) r[i] = clampOne(a[i], lo, hi);\n    return r;\n}"},
+{lv:"H",t:"Students above a threshold",
+ en:"Write <code>static String[] passing(String[] names, int[] scores, int threshold)</code> that returns the names of every student whose score is at least <code>threshold</code>, in the original order, in an array of <b>exactly</b> the right length. Use two passes: count first, then fill.",
+ th:"เขียน <code>static String[] passing(String[] names, int[] scores, int threshold)</code> ที่คืนชื่อนักศึกษาทุกคนที่ได้คะแนนอย่างน้อย <code>threshold</code> ตามลำดับเดิม ในอาร์เรย์ที่มีความยาว<b>พอดี</b> ให้ทำสองรอบ: นับก่อน แล้วค่อยเติม",
+ ex:"passing({\"Ann\", \"Bob\", \"Cat\"}, {55, 80, 60}, 60)  →  {\"Bob\", \"Cat\"}\npassing({\"Ann\"}, {10}, 50)                        →  {}",
+ sol:"static String[] passing(String[] names, int[] scores, int threshold) {\n    int n = 0;\n    for (int i = 0; i < scores.length; i++) if (scores[i] >= threshold) n++;\n    String[] r = new String[n];\n    int k = 0;\n    for (int i = 0; i < scores.length; i++) {\n        if (scores[i] >= threshold) r[k++] = names[i];\n    }\n    return r;\n}"},
+{lv:"M",t:"Palindrome word",
+ en:"Write <code>static boolean isPalindromeWord(String s)</code> that ignores letter case and compares the characters from both ends using a <code>char[]</code>. Do not use <code>StringBuilder.reverse</code>.",
+ th:"เขียน <code>static boolean isPalindromeWord(String s)</code> ที่ไม่สนตัวพิมพ์เล็กใหญ่ และเทียบตัวอักษรจากปลายทั้งสองข้างโดยใช้ <code>char[]</code> ห้ามใช้ <code>StringBuilder.reverse</code>",
+ ex:"isPalindromeWord(\"Level\")  →  true\nisPalindromeWord(\"Java\")   →  false",
+ sol:"static boolean isPalindromeWord(String s) {\n    char[] c = s.toLowerCase().toCharArray();\n    for (int i = 0, j = c.length - 1; i < j; i++, j--) {\n        if (c[i] != c[j]) return false;\n    }\n    return true;\n}"},
+{lv:"H",t:"Word lengths",
+ en:"Write <code>static int[] wordLengths(String text)</code> that returns the length of each word. Words are separated by one or more whitespace characters, and the text may have leading or trailing spaces. A blank text returns an empty array.",
+ th:"เขียน <code>static int[] wordLengths(String text)</code> ที่คืนความยาวของแต่ละคำ คำคั่นด้วยช่องว่างหนึ่งตัวขึ้นไป และข้อความอาจมีช่องว่างนำหน้าหรือตามหลัง ข้อความว่างให้คืนอาร์เรย์ว่าง",
+ ex:"wordLengths(\"  a bb   ccc \")  →  {1, 2, 3}\nwordLengths(\"\")               →  {}",
+ sol:"static int[] wordLengths(String text) {\n    String t = text.trim();\n    if (t.isEmpty()) return new int[0];\n    String[] w = t.split(\"\\\\s+\");\n    int[] r = new int[w.length];\n    for (int i = 0; i < w.length; i++) r[i] = w[i].length();\n    return r;\n}"},
+{lv:"M",t:"Weighted average",
+ en:"A course grade combines several components with different weights. Write <code>static double weightedAverage(double[] values, double[] weights)</code> that returns <code>Σ values[i]·weights[i] / Σ weights[i]</code>. Return 0 if the weights sum to 0.",
+ th:"เกรดวิชารวมหลายส่วนที่มีน้ำหนักต่างกัน เขียน <code>static double weightedAverage(double[] values, double[] weights)</code> ที่คืน <code>Σ values[i]·weights[i] / Σ weights[i]</code> คืน 0 ถ้าผลรวมน้ำหนักเป็น 0",
+ ex:"weightedAverage({80, 90}, {0.25, 0.75})  →  87.5",
+ sol:"static double weightedAverage(double[] values, double[] weights) {\n    double num = 0, den = 0;\n    for (int i = 0; i < values.length; i++) {\n        num += values[i] * weights[i];\n        den += weights[i];\n    }\n    return den == 0 ? 0 : num / den;\n}"},
+{lv:"H",t:"String run-length compression",
+ en:"Write <code>static String compress(String s)</code> that replaces each run of identical consecutive characters by the character followed by the run length, e.g. <code>\"aaabcc\" → \"a3b1c2\"</code>. Walk the string as a <code>char[]</code> and build the result with string concatenation.",
+ th:"เขียน <code>static String compress(String s)</code> ที่แทนที่แต่ละช่วงตัวอักษรเดียวกันที่ติดกันด้วยตัวอักษรตามด้วยความยาวช่วง เช่น <code>\"aaabcc\" → \"a3b1c2\"</code> ให้ไล่สตริงในรูป <code>char[]</code> และสร้างผลด้วยการต่อสตริง",
+ ex:"compress(\"aaabcc\")  →  \"a3b1c2\"\ncompress(\"\")        →  \"\"",
+ sol:"static String compress(String s) {\n    char[] c = s.toCharArray();\n    String out = \"\";\n    int i = 0;\n    while (i < c.length) {\n        int j = i;\n        while (j < c.length && c[j] == c[i]) j++;\n        out += c[i] + \"\" + (j - i);\n        i = j;\n    }\n    return out;\n}"},
+{lv:"M",t:"Index of min and max",
+ en:"Write <code>static int[] minMaxIndex(int[] a)</code> that returns <code>{indexOfMin, indexOfMax}</code>, using the <b>first</b> occurrence when values tie. Assume at least one element.",
+ th:"เขียน <code>static int[] minMaxIndex(int[] a)</code> ที่คืน <code>{indexOfMin, indexOfMax}</code> โดยใช้ตำแหน่งที่พบ<b>ครั้งแรก</b>เมื่อค่าเท่ากัน ถือว่ามีอย่างน้อยหนึ่งสมาชิก",
+ ex:"minMaxIndex({4, 1, 9, 1, 9})  →  {1, 2}",
+ sol:"static int[] minMaxIndex(int[] a) {\n    int mn = 0, mx = 0;\n    for (int i = 1; i < a.length; i++) {\n        if (a[i] < a[mn]) mn = i;\n        if (a[i] > a[mx]) mx = i;\n    }\n    return new int[]{mn, mx};\n}"},
+{lv:"H",t:"Date validation",
+ en:"Write <code>static boolean isLeap(int y)</code>, <code>static int daysInMonth(int m, int y)</code> (returns 0 for an invalid month) and <code>static boolean isValidDate(int d, int m, int y)</code> that uses them. A date is valid when <code>1 ≤ m ≤ 12</code> and <code>1 ≤ d ≤ daysInMonth(m, y)</code>. Store the month lengths in an array.",
+ th:"เขียน <code>static boolean isLeap(int y)</code>, <code>static int daysInMonth(int m, int y)</code> (คืน 0 ถ้าเดือนไม่ถูกต้อง) และ <code>static boolean isValidDate(int d, int m, int y)</code> ที่ใช้สองเมธอดนั้น วันที่ถูกต้องเมื่อ <code>1 ≤ m ≤ 12</code> และ <code>1 ≤ d ≤ daysInMonth(m, y)</code> ให้เก็บจำนวนวันของแต่ละเดือนไว้ในอาร์เรย์",
+ ex:"isValidDate(29, 2, 2024)  →  true\nisValidDate(29, 2, 2023)  →  false\nisValidDate(31, 4, 2024)  →  false",
+ sol:"static boolean isLeap(int y) {\n    return (y % 4 == 0 && y % 100 != 0) || y % 400 == 0;\n}\n\nstatic int daysInMonth(int m, int y) {\n    int[] days = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};\n    if (m < 1 || m > 12) return 0;\n    if (m == 2 && isLeap(y)) return 29;\n    return days[m - 1];\n}\n\nstatic boolean isValidDate(int d, int m, int y) {\n    return m >= 1 && m <= 12 && d >= 1 && d <= daysInMonth(m, y);\n}"},
+{lv:"M",t:"Repeat a character",
+ en:"Write <code>static String repeatChar(char c, int n)</code> that returns a string of <code>n</code> copies of <code>c</code>. Allocate a <code>char[n]</code>, fill it with a loop (or <code>Arrays.fill</code>) and convert it to a String. <code>n = 0</code> returns <code>\"\"</code>.",
+ th:"เขียน <code>static String repeatChar(char c, int n)</code> ที่คืนสตริงที่มี <code>c</code> ซ้ำ <code>n</code> ครั้ง ให้จอง <code>char[n]</code> เติมด้วยลูป (หรือ <code>Arrays.fill</code>) แล้วแปลงเป็น String <code>n = 0</code> ให้คืน <code>\"\"</code>",
+ ex:"repeatChar('*', 4)  →  \"****\"",
+ sol:"static String repeatChar(char c, int n) {\n    char[] buf = new char[n];\n    for (int i = 0; i < n; i++) buf[i] = c;\n    return new String(buf);\n}"},
+{lv:"H",t:"Remove duplicate names",
+ en:"Write <code>static String[] dedupe(String[] a)</code> that keeps the first occurrence of each name, comparing names <b>case-insensitively</b>, and returns an array of exactly the right length in original order. Write a helper <code>static boolean containsIgnoreCase(String[] arr, int len, String s)</code> that checks only the first <code>len</code> entries.",
+ th:"เขียน <code>static String[] dedupe(String[] a)</code> ที่เก็บชื่อที่พบครั้งแรกของแต่ละชื่อ โดยเทียบ<b>ไม่สนตัวพิมพ์เล็กใหญ่</b> และคืนอาร์เรย์ที่ยาวพอดีตามลำดับเดิม ให้เขียนเมธอดช่วย <code>static boolean containsIgnoreCase(String[] arr, int len, String s)</code> ที่ตรวจเฉพาะ <code>len</code> ช่องแรก",
+ ex:"dedupe({\"Ann\", \"bob\", \"ANN\", \"Bob\", \"cat\"})  →  {\"Ann\", \"bob\", \"cat\"}",
+ sol:"static boolean containsIgnoreCase(String[] arr, int len, String s) {\n    for (int i = 0; i < len; i++) {\n        if (arr[i].equalsIgnoreCase(s)) return true;\n    }\n    return false;\n}\n\nstatic String[] dedupe(String[] a) {\n    String[] tmp = new String[a.length];\n    int n = 0;\n    for (int i = 0; i < a.length; i++) {\n        if (!containsIgnoreCase(tmp, n, a[i])) tmp[n++] = a[i];\n    }\n    return Arrays.copyOf(tmp, n);\n}"},
+{lv:"M",t:"Sum of digits in text",
+ en:"Write <code>static int sumOfDigits(String s)</code> that adds up every digit character found in the string and ignores everything else. Use <code>Character.isDigit</code> and character arithmetic (<code>c - '0'</code>).",
+ th:"เขียน <code>static int sumOfDigits(String s)</code> ที่บวกตัวเลขทุกตัวที่พบในสตริงและข้ามตัวอักษรอื่น ใช้ <code>Character.isDigit</code> และการคำนวณรหัสตัวอักษร (<code>c - '0'</code>)",
+ ex:"sumOfDigits(\"a1b2c3\")  →  6\nsumOfDigits(\"room 404\") →  8",
+ sol:"static int sumOfDigits(String s) {\n    int sum = 0;\n    for (int i = 0; i < s.length(); i++) {\n        char c = s.charAt(i);\n        if (Character.isDigit(c)) sum += c - '0';\n    }\n    return sum;\n}"},
+{lv:"H",t:"Most common letter",
+ en:"Write <code>static int[] letterHistogram(String s)</code> that returns 26 counts (index 0 = a) of the letters in <code>s</code>, ignoring case and skipping non-letters, and <code>static char mostCommonLetter(String s)</code> that uses it to return the most frequent letter in lowercase. On a tie return the letter that comes first alphabetically; return <code>'?'</code> if there are no letters.",
+ th:"เขียน <code>static int[] letterHistogram(String s)</code> ที่คืนจำนวนนับ 26 ช่อง (ดัชนี 0 = a) ของตัวอักษรใน <code>s</code> โดยไม่สนตัวพิมพ์และข้ามตัวที่ไม่ใช่ตัวอักษร และ <code>static char mostCommonLetter(String s)</code> ที่ใช้มันคืนตัวอักษรที่พบบ่อยที่สุดแบบพิมพ์เล็ก ถ้าเท่ากันให้คืนตัวที่มาก่อนตามลำดับอักษร คืน <code>'?'</code> ถ้าไม่มีตัวอักษรเลย",
+ ex:"mostCommonLetter(\"Hello World\")  →  'l'\nmostCommonLetter(\"abc ABC\")      →  'a'\nmostCommonLetter(\"123\")          →  '?'",
+ sol:"static int[] letterHistogram(String s) {\n    int[] h = new int[26];\n    String t = s.toLowerCase();\n    for (int i = 0; i < t.length(); i++) {\n        char c = t.charAt(i);\n        if (c >= 'a' && c <= 'z') h[c - 'a']++;\n    }\n    return h;\n}\n\nstatic char mostCommonLetter(String s) {\n    int[] h = letterHistogram(s);\n    int best = -1;\n    for (int i = 0; i < 26; i++) {\n        if (h[i] > 0 && (best == -1 || h[i] > h[best])) best = i;\n    }\n    return best == -1 ? '?' : (char) ('a' + best);\n}"},
+{lv:"M",t:"Varargs statistics",
+ en:"Write <code>static double average(int... v)</code> that returns the mean of any number of ints (0 when none are given), and <code>static boolean aboveAll(int x, int... v)</code> that returns true when <code>x</code> is strictly greater than every value in <code>v</code> (true when <code>v</code> is empty).",
+ th:"เขียน <code>static double average(int... v)</code> ที่คืนค่าเฉลี่ยของ int กี่ตัวก็ได้ (0 ถ้าไม่มี) และ <code>static boolean aboveAll(int x, int... v)</code> ที่คืน true เมื่อ <code>x</code> มากกว่าทุกค่าใน <code>v</code> อย่างเคร่งครัด (true ถ้า <code>v</code> ว่าง)",
+ ex:"average(1, 2, 3, 4)   →  2.5\naverage()             →  0.0\naboveAll(10, 3, 9)    →  true\naboveAll(10, 3, 10)   →  false",
+ sol:"static double average(int... v) {\n    if (v.length == 0) return 0;\n    double s = 0;\n    for (int i = 0; i < v.length; i++) s += v[i];\n    return s / v.length;\n}\n\nstatic boolean aboveAll(int x, int... v) {\n    for (int i = 0; i < v.length; i++) {\n        if (x <= v[i]) return false;\n    }\n    return true;\n}"},
+{lv:"H",t:"Title case",
+ en:"Write <code>static String toTitleCase(String s)</code> that upper-cases the first letter of every word and lower-cases the rest, where words are separated by single spaces. Work on a <code>char[]</code>: a character is the start of a word when it is at index 0 or the previous character is a space.",
+ th:"เขียน <code>static String toTitleCase(String s)</code> ที่ทำตัวอักษรแรกของทุกคำเป็นพิมพ์ใหญ่และที่เหลือเป็นพิมพ์เล็ก โดยคำคั่นด้วยช่องว่างหนึ่งตัว ให้ทำงานบน <code>char[]</code>: ตัวอักษรเป็นต้นคำเมื่ออยู่ที่ดัชนี 0 หรือตัวก่อนหน้าเป็นช่องว่าง",
+ ex:"toTitleCase(\"hELLO wORLD java\")  →  \"Hello World Java\"",
+ sol:"static String toTitleCase(String s) {\n    char[] c = s.toCharArray();\n    for (int i = 0; i < c.length; i++) {\n        boolean start = (i == 0) || c[i - 1] == ' ';\n        c[i] = start ? Character.toUpperCase(c[i]) : Character.toLowerCase(c[i]);\n    }\n    return new String(c);\n}"},
+{lv:"M",t:"Count matches ignoring case",
+ en:"Write <code>static int countMatches(String[] a, String key)</code> that returns how many entries equal <code>key</code> when letter case is ignored. Skip <code>null</code> entries safely.",
+ th:"เขียน <code>static int countMatches(String[] a, String key)</code> ที่คืนจำนวนช่องที่เท่ากับ <code>key</code> เมื่อไม่สนตัวพิมพ์เล็กใหญ่ ต้องข้ามช่องที่เป็น <code>null</code> ได้อย่างปลอดภัย",
+ ex:"countMatches({\"Yes\", null, \"yes\", \"no\", \"YES\"}, \"yes\")  →  3",
+ sol:"static int countMatches(String[] a, String key) {\n    int c = 0;\n    for (int i = 0; i < a.length; i++) {\n        if (a[i] != null && a[i].equalsIgnoreCase(key)) c++;\n    }\n    return c;\n}"},
+{lv:"H",t:"Best total across two exams",
+ en:"Three parallel arrays hold each student's name, midterm score and final score. Write <code>static int total(int[] mid, int[] fin, int i)</code> and <code>static String bestStudent(String[] names, int[] mid, int[] fin)</code> that returns the name with the highest combined score; on a tie return the student who appears first.",
+ th:"อาร์เรย์คู่ขนานสามตัวเก็บชื่อ คะแนนกลางภาค และคะแนนปลายภาคของนักศึกษาแต่ละคน เขียน <code>static int total(int[] mid, int[] fin, int i)</code> และ <code>static String bestStudent(String[] names, int[] mid, int[] fin)</code> ที่คืนชื่อผู้มีคะแนนรวมสูงสุด ถ้าเท่ากันให้คืนคนที่อยู่ก่อน",
+ ex:"bestStudent({\"Ann\", \"Bob\", \"Cat\"}, {40, 45, 50}, {50, 45, 40})  →  \"Ann\"   (all total 90; Ann is first)",
+ sol:"static int total(int[] mid, int[] fin, int i) {\n    return mid[i] + fin[i];\n}\n\nstatic String bestStudent(String[] names, int[] mid, int[] fin) {\n    int best = 0;\n    for (int i = 1; i < names.length; i++) {\n        if (total(mid, fin, i) > total(mid, fin, best)) best = i;\n    }\n    return names[best];\n}"},
+{lv:"M",t:"Is the list alphabetical?",
+ en:"Write <code>static boolean isSorted(String[] a)</code> that returns true when the strings are in non-decreasing order according to <code>compareTo</code>. An array with 0 or 1 element is sorted.",
+ th:"เขียน <code>static boolean isSorted(String[] a)</code> ที่คืน true เมื่อสตริงเรียงจากน้อยไปมาก (เท่ากันได้) ตาม <code>compareTo</code> อาร์เรย์ที่มี 0 หรือ 1 สมาชิกถือว่าเรียงแล้ว",
+ ex:"isSorted({\"ant\", \"bee\", \"bee\", \"cow\"})  →  true\nisSorted({\"bee\", \"ant\"})               →  false",
+ sol:"static boolean isSorted(String[] a) {\n    for (int i = 1; i < a.length; i++) {\n        if (a[i].compareTo(a[i - 1]) < 0) return false;\n    }\n    return true;\n}"},
+{lv:"H",t:"Reverse the word order",
+ en:"Write <code>static String reverseWords(String s)</code> that returns the words of <code>s</code> in reverse order, separated by single spaces. Split the sentence into a <code>String[]</code>, reverse the array in place with a swap loop, then join it.",
+ th:"เขียน <code>static String reverseWords(String s)</code> ที่คืนคำของ <code>s</code> ในลำดับย้อนกลับ คั่นด้วยช่องว่างหนึ่งตัว ให้แยกประโยคเป็น <code>String[]</code> กลับลำดับอาร์เรย์ในที่เดิมด้วยลูปสลับ แล้วต่อกลับเป็นสตริง",
+ ex:"reverseWords(\"the quick brown fox\")  →  \"fox brown quick the\"",
+ sol:"static String reverseWords(String s) {\n    String[] w = s.trim().split(\"\\\\s+\");\n    for (int i = 0, j = w.length - 1; i < j; i++, j--) {\n        String t = w[i]; w[i] = w[j]; w[j] = t;\n    }\n    String r = \"\";\n    for (int i = 0; i < w.length; i++) {\n        if (i > 0) r += \" \";\n        r += w[i];\n    }\n    return r;\n}"},
+{lv:"M",t:"Parse doubles",
+ en:"Prices arrive as text. Write <code>static double[] toDoubles(String[] a)</code> that converts each string with <code>Double.parseDouble</code>, and <code>static double totalPrice(String[] a)</code> that uses it to return the sum.",
+ th:"ราคาถูกส่งมาเป็นข้อความ เขียน <code>static double[] toDoubles(String[] a)</code> ที่แปลงแต่ละสตริงด้วย <code>Double.parseDouble</code> และ <code>static double totalPrice(String[] a)</code> ที่ใช้มันคืนผลรวม",
+ ex:"totalPrice({\"19.99\", \"5\", \"0.01\"})  →  25.0",
+ sol:"static double[] toDoubles(String[] a) {\n    double[] r = new double[a.length];\n    for (int i = 0; i < a.length; i++) r[i] = Double.parseDouble(a[i]);\n    return r;\n}\n\nstatic double totalPrice(String[] a) {\n    double s = 0;\n    double[] d = toDoubles(a);\n    for (int i = 0; i < d.length; i++) s += d[i];\n    return s;\n}"},
+{lv:"H",t:"Isogram check",
+ en:"An isogram is a word with no repeated letters. Write <code>static boolean isIsogram(String s)</code> that ignores case and non-letter characters, using a <code>boolean[26]</code> to remember which letters have been seen. Return false as soon as a repeat is found.",
+ th:"isogram คือคำที่ไม่มีตัวอักษรซ้ำ เขียน <code>static boolean isIsogram(String s)</code> ที่ไม่สนตัวพิมพ์และข้ามตัวที่ไม่ใช่ตัวอักษร โดยใช้ <code>boolean[26]</code> จำว่าเห็นตัวอักษรใดแล้ว คืน false ทันทีที่พบตัวซ้ำ",
+ ex:"isIsogram(\"Lumberjack\")  →  true\nisIsogram(\"six-year-old\") →  true\nisIsogram(\"Alpha\")       →  false",
+ sol:"static boolean isIsogram(String s) {\n    boolean[] seen = new boolean[26];\n    String t = s.toLowerCase();\n    for (int i = 0; i < t.length(); i++) {\n        char c = t.charAt(i);\n        if (c < 'a' || c > 'z') continue;\n        if (seen[c - 'a']) return false;\n        seen[c - 'a'] = true;\n    }\n    return true;\n}"},
+{lv:"M",t:"Longest string index",
+ en:"Write <code>static int indexOfLongest(String[] a)</code> that returns the index of the longest string, choosing the first one on a tie. Return -1 for an empty array.",
+ th:"เขียน <code>static int indexOfLongest(String[] a)</code> ที่คืนดัชนีของสตริงที่ยาวที่สุด ถ้าเท่ากันให้เลือกตัวแรก คืน -1 ถ้าอาร์เรย์ว่าง",
+ ex:"indexOfLongest({\"go\", \"java\", \"rust\", \"c\"})  →  1",
+ sol:"static int indexOfLongest(String[] a) {\n    if (a.length == 0) return -1;\n    int best = 0;\n    for (int i = 1; i < a.length; i++) {\n        if (a[i].length() > a[best].length()) best = i;\n    }\n    return best;\n}"},
+{lv:"H",t:"Split camelCase",
+ en:"Write <code>static String[] splitCamelCase(String s)</code> that splits an identifier at every uppercase letter: <code>\"parseIntValue\" → {\"parse\", \"Int\", \"Value\"}</code>. First count the uppercase letters to size the result array, then cut the string at those positions. A string with no uppercase letters returns a one-element array.",
+ th:"เขียน <code>static String[] splitCamelCase(String s)</code> ที่ตัดชื่อตัวแปรที่ตัวพิมพ์ใหญ่ทุกตัว: <code>\"parseIntValue\" → {\"parse\", \"Int\", \"Value\"}</code> ให้นับตัวพิมพ์ใหญ่ก่อนเพื่อกำหนดขนาดอาร์เรย์ผลลัพธ์ แล้วตัดสตริงที่ตำแหน่งเหล่านั้น สตริงที่ไม่มีตัวพิมพ์ใหญ่ให้คืนอาร์เรย์หนึ่งช่อง",
+ ex:"splitCamelCase(\"parseIntValue\")  →  {\"parse\", \"Int\", \"Value\"}\nsplitCamelCase(\"hello\")          →  {\"hello\"}",
+ sol:"static String[] splitCamelCase(String s) {\n    int parts = 1;\n    for (int i = 1; i < s.length(); i++) {\n        if (Character.isUpperCase(s.charAt(i))) parts++;\n    }\n    String[] r = new String[parts];\n    int k = 0, start = 0;\n    for (int i = 1; i < s.length(); i++) {\n        if (Character.isUpperCase(s.charAt(i))) {\n            r[k++] = s.substring(start, i);\n            start = i;\n        }\n    }\n    r[k] = s.substring(start);\n    return r;\n}"}
+];
+
+
+const KEY='java-mock-exam-set3';
+let state={mcq:{},fill:{},code:{},done:{},tab:'mcq'};
+try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&typeof s==='object')state=Object.assign(state,s);}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function h(tag,attrs,...kids){const el=document.createElement(tag);for(const k in attrs||{}){if(k==='html')el.innerHTML=attrs[k];else if(k.startsWith('on'))el.addEventListener(k.slice(2),attrs[k]);else el.setAttribute(k,attrs[k]);}
+  for(const c of kids){if(c==null)continue;el.append(c.nodeType?c:document.createTextNode(c));}return el;}
+function lv(q){if(!q.lv)return null;return h('span',{class:'lv '+q.lv,title:q.lv==='H'?'Hard · ยาก':'Medium · ปานกลาง'},q.lv==='H'?'HARD':'MED');}
+function shuffled(n,seed){const idx=[...Array(n).keys()];let s=seed*2654435761%4294967296+12345;for(let i=n-1;i>0;i--){s=(s*1103515245+12345)%2147483648;const j=s%(i+1);[idx[i],idx[j]]=[idx[j],idx[i]];}return idx;}
+const LET='ABCD';
+
+// ---------- Part 1: MCQ ----------
+const mcqEls=[];
+MCQ.forEach((q,i)=>{
+  const order=shuffled(q.opts.length,i+7);
+  const card=h('div',{class:'q',id:'mcq-'+(i+1)});
+  card.append(h('div',{class:'qh'},h('div',{class:'num'},String(i+1)),h('div',{class:'qt'},h('div',{class:'en',html:q.en}),h('div',{class:'th',html:q.th})),lv(q)));
+  if(q.code)card.append(h('pre',{},q.code));
+  const opts=h('div',{class:'opts'});
+  order.forEach((oi,k)=>{
+    const id=`m${i}o${oi}`;
+    const inp=h('input',{type:'radio',name:'m'+i,id,value:String(oi)});
+    if(state.mcq[i]===oi)inp.checked=true;
+    inp.addEventListener('change',()=>{state.mcq[i]=oi;save();});
+    opts.append(h('label',{class:'opt',for:id},inp,h('span',{class:'k'},LET[k]),h('code',{},q.opts[oi])));
+  });
+  card.append(opts);
+  const fb=h('span',{class:'fb'});const exp=h('div',{class:'exp',html:q.exp});exp.hidden=true;
+  const foot=h('div',{class:'foot'},h('button',{class:'btn',type:'button',onclick:()=>checkMcq(i,true)},'Check · ตรวจ'),fb);
+  card.append(foot,exp);
+  mcqEls.push({card,opts,fb,exp,order});
+  document.getElementById('list-mcq').append(card);
+});
+function checkMcq(i,reveal){
+  const q=MCQ[i],e=mcqEls[i],sel=state.mcq[i];
+  e.opts.querySelectorAll('.opt').forEach(o=>o.classList.remove('ok','bad'));
+  e.card.classList.remove('ok','bad');
+  if(sel===undefined&&!reveal){e.fb.className='fb';e.fb.textContent='';return null;}
+  const labels=e.opts.querySelectorAll('.opt');
+  labels.forEach(l=>{const v=+l.querySelector('input').value;if(v===q.ans)l.classList.add('ok');else if(v===sel)l.classList.add('bad');});
+  const ok=sel===q.ans;
+  e.card.classList.add(ok?'ok':'bad');
+  e.fb.className='fb '+(ok?'ok':'bad');
+  e.fb.textContent=sel===undefined?'Not answered · ยังไม่ได้ตอบ':ok?'Correct · ถูกต้อง':'Incorrect · ไม่ถูกต้อง';
+  e.exp.hidden=false;
+  updateScore();
+  return ok;
+}
+
+// ---------- Part 3: Fill ----------
+const fillEls=[];
+function norm(s){return s.replace(/\s+/g,'').toLowerCase();}
+FILL.forEach((q,i)=>{
+  const card=h('div',{class:'q',id:'fill-'+(i+1)});
+  card.append(h('div',{class:'qh'},h('div',{class:'num'},String(i+1)),h('div',{class:'qt'},h('div',{class:'en',html:q.en}),h('div',{class:'th',html:q.th})),lv(q)));
+  const pre=h('pre');
+  const parts=q.code.split('____');
+  let inp;
+  parts.forEach((p,k)=>{pre.append(p);if(k<parts.length-1){inp=h('input',{class:'blank',type:'text',id:'f'+i,autocomplete:'off',spellcheck:'false','aria-label':'blank '+(i+1)});
+    inp.value=state.fill[i]||'';inp.addEventListener('input',()=>{state.fill[i]=inp.value;save();inp.classList.remove('ok','bad');});
+    inp.addEventListener('keydown',ev=>{if(ev.key==='Enter')checkFill(i,true);});pre.append(inp);}});
+  card.append(pre);
+  const fb=h('span',{class:'fb'});const ans=h('div',{class:'exp'});ans.hidden=true;
+  ans.innerHTML='Answer · เฉลย: '+q.acc.map(a=>'<code>'+esc(a)+'</code>').join(' or ');
+  card.append(h('div',{class:'foot'},h('button',{class:'btn',type:'button',onclick:()=>checkFill(i,true)},'Check · ตรวจ'),fb),ans);
+  fillEls.push({card,inp,fb,ans});
+  document.getElementById('list-fill').append(card);
+});
+function checkFill(i,reveal){
+  const q=FILL[i],e=fillEls[i],v=state.fill[i]||'';
+  const ok=v.trim()!==''&&q.acc.some(a=>norm(a)===norm(v));
+  e.inp.classList.remove('ok','bad');e.card.classList.remove('ok','bad');
+  if(!reveal&&v.trim()==='')return null;
+  e.inp.classList.add(ok?'ok':'bad');e.card.classList.add(ok?'ok':'bad');
+  e.fb.className='fb '+(ok?'ok':'bad');
+  e.fb.textContent=v.trim()===''?'Not answered · ยังไม่ได้ตอบ':ok?'Correct · ถูกต้อง':'Incorrect · ไม่ถูกต้อง';
+  e.ans.hidden=ok;
+  updateScore();
+  return ok;
+}
+
+// ---------- Part 2: Code ----------
+const codeEls=[];
+CODE.forEach((q,i)=>{
+  const card=h('div',{class:'q',id:'code-'+(i+1)});
+  card.append(h('div',{class:'qh'},h('div',{class:'num'},String(i+1)),h('div',{class:'qt'},h('div',{class:'title'},q.t),h('div',{class:'en',html:q.en}),h('div',{class:'th',html:q.th})),lv(q)));
+  card.append(h('div',{class:'ex',html:'Examples · ตัวอย่าง:<br><code>'+esc(q.ex)+'</code>'}));
+  const ta=h('textarea',{id:'c'+i,placeholder:'// Write your Java code here · เขียนโค้ด Java ที่นี่',spellcheck:'false'});
+  ta.value=state.code[i]||'';ta.addEventListener('input',()=>{state.code[i]=ta.value;save();});
+  ta.addEventListener('keydown',ev=>{if(ev.key==='Tab'){ev.preventDefault();const s=ta.selectionStart;ta.setRangeText('    ',s,ta.selectionEnd,'end');ta.dispatchEvent(new Event('input'));}});
+  card.append(ta);
+  const sol=h('div',{class:'sol'},h('div',{class:'lbl'},'Model answer · เฉลย'),h('pre',{},q.sol));sol.hidden=true;
+  const btn=h('button',{class:'btn',type:'button'},'Show model answer · ดูเฉลย');
+  btn.addEventListener('click',()=>{sol.hidden=!sol.hidden;btn.textContent=sol.hidden?'Show model answer · ดูเฉลย':'Hide model answer · ซ่อนเฉลย';});
+  const chk=h('input',{type:'checkbox',id:'d'+i});chk.checked=!!state.done[i];
+  chk.addEventListener('change',()=>{state.done[i]=chk.checked;card.classList.toggle('ok',chk.checked);save();updateScore();});
+  card.classList.toggle('ok',chk.checked);
+  card.append(h('div',{class:'foot'},btn,h('label',{class:'done',for:'d'+i},chk,'Done · ทำได้แล้ว')),sol);
+  codeEls.push({card,sol,btn});
+  document.getElementById('list-code').append(card);
+});
+
+// ---------- Scoring, tabs, bulk actions ----------
+function updateScore(){
+  const m=MCQ.reduce((n,q,i)=>n+(state.mcq[i]===q.ans?1:0),0);
+  const f=FILL.reduce((n,q,i)=>n+((state.fill[i]||'').trim()&&q.acc.some(a=>norm(a)===norm(state.fill[i]))?1:0),0);
+  const c=CODE.reduce((n,q,i)=>n+(state.done[i]?1:0),0);
+  document.getElementById('n-mcq').textContent=m+'/30';
+  document.getElementById('n-fill').textContent=f+'/30';
+  document.getElementById('n-code').textContent=c+'/30';
+  document.getElementById('total').innerHTML=(m+f+c)+'<small>/90</small>';
+  return {m,f,c};
+}
+function showTab(p){
+  state.tab=p;save();
+  document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.part===p?'true':'false'));
+  document.querySelectorAll('.part').forEach(s=>s.classList.toggle('active',s.id==='part-'+p));
+}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{showTab(t.dataset.part);window.scrollTo({top:0});}));
+document.querySelectorAll('[data-checkall]').forEach(b=>b.addEventListener('click',()=>{
+  const p=b.dataset.checkall,arr=p==='mcq'?MCQ:FILL,fn=p==='mcq'?checkMcq:checkFill;
+  let ok=0,ans=0;arr.forEach((q,i)=>{const r=fn(i,true);if(r)ok++;if(p==='mcq'?state.mcq[i]!==undefined:(state.fill[i]||'').trim())ans++;});
+  const res=document.getElementById('res-'+p);
+  res.innerHTML=`<b>${ok} / ${arr.length}</b> correct · ตอบถูก ${ok} จาก ${arr.length} ข้อ (${ans} answered · ตอบแล้ว ${ans} ข้อ)`;
+  res.classList.add('show');updateScore();res.scrollIntoView({block:'nearest'});
+}));
+document.querySelectorAll('[data-showall]').forEach(b=>b.addEventListener('click',()=>{
+  const p=b.dataset.showall;
+  if(p==='mcq')MCQ.forEach((q,i)=>checkMcq(i,true));
+  else if(p==='fill')FILL.forEach((q,i)=>{checkFill(i,true);fillEls[i].ans.hidden=false;});
+  else codeEls.forEach(e=>{e.sol.hidden=false;e.btn.textContent='Hide model answer · ซ่อนเฉลย';});
+  updateScore();
+}));
+document.getElementById('reset').addEventListener('click',()=>{
+  const btn=document.getElementById('reset');
+  if(btn.dataset.arm!=='1'){btn.dataset.arm='1';btn.textContent='Press again to clear everything · กดอีกครั้งเพื่อล้างทั้งหมด';setTimeout(()=>{btn.dataset.arm='';btn.textContent='Reset · เริ่มใหม่';},4000);return;}
+  state={mcq:{},fill:{},code:{},done:{},tab:state.tab};save();location.reload();
+});
+const hashTab=(location.hash||'').slice(1);
+showTab(['mcq','code','fill'].includes(hashTab)?hashTab:(state.tab||'mcq'));
+updateScore();
+</script>

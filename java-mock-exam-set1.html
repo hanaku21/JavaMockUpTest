@@ -1,0 +1,690 @@
+<title>Java Arrays & Methods Set 1</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Sarabun:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a sticky score bar, three part tabs, one column of question cards (max 760px) */
+:root{
+  --bg:#f3f5f2; --surface:#ffffff; --fg:#1b2129; --muted:#5c6670; --line:#d7dcd9;
+  --accent:#1f5f6b; --accent-fg:#ffffff; --accent-soft:#e3eef0;
+  --ok:#1d7a4a; --ok-soft:#e1f2e7; --bad:#b4372f; --bad-soft:#f9e4e1;
+  --code-bg:#eef1ee; --code-fg:#1b2129; --blank-bg:#fff7d6;
+  --font-ui:"IBM Plex Sans Thai","Sarabun",system-ui,sans-serif;
+  --font-body:"Sarabun","IBM Plex Sans Thai",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#14191d; --surface:#1d2429; --fg:#e6eaec; --muted:#9aa5ad; --line:#323c43;
+  --accent:#63b8c6; --accent-fg:#0f1a1d; --accent-soft:#1f3337;
+  --ok:#5fcf8c; --ok-soft:#1b3326; --bad:#ef8a80; --bad-soft:#3b2220;
+  --code-bg:#0f1416; --code-fg:#e6eaec; --blank-bg:#3a3415; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#14191d; --surface:#1d2429; --fg:#e6eaec; --muted:#9aa5ad; --line:#323c43;
+  --accent:#63b8c6; --accent-fg:#0f1a1d; --accent-soft:#1f3337;
+  --ok:#5fcf8c; --ok-soft:#1b3326; --bad:#ef8a80; --bad-soft:#3b2220;
+  --code-bg:#0f1416; --code-fg:#e6eaec; --blank-bg:#3a3415; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+h1,h2,h3{font-family:var(--font-ui);text-wrap:balance;margin:0}
+code,pre,textarea,input.blank{font-family:var(--font-mono)}
+code{font-size:.92em;background:var(--code-bg);color:var(--code-fg);padding:.05em .35em;border-radius:4px}
+.wrap{max-width:760px;margin:0 auto}
+header.top{padding-block:28px 12px}
+.eyebrow{font-family:var(--font-ui);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font-size:clamp(1.5rem,4vw,2.1rem);font-weight:700;line-height:1.2;margin-top:4px}
+.sub{color:var(--muted);margin-top:6px;max-width:60ch}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:18px}
+.rule{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--surface);font-size:.92rem}
+.rule b{font-family:var(--font-ui);display:block}
+.rule span{color:var(--muted)}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding-block:10px}
+.bar .wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tabs{display:flex;gap:4px;flex:1 1 auto;min-width:0}
+.tab{font-family:var(--font-ui);font-weight:600;font-size:.9rem;border:1px solid var(--line);background:var(--surface);color:var(--fg);
+  border-radius:999px;padding:6px 14px;cursor:pointer;display:flex;gap:8px;align-items:center;white-space:nowrap}
+.tab[aria-selected="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.tab .n{font-variant-numeric:tabular-nums;font-weight:500;opacity:.85}
+.total{font-family:var(--font-ui);font-weight:600;font-variant-numeric:tabular-nums;margin-left:auto}
+.total small{color:var(--muted);font-weight:500}
+.btn{font-family:var(--font-ui);font-weight:600;font-size:.88rem;border:1px solid var(--line);background:var(--surface);color:var(--fg);
+  border-radius:6px;padding:7px 12px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.btn.ghost{background:transparent}
+.btn:focus-visible,.tab:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+section.part{display:none;padding-block:18px}
+section.part.active{display:block}
+.part-head{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px}
+.part-head h2{font-size:1.25rem}
+.part-head p{margin:2px 0 0;color:var(--muted);font-size:.95rem}
+.part-head .actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+
+.q{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:12px}
+.q.ok{border-color:var(--ok)} .q.bad{border-color:var(--bad)}
+.qh{display:flex;gap:10px;align-items:baseline}
+.num{font-family:var(--font-ui);font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;min-width:2.2em}
+.qt{flex:1;min-width:0}
+.qt .en{font-weight:500}
+.qt .th{color:var(--muted);font-size:.95rem}
+.qt .title{font-family:var(--font-ui);font-weight:600;font-size:1.05rem}
+.lv{font-family:var(--font-ui);font-size:.7rem;font-weight:700;letter-spacing:.06em;border-radius:4px;padding:1px 6px;align-self:center;white-space:nowrap;border:1px solid var(--line);color:var(--muted)}
+.lv.H{border-color:var(--accent);color:var(--accent)}
+pre{background:var(--code-bg);color:var(--code-fg);border-radius:8px;padding:12px 14px;margin:10px 0 0;overflow-x:auto;font-size:.88rem;line-height:1.5;tab-size:4}
+input.blank{background:var(--blank-bg);color:var(--code-fg);border:1px solid var(--line);border-bottom:2px solid var(--accent);border-radius:4px;
+  font-size:inherit;padding:1px 6px;width:14ch;max-width:100%;margin:0 2px}
+input.blank.ok{border-color:var(--ok);background:var(--ok-soft)} input.blank.bad{border-color:var(--bad);background:var(--bad-soft)}
+.opts{display:grid;gap:6px;margin-top:10px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:8px 10px;cursor:pointer}
+.opt:hover{border-color:var(--accent)}
+.opt input{margin-top:4px;accent-color:var(--accent)}
+.opt .k{font-family:var(--font-ui);font-weight:600;color:var(--muted);min-width:1.2em}
+.opt code{background:transparent;padding:0;font-size:.9em}
+.opt.ok{border-color:var(--ok);background:var(--ok-soft)} .opt.bad{border-color:var(--bad);background:var(--bad-soft)}
+.foot{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.fb{font-family:var(--font-ui);font-weight:600;font-size:.9rem}
+.fb.ok{color:var(--ok)} .fb.bad{color:var(--bad)}
+.exp{margin-top:8px;padding:8px 12px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 6px 6px 0;font-size:.92rem}
+.ex{margin-top:8px;font-size:.9rem;color:var(--muted)}
+.ex code{white-space:pre-wrap}
+textarea{width:100%;min-height:150px;margin-top:10px;background:var(--code-bg);color:var(--code-fg);border:1px solid var(--line);border-radius:8px;
+  padding:10px 12px;font-size:.88rem;line-height:1.5;resize:vertical;tab-size:4}
+.sol{margin-top:10px}
+.sol .lbl{font-family:var(--font-ui);font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.done{display:flex;gap:8px;align-items:center;font-family:var(--font-ui);font-weight:600;font-size:.9rem;cursor:pointer}
+.done input{accent-color:var(--ok);width:16px;height:16px}
+.result{margin-top:16px;padding:14px 16px;border-radius:10px;background:var(--accent-soft);border:1px solid var(--accent);display:none}
+.result.show{display:block}
+.result b{font-family:var(--font-ui);font-size:1.1rem}
+@media (prefers-reduced-motion:no-preference){.q{transition:border-color .2s}}
+@media (max-width:480px){.tab{padding:6px 10px;font-size:.84rem}.q{padding:14px}}
+</style>
+
+<header class="top wrap">
+  <div class="eyebrow">Java Programming · Mock Exam Set 1 · ชุดที่ 1 · Medium + Hard</div>
+  <h1>Arrays &amp; Methods · Set 1</h1>
+  <p class="sub">90 questions in three parts, mixed medium and hard (each question is tagged MED or HARD). Focus of this set: 1D arrays & method design. Answers are checked on the page and every question keeps its model solution.<br>90 ข้อ 3 ส่วน ผสมระดับปานกลางและยาก (แต่ละข้อมีป้าย MED/HARD) จุดเน้นของชุดนี้: อาร์เรย์ 1 มิติและการออกแบบเมธอด ตรวจคำตอบได้ทันที และทุกข้อมีเฉลย</p>
+  <div class="rules">
+    <div class="rule"><b>Part 1 · Multiple choice</b><span>30 × 1 point · ปรนัย 30 ข้อ</span></div>
+    <div class="rule"><b>Part 2 · Write the code</b><span>30 tasks, self-marked · เขียนโปรแกรม 30 ข้อ</span></div>
+    <div class="rule"><b>Part 3 · Fill in the blank</b><span>30 × 1 point · เติมคำ 30 ข้อ</span></div>
+  </div>
+</header>
+
+<div class="bar"><div class="wrap">
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-mcq" data-part="mcq" aria-selected="true">Part 1 <span class="n" id="n-mcq">0/30</span></button>
+    <button class="tab" role="tab" id="tab-code" data-part="code" aria-selected="false">Part 2 <span class="n" id="n-code">0/30</span></button>
+    <button class="tab" role="tab" id="tab-fill" data-part="fill" aria-selected="false">Part 3 <span class="n" id="n-fill">0/30</span></button>
+  </div>
+  <div class="total" id="total">0<small>/90</small></div>
+  <button class="btn ghost" id="reset" type="button">Reset · เริ่มใหม่</button>
+</div></div>
+
+<main class="wrap">
+  <section class="part active" id="part-mcq">
+    <div class="part-head"><div><h2>Part 1 · Multiple choice · ปรนัย</h2><p>Choose one answer, then press Check. · เลือกคำตอบหนึ่งข้อ แล้วกด ตรวจ</p></div>
+      <div class="actions"><button class="btn primary" type="button" data-checkall="mcq">Check all · ตรวจทั้งหมด</button><button class="btn" type="button" data-showall="mcq">Show answers · เฉลย</button></div></div>
+    <div id="list-mcq"></div>
+    <div class="result" id="res-mcq"></div>
+  </section>
+  <section class="part" id="part-code">
+    <div class="part-head"><div><h2>Part 2 · Write the code · เขียนโปรแกรม</h2><p>Write each method in the box, compare with the model answer, then tick Done. · เขียนเมธอดในช่อง เทียบกับเฉลย แล้วติ๊ก ทำได้แล้ว</p></div>
+      <div class="actions"><button class="btn" type="button" data-showall="code">Show all answers · เฉลยทั้งหมด</button></div></div>
+    <div id="list-code"></div>
+  </section>
+  <section class="part" id="part-fill">
+    <div class="part-head"><div><h2>Part 3 · Fill in the blank · เติมคำในช่องว่าง</h2><p>Type the missing code in the yellow box. · พิมพ์โค้ดที่หายไปในช่องสีเหลือง</p></div>
+      <div class="actions"><button class="btn primary" type="button" data-checkall="fill">Check all · ตรวจทั้งหมด</button><button class="btn" type="button" data-showall="fill">Show answers · เฉลย</button></div></div>
+    <div id="list-fill"></div>
+    <div class="result" id="res-fill"></div>
+  </section>
+</main>
+
+<script>
+const MCQ = [
+{lv:"M",en:"A temperature logger stores one reading per hour. The loop counts how many readings are <b>higher than the previous</b> reading. What is printed?",
+ th:"เครื่องบันทึกอุณหภูมิเก็บค่าชั่วโมงละหนึ่งค่า ลูปนับว่ามีกี่ค่าที่<b>สูงกว่าค่าก่อนหน้า</b> โปรแกรมพิมพ์อะไร",
+ code:"int[] a = {3, 5, 2, 8, 8, 9};\nint c = 0;\nfor (int i = 1; i < a.length; i++) {\n    if (a[i] > a[i - 1]) c++;\n}\nSystem.out.println(c);",
+ opts:["3","4","2","5"],ans:0,
+ exp:"5>3 yes, 2>5 no, 8>2 yes, 8>8 no, 9>8 yes: three rises. / 5>3 ใช่, 2>5 ไม่, 8>2 ใช่, 8>8 ไม่, 9>8 ใช่ รวมสามครั้ง"},
+{lv:"H",en:"Two overloads of <code>swap</code> exist: one receives two ints, the other receives an array and swaps its first and last elements. After both calls, what is printed? (Note the <code>\"\"</code> that turns the expression into string concatenation.)",
+ th:"มี <code>swap</code> สองแบบ: แบบหนึ่งรับ int สองตัว อีกแบบรับอาร์เรย์แล้วสลับตัวแรกกับตัวสุดท้าย หลังเรียกทั้งสองครั้ง โปรแกรมพิมพ์อะไร (สังเกต <code>\"\"</code> ที่ทำให้นิพจน์กลายเป็นการต่อสตริง)",
+ code:"static void swap(int a, int b) {\n    int t = a; a = b; b = t;\n}\nstatic void swap(int[] arr) {\n    int t = arr[0];\n    arr[0] = arr[arr.length - 1];\n    arr[arr.length - 1] = t;\n}\npublic static void main(String[] args) {\n    int x = 1, y = 2;\n    swap(x, y);\n    int[] p = {1, 2, 3};\n    swap(p);\n    System.out.println(x + \"\" + y + p[0] + p[2]);\n}",
+ opts:["1231","2113","1213","2131"],ans:0,
+ exp:"swap(x, y) changes only local copies, so x=1, y=2. swap(p) really swaps, giving p = {3, 2, 1}. Concatenation gives \"1\"+\"2\"+\"3\"+\"1\". / swap(x, y) แก้แค่สำเนา x=1, y=2 ส่วน swap(p) สลับจริง p = {3, 2, 1} ต่อสตริงได้ 1231"},
+{lv:"M",en:"The loop steps through the array two indexes at a time. Which values are added, and what is printed?",
+ th:"ลูปก้าวไปทีละสองดัชนี ค่าใดถูกบวก และโปรแกรมพิมพ์อะไร",
+ code:"int[] a = {4, 7, 1, 9, 3};\nint s = 0;\nfor (int i = 0; i < a.length; i += 2) {\n    s += a[i];\n}\nSystem.out.println(s);",
+ opts:["8","24","16","11"],ans:0,
+ exp:"Indexes 0, 2, 4 hold 4, 1, 3; the sum is 8. / ดัชนี 0, 2, 4 เก็บ 4, 1, 3 รวมเป็น 8"},
+{lv:"H",en:"The loop variable is declared <b>outside</b> the loop so its value survives after <code>break</code>. The loop stops at the first odd value. What is printed?",
+ th:"ตัวแปรลูปถูกประกาศ<b>นอก</b>ลูปเพื่อให้ค่าคงอยู่หลัง <code>break</code> ลูปหยุดที่ค่าคี่ตัวแรก โปรแกรมพิมพ์อะไร",
+ code:"int[] a = {2, 4, 6, 7, 8};\nint i;\nfor (i = 0; i < a.length; i++) {\n    if (a[i] % 2 != 0) break;\n}\nSystem.out.println(i);",
+ opts:["3","7","4","5"],ans:0,
+ exp:"The first odd value 7 is at index 3; break leaves i = 3 (i++ is not executed after break). / ค่าคี่ตัวแรกคือ 7 ที่ดัชนี 3 break ทำให้ i ค้างที่ 3 (ไม่ทำ i++ หลัง break)"},
+{lv:"M",en:"<code>Arrays.copyOf</code> is asked for a copy <b>longer</b> than the original. What is printed?",
+ th:"เรียก <code>Arrays.copyOf</code> โดยขอสำเนาที่<b>ยาวกว่า</b>ต้นฉบับ โปรแกรมพิมพ์อะไร",
+ code:"int[] a = {1, 2, 3};\nint[] b = Arrays.copyOf(a, 5);\nSystem.out.println(b.length + \" \" + b[4]);",
+ opts:["5 0","3 0","5 3","ArrayIndexOutOfBoundsException"],ans:0,
+ exp:"Extra cells are padded with the default value 0. / ช่องที่เกินมาถูกเติมด้วยค่าเริ่มต้น 0"},
+{lv:"H",en:"<code>make</code> returns an array that was created inside the method. The caller modifies the first result and then calls <code>make</code> again. What is printed?",
+ th:"<code>make</code> คืนอาร์เรย์ที่สร้างภายในเมธอด ผู้เรียกแก้ไขผลลัพธ์แรกแล้วเรียก <code>make</code> อีกครั้ง โปรแกรมพิมพ์อะไร",
+ code:"static int[] make() {\n    int[] r = {1, 2, 3};\n    return r;\n}\npublic static void main(String[] args) {\n    int[] x = make();\n    x[0] = 50;\n    int[] y = make();\n    System.out.println(x[0] + y[0]);\n}",
+ opts:["51","100","2","52"],ans:0,
+ exp:"Each call creates a brand-new array, so y[0] is still 1: 50 + 1 = 51. / ทุกครั้งที่เรียกจะสร้างอาร์เรย์ใหม่ y[0] จึงยังเป็น 1: 50 + 1 = 51"},
+{lv:"M",en:"<code>countAbove</code> counts scores strictly greater than a limit. What is printed for the scores shown?",
+ th:"<code>countAbove</code> นับคะแนนที่มากกว่าขีดจำกัดอย่างเคร่งครัด โปรแกรมพิมพ์อะไรสำหรับคะแนนที่กำหนด",
+ code:"static int countAbove(int[] a, int limit) {\n    int c = 0;\n    for (int i = 0; i < a.length; i++) {\n        int x = a[i];\n        if (x > limit) c++;\n    }\n    return c;\n}\npublic static void main(String[] args) {\n    int[] s = {55, 70, 85, 70, 90};\n    System.out.println(countAbove(s, 70));\n}",
+ opts:["2","4","3","1"],ans:0,
+ exp:"Only 85 and 90 are strictly above 70; the two 70s do not count. / มีเพียง 85 และ 90 ที่มากกว่า 70 ส่วน 70 ทั้งสองตัวไม่นับ"},
+{lv:"H",en:"A student tries to shift every element one place to the right by copying from left to right. What does the array contain afterwards?",
+ th:"นักศึกษาพยายามเลื่อนทุกสมาชิกไปทางขวาหนึ่งตำแหน่งโดยคัดลอกจากซ้ายไปขวา หลังจากนั้นอาร์เรย์มีค่าอย่างไร",
+ code:"int[] a = {1, 2, 3, 4};\nfor (int i = 0; i < a.length - 1; i++) {\n    a[i + 1] = a[i];\n}\nSystem.out.println(Arrays.toString(a));",
+ opts:["[1, 1, 1, 1]","[1, 1, 2, 3]","[2, 3, 4, 4]","ArrayIndexOutOfBoundsException"],ans:0,
+ exp:"Each copy overwrites the value that the next step needs, so the 1 spreads over the whole array. Shifting right must go from the end backwards. / แต่ละก้าวเขียนทับค่าที่ก้าวถัดไปต้องใช้ ค่า 1 จึงกระจายทั่วอาร์เรย์ การเลื่อนขวาต้องวนจากท้ายมาหน้า"},
+{lv:"M",en:"<code>Arrays.copyOfRange</code> copies from index <code>from</code> (inclusive) to <code>to</code> (exclusive). What is printed?",
+ th:"<code>Arrays.copyOfRange</code> คัดลอกจากดัชนี <code>from</code> (รวม) ถึง <code>to</code> (ไม่รวม) โปรแกรมพิมพ์อะไร",
+ code:"int[] a = {10, 20, 30, 40, 50};\nint[] b = Arrays.copyOfRange(a, 1, 4);\nSystem.out.println(b.length + \" \" + b[2]);",
+ opts:["3 40","4 40","3 30","4 50"],ans:0,
+ exp:"b = {20, 30, 40}: three elements, and b[2] is 40. / b = {20, 30, 40} มีสามตัว และ b[2] คือ 40"},
+{lv:"H",en:"Inside <code>f</code> the array is modified first, then the parameter is pointed at a new array and modified again. What does the caller see?",
+ th:"ภายใน <code>f</code> อาร์เรย์ถูกแก้ก่อน จากนั้นพารามิเตอร์ถูกชี้ไปที่อาร์เรย์ใหม่แล้วแก้อีกครั้ง ผู้เรียกเห็นอะไร",
+ code:"static void f(int[] a) {\n    a[0] = 7;\n    a = new int[]{9, 9};\n    a[0] = 8;\n}\npublic static void main(String[] args) {\n    int[] x = {1, 2};\n    f(x);\n    System.out.println(x[0] + x[1]);\n}",
+ opts:["9","10","3","17"],ans:0,
+ exp:"a[0] = 7 happens while a still refers to x. After the reassignment, changes go to the new array only. x = {7, 2}, 7 + 2 = 9. / a[0] = 7 เกิดขณะ a ยังชี้ไปที่ x หลังจากชี้ใหม่ การแก้จะไปที่อาร์เรย์ใหม่เท่านั้น x = {7, 2} รวม 9"},
+{lv:"M",en:"A string is built by walking the array from the last element to the first. What is printed?",
+ th:"สร้างสตริงโดยไล่อาร์เรย์จากตัวสุดท้ายไปตัวแรก โปรแกรมพิมพ์อะไร",
+ code:"int[] a = {1, 2, 3};\nString s = \"\";\nfor (int i = a.length - 1; i >= 0; i--) {\n    s += a[i];\n}\nSystem.out.println(s);",
+ opts:["321","123","6","32"],ans:0,
+ exp:"String += int appends the digit, so the result is \"321\". / String += int จะต่อตัวเลขเข้าไป ได้ \"321\""},
+{lv:"H",en:"A sorted array is compacted in place so that each value appears once in the first <code>k</code> cells; the cells after <code>k</code> keep whatever was left. What is printed?",
+ th:"อาร์เรย์ที่เรียงแล้วถูกบีบอัดในที่เดิมให้แต่ละค่าปรากฏครั้งเดียวใน <code>k</code> ช่องแรก ช่องหลัง <code>k</code> เก็บค่าเดิมที่เหลือ โปรแกรมพิมพ์อะไร",
+ code:"int[] a = {1, 1, 2, 2, 2, 3};\nint k = 1;\nfor (int i = 1; i < a.length; i++) {\n    if (a[i] != a[i - 1]) a[k++] = a[i];\n}\nSystem.out.println(k + \" \" + a[2]);",
+ opts:["3 3","3 2","6 2","3 1"],ans:0,
+ exp:"Writes happen at i=2 (a[1]=2) and i=5 (a[2]=3), so k ends at 3 and a = {1, 2, 3, 2, 2, 3}. / การเขียนเกิดที่ i=2 (a[1]=2) และ i=5 (a[2]=3) ดังนั้น k = 3 และ a = {1, 2, 3, 2, 2, 3}"},
+{lv:"M",en:"<code>firstEven</code> returns the first even value or -1. The two results are added. What is printed?",
+ th:"<code>firstEven</code> คืนค่าคู่ตัวแรกหรือ -1 ผลลัพธ์สองค่าถูกนำมาบวกกัน โปรแกรมพิมพ์อะไร",
+ code:"static int firstEven(int[] a) {\n    for (int i = 0; i < a.length; i++) {\n        int x = a[i];\n        if (x % 2 == 0) return x;\n    }\n    return -1;\n}\npublic static void main(String[] args) {\n    System.out.println(firstEven(new int[]{3, 5, 8, 10}) + firstEven(new int[]{1, 3}));\n}",
+ opts:["7","8-1","9","8"],ans:0,
+ exp:"8 + (-1) = 7; both operands are ints so this is arithmetic, not concatenation. / 8 + (-1) = 7 ทั้งสองเป็น int จึงเป็นการบวก ไม่ใช่ต่อสตริง"},
+{lv:"H",en:"A fixed-size <b>ring buffer</b> of three cells keeps only the most recent readings: each new value is written at <code>n % 3</code>, so the oldest slot is overwritten. After the four readings are stored, what is printed?",
+ th:"<b>บัฟเฟอร์วงแหวน</b>ขนาดสามช่องเก็บเฉพาะค่าล่าสุด ค่าใหม่แต่ละค่าถูกเขียนที่ตำแหน่ง <code>n % 3</code> จึงทับช่องที่เก่าที่สุด หลังเก็บค่าทั้งสี่แล้ว โปรแกรมพิมพ์อะไร",
+ code:"int[] log = new int[3];\nint[] readings = {5, 6, 7, 8};\nint n = 0;\nfor (int i = 0; i < readings.length; i++) {\n    int v = readings[i];\n    log[n % log.length] = v;\n    n++;\n}\nSystem.out.println(Arrays.toString(log));",
+ opts:["[8, 6, 7]","[5, 6, 7]","[6, 7, 8]","ArrayIndexOutOfBoundsException"],ans:0,
+ exp:"Slots 0,1,2 get 5,6,7; the fourth reading uses 3 % 3 = 0 and overwrites the 5 with 8. / ช่อง 0,1,2 ได้ 5,6,7 ค่าที่สี่ใช้ 3 % 3 = 0 จึงเขียนทับ 5 ด้วย 8"},
+{lv:"M",en:"A boolean array is created without assigning any value, then the loop counts the cells that are <code>false</code>. What is printed?",
+ th:"สร้างอาร์เรย์ boolean โดยไม่กำหนดค่าใด ๆ แล้วลูปนับช่องที่เป็น <code>false</code> โปรแกรมพิมพ์อะไร",
+ code:"boolean[] f = new boolean[3];\nint c = 0;\nfor (int i = 0; i < f.length; i++) {\n    boolean b = f[i];\n    if (!b) c++;\n}\nSystem.out.println(c);",
+ opts:["3","0","Compile error: f is not initialised","NullPointerException"],ans:0,
+ exp:"boolean arrays default to false, so all three cells count. / อาร์เรย์ boolean มีค่าเริ่มต้นเป็น false ทั้งสามช่องจึงถูกนับ"},
+{lv:"H",en:"<code>bump</code> increments <code>a[0]</code> and returns the new value. It is called twice inside one expression; Java evaluates operands left to right. What is printed?",
+ th:"<code>bump</code> เพิ่มค่า <code>a[0]</code> แล้วคืนค่าใหม่ ถูกเรียกสองครั้งในนิพจน์เดียว Java ประเมินตัวถูกดำเนินการจากซ้ายไปขวา โปรแกรมพิมพ์อะไร",
+ code:"static int bump(int[] a) {\n    a[0]++;\n    return a[0];\n}\npublic static void main(String[] args) {\n    int[] a = {1};\n    int r = bump(a) + bump(a) * 2;\n    System.out.println(r + \" \" + a[0]);\n}",
+ opts:["8 3","6 3","8 2","9 3"],ans:0,
+ exp:"First bump returns 2, second returns 3: 2 + 3 × 2 = 8, and a[0] ends at 3. / bump แรกคืน 2 ครั้งที่สองคืน 3: 2 + 3 × 2 = 8 และ a[0] จบที่ 3"},
+{lv:"M",en:"After sorting, the smallest and largest values sit at the two ends. What is printed?",
+ th:"หลังเรียง ค่าน้อยสุดและมากสุดจะอยู่ที่ปลายทั้งสองข้าง โปรแกรมพิมพ์อะไร",
+ code:"int[] a = {4, 1, 3};\nArrays.sort(a);\nSystem.out.println(a[a.length - 1] - a[0]);",
+ opts:["3","-1","1","4"],ans:0,
+ exp:"Sorted a = {1, 3, 4}; 4 - 1 = 3. / หลังเรียง a = {1, 3, 4}; 4 - 1 = 3"},
+{lv:"H",en:"Three overloads of <code>f</code> take an <code>int[]</code>, an <code>int</code> and a <code>long</code>. Which overload does each call bind to, and what is printed?",
+ th:"<code>f</code> สามแบบรับ <code>int[]</code>, <code>int</code> และ <code>long</code> แต่ละการเรียกผูกกับแบบใด และโปรแกรมพิมพ์อะไร",
+ code:"static String f(int[] a) { return \"arr \"; }\nstatic String f(int a)   { return \"int \"; }\nstatic String f(long a)  { return \"long \"; }\npublic static void main(String[] args) {\n    int[] x = {1};\n    System.out.println(f(x) + f(x[0]) + f(x.length * 2L));\n}",
+ opts:["arr int long ","arr int int ","int int long ","Compile error: ambiguous"],ans:0,
+ exp:"x is int[]; x[0] is int; int × 2L is promoted to long. / x เป็น int[]; x[0] เป็น int; int × 2L ถูกเลื่อนชนิดเป็น long"},
+{lv:"M",en:"Two parallel arrays hold quantities and unit prices. The loop computes the order total. What is printed?",
+ th:"อาร์เรย์คู่ขนานสองตัวเก็บจำนวนและราคาต่อหน่วย ลูปคำนวณยอดรวมของคำสั่งซื้อ โปรแกรมพิมพ์อะไร",
+ code:"int[] qty = {1, 2, 3};\nint[] price = {4, 5, 6};\nint total = 0;\nfor (int i = 0; i < qty.length; i++) {\n    total += qty[i] * price[i];\n}\nSystem.out.println(total);",
+ opts:["32","21","90","15"],ans:0,
+ exp:"1×4 + 2×5 + 3×6 = 4 + 10 + 18 = 32. / 1×4 + 2×5 + 3×6 = 32"},
+{lv:"H",en:"The nested loops count every <b>pair of positions</b> <code>(i, j)</code> with <code>i &lt; j</code> that hold equal values. What is printed?",
+ th:"ลูปซ้อนนับทุก<b>คู่ตำแหน่ง</b> <code>(i, j)</code> ที่ <code>i &lt; j</code> และมีค่าเท่ากัน โปรแกรมพิมพ์อะไร",
+ code:"int[] a = {2, 3, 2, 2, 3};\nint c = 0;\nfor (int i = 0; i < a.length; i++) {\n    for (int j = i + 1; j < a.length; j++) {\n        if (a[i] == a[j]) c++;\n    }\n}\nSystem.out.println(c);",
+ opts:["4","3","5","2"],ans:0,
+ exp:"Three 2s form 3 pairs, two 3s form 1 pair: 4 in total. / เลข 2 สามตัวจับคู่ได้ 3 คู่ เลข 3 สองตัวได้ 1 คู่ รวม 4"},
+{lv:"H",en:"The length of a char array (an <code>int</code>) is added to one of its elements (a <code>char</code>). What is printed?",
+ th:"นำความยาวของอาร์เรย์ char (เป็น <code>int</code>) บวกกับสมาชิกตัวหนึ่ง (เป็น <code>char</code>) โปรแกรมพิมพ์อะไร",
+ code:"char[] c = {'J', 'a', 'v', 'a'};\nSystem.out.println(c.length + c[1]);",
+ opts:["101","4a","5","Compile error: cannot add int and char"],ans:0,
+ exp:"int + char is numeric: 4 + 'a' (97) = 101. To get \"4a\" you would need a String first, e.g. \"\" + c.length + c[1]. / int + char เป็นการบวกตัวเลข: 4 + 'a' (97) = 101 ถ้าอยากได้ \"4a\" ต้องมี String ก่อน เช่น \"\" + c.length + c[1]"},
+{lv:"M",en:"An array of length zero is legal in Java. What does this code print?",
+ th:"อาร์เรย์ความยาวศูนย์ใช้ได้ใน Java โค้ดนี้พิมพ์อะไร",
+ code:"int[] a = new int[0];\nSystem.out.println(a.length);\nfor (int i = 0; i < a.length; i++) {\n    int x = a[i];\n    System.out.println(x);\n}",
+ opts:["0 (one line only)","Nothing is printed","ArrayIndexOutOfBoundsException","Compile error: size must be positive"],ans:0,
+ exp:"length is 0, so the loop condition 0 < 0 is false immediately and the body never runs. / length เป็น 0 เงื่อนไข 0 < 0 เป็นเท็จทันที ตัวลูปจึงไม่ทำงานเลย"},
+{lv:"M",en:"<code>mx</code> finds the maximum recursively: it compares the current element with the maximum of the rest. What is printed?",
+ th:"<code>mx</code> หาค่ามากสุดแบบเรียกซ้ำ โดยเทียบสมาชิกปัจจุบันกับค่ามากสุดของส่วนที่เหลือ โปรแกรมพิมพ์อะไร",
+ code:"static int mx(int[] a, int i) {\n    if (i == a.length - 1) return a[i];\n    int r = mx(a, i + 1);\n    return a[i] > r ? a[i] : r;\n}\npublic static void main(String[] args) {\n    System.out.println(mx(new int[]{3, 9, 4, 7}, 0));\n}",
+ opts:["9","7","3","StackOverflowError"],ans:0,
+ exp:"From the end: 7, then max(4,7)=7, max(9,7)=9, max(3,9)=9. / จากท้าย: 7, max(4,7)=7, max(9,7)=9, max(3,9)=9"},
+{lv:"H",en:"The loop is meant to count odd numbers using <code>x % 2 == 1</code>. The array contains negative values. What is printed?",
+ th:"ลูปตั้งใจนับเลขคี่ด้วย <code>x % 2 == 1</code> แต่อาร์เรย์มีค่าลบ โปรแกรมพิมพ์อะไร",
+ code:"int[] a = {-3, 4, -5};\nint c = 0;\nfor (int i = 0; i < a.length; i++) {\n    int x = a[i];\n    if (x % 2 == 1) c++;\n}\nSystem.out.println(c);",
+ opts:["0","2","1","3"],ans:0,
+ exp:"In Java the remainder keeps the sign of the dividend: -3 % 2 is -1, not 1. Use x % 2 != 0. / ใน Java เศษมีเครื่องหมายตามตัวตั้ง: -3 % 2 เป็น -1 ไม่ใช่ 1 ควรใช้ x % 2 != 0"},
+{lv:"M",en:"<code>same</code> reports whether every element equals the first one. It is called with an <b>empty</b> array and with a mixed array. What is printed?",
+ th:"<code>same</code> บอกว่าทุกสมาชิกเท่ากับตัวแรกหรือไม่ ถูกเรียกด้วยอาร์เรย์<b>ว่าง</b>และอาร์เรย์ที่มีค่าต่างกัน โปรแกรมพิมพ์อะไร",
+ code:"static boolean same(int[] a) {\n    for (int i = 1; i < a.length; i++) {\n        if (a[i] != a[0]) return false;\n    }\n    return true;\n}\npublic static void main(String[] args) {\n    System.out.println(same(new int[]{}) + \" \" + same(new int[]{2, 2, 3}));\n}",
+ opts:["true false","false false","ArrayIndexOutOfBoundsException","true true"],ans:0,
+ exp:"With length 0 the loop never runs and a[0] is never touched, so true. {2,2,3} fails at index 2. / ความยาว 0 ลูปไม่ทำงานและไม่แตะ a[0] จึงได้ true ส่วน {2,2,3} ไม่ผ่านที่ดัชนี 2"},
+{lv:"H",en:"An assignment uses <code>i++</code> on the left and <code>++i</code> on the right. Java evaluates the left-hand index first, then the right-hand side left to right. What is printed?",
+ th:"คำสั่งกำหนดค่าใช้ <code>i++</code> ทางซ้ายและ <code>++i</code> ทางขวา Java ประเมินดัชนีฝั่งซ้ายก่อน แล้วค่อยประเมินฝั่งขวาจากซ้ายไปขวา โปรแกรมพิมพ์อะไร",
+ code:"int[] a = {10, 20, 30, 40};\nint i = 0;\na[i++] = a[i] + a[++i];\nSystem.out.println(Arrays.toString(a) + i);",
+ opts:["[50, 20, 30, 40]2","[30, 20, 30, 40]2","[50, 20, 30, 40]1","[10, 50, 30, 40]2"],ans:0,
+ exp:"Target is a[0] and i becomes 1. Then a[1] (20) + a[2] (30, after ++i makes i = 2) = 50. / เป้าหมายคือ a[0] และ i กลายเป็น 1 จากนั้น a[1] (20) + a[2] (30 หลัง ++i ทำให้ i = 2) = 50"},
+{lv:"M",en:"The array is filled with 5s, then one cell is increased by its neighbour. What is printed?",
+ th:"เติมอาร์เรย์ด้วย 5 ทั้งหมด แล้วเพิ่มค่าหนึ่งช่องด้วยค่าของช่องข้าง ๆ โปรแกรมพิมพ์อะไร",
+ code:"int[] a = new int[4];\nArrays.fill(a, 5);\na[2] += a[1];\nSystem.out.println(Arrays.toString(a));",
+ opts:["[5, 5, 10, 5]","[5, 10, 5, 5]","[5, 5, 5, 5]","[0, 0, 10, 0]"],ans:0,
+ exp:"a[2] becomes 5 + 5 = 10; the rest stay 5. / a[2] กลายเป็น 5 + 5 = 10 ที่เหลือยังเป็น 5"},
+{lv:"H",en:"<code>check</code> counts how many times it is called by incrementing a one-cell array passed in by the caller (the array is shared, so the count survives between calls). Because of short-circuit <code>&&</code>, the second call is skipped whenever the first is false. What is printed?",
+ th:"<code>check</code> นับจำนวนครั้งที่ถูกเรียกโดยเพิ่มค่าในอาร์เรย์หนึ่งช่องที่ผู้เรียกส่งมา (อาร์เรย์ใช้ร่วมกัน ค่าจึงคงอยู่ระหว่างการเรียก) เนื่องจาก <code>&&</code> แบบลัดวงจร การเรียกครั้งที่สองจะถูกข้ามเมื่อครั้งแรกเป็นเท็จ โปรแกรมพิมพ์อะไร",
+ code:"static boolean check(int v, int[] calls) {\n    calls[0]++;\n    return v > 0;\n}\npublic static void main(String[] args) {\n    int[] a = {1, -2, 3, 4};\n    int[] calls = {0};\n    int ok = 0;\n    for (int i = 0; i < a.length; i++) {\n        int x = a[i];\n        if (check(x, calls) && check(x - 2, calls)) ok++;\n    }\n    System.out.println(ok + \" \" + calls[0]);\n}",
+ opts:["2 7","2 8","3 7","2 4"],ans:0,
+ exp:"x=1: two calls, fails. x=-2: one call. x=3: two calls, ok. x=4: two calls, ok. Total 7 calls, 2 passes. / x=1 เรียกสองครั้งไม่ผ่าน; x=-2 เรียกครั้งเดียว; x=3 และ x=4 เรียกสองครั้งผ่าน รวม 7 ครั้ง ผ่าน 2"},
+{lv:"M",en:"The loop keeps overwriting <code>idx</code> every time it sees a 5, so it ends up with a particular occurrence. What is printed?",
+ th:"ลูปเขียนทับ <code>idx</code> ทุกครั้งที่เจอ 5 จึงได้ตำแหน่งใดตำแหน่งหนึ่งโดยเฉพาะ โปรแกรมพิมพ์อะไร",
+ code:"int[] a = {5, 1, 5, 2};\nint idx = -1;\nfor (int i = 0; i < a.length; i++) {\n    if (a[i] == 5) idx = i;\n}\nSystem.out.println(idx);",
+ opts:["2","0","-1","1"],ans:0,
+ exp:"Without a break, the last match wins: index 2. / เมื่อไม่มี break ตำแหน่งที่พบครั้งสุดท้ายจะชนะ: ดัชนี 2"},
+{lv:"H",en:"An array variable is declared but never given an array before it is used. What happens?",
+ th:"ประกาศตัวแปรอาร์เรย์แต่ไม่เคยกำหนดอาร์เรย์ให้ก่อนใช้ จะเกิดอะไรขึ้น",
+ code:"public static void main(String[] args) {\n    int[] a;\n    a[0] = 1;\n    System.out.println(a[0]);\n}",
+ opts:["Compile error: variable a might not have been initialized","NullPointerException at runtime","Prints 1","Prints 0"],ans:0,
+ exp:"A local variable must be definitely assigned before use, so the compiler rejects this. Write int[] a = new int[3]; first. / ตัวแปรท้องถิ่นต้องถูกกำหนดค่าก่อนใช้ คอมไพเลอร์จึงปฏิเสธ ต้องเขียน int[] a = new int[3]; ก่อน"}
+];
+
+// ____ marks the blank. acc = accepted answers (whitespace-insensitive, case-insensitive).
+const FILL = [
+{lv:"M",en:"A bank statement is stored as an array of amounts. <code>countDebits</code> counts the negative entries. Complete the comparison.",
+ th:"รายการเดินบัญชีเก็บเป็นอาร์เรย์ของจำนวนเงิน <code>countDebits</code> นับรายการที่เป็นค่าลบ เติมเครื่องหมายเปรียบเทียบ",
+ code:"static int countDebits(int[] amounts) {\n    int c = 0;\n    for (int i = 0; i < amounts.length; i++) {\n        int x = amounts[i];\n        if (x ____ 0) c++;\n    }\n    return c;\n}",acc:["<"]},
+{lv:"H",en:"Reverse the array in place with two indexes that move toward each other. Complete the statement that moves the right index.",
+ th:"กลับลำดับอาร์เรย์ในที่เดิมด้วยดัชนีสองตัวที่เดินเข้าหากัน เติมคำสั่งที่เลื่อนดัชนีด้านขวา",
+ code:"static void reverse(int[] a) {\n    int i = 0, j = a.length - 1;\n    while (i < j) {\n        int t = a[i]; a[i] = a[j]; a[j] = t;\n        i++;\n        ____;\n    }\n}",acc:["j--","j-=1","j=j-1"]},
+{lv:"M",en:"<code>mean</code> must return a fractional result even though the sum and the length are ints. Complete the cast.",
+ th:"<code>mean</code> ต้องคืนค่าทศนิยม แม้ผลรวมและความยาวจะเป็น int เติมการแคสต์",
+ code:"static double mean(int[] a) {\n    int sum = 0;\n    for (int i = 0; i < a.length; i++) sum += a[i];\n    return (____) sum / a.length;\n}",acc:["double","float"]},
+{lv:"H",en:"Find the second-smallest <b>distinct</b> value in one pass with two tracking variables. A value equal to the current minimum must not become the second minimum. Complete the extra condition.",
+ th:"หาค่าน้อยสุดอันดับสองที่<b>ไม่ซ้ำ</b>ในรอบเดียวด้วยตัวแปรติดตามสองตัว ค่าที่เท่ากับค่าน้อยสุดปัจจุบันห้ามกลายเป็นอันดับสอง เติมเงื่อนไขเพิ่มเติม",
+ code:"int min1 = Integer.MAX_VALUE, min2 = Integer.MAX_VALUE;\nfor (int i = 0; i < a.length; i++) {\n    int x = a[i];\n    if (x < min1) {\n        min2 = min1;\n        min1 = x;\n    } else if (x < min2 && x ____ min1) {\n        min2 = x;\n    }\n}",acc:["!=",">"]},
+{lv:"M",en:"<code>repeat</code> returns an array of <code>n</code> cells all holding <code>value</code>. Complete the call to the <code>Arrays</code> helper.",
+ th:"<code>repeat</code> คืนอาร์เรย์ <code>n</code> ช่องที่ทุกช่องเก็บ <code>value</code> เติมการเรียกเมธอดช่วยของ <code>Arrays</code>",
+ code:"static int[] repeat(int value, int n) {\n    int[] r = new int[n];\n    Arrays.____(r, value);\n    return r;\n}",acc:["fill"]},
+{lv:"H",en:"<code>removeInPlace</code> deletes every occurrence of <code>v</code> by compacting the survivors to the front and returns how many remain. Complete the write index.",
+ th:"<code>removeInPlace</code> ลบทุกตัวที่เท่ากับ <code>v</code> โดยอัดตัวที่เหลือไปไว้ด้านหน้า แล้วคืนจำนวนที่เหลือ เติมดัชนีที่ใช้เขียน",
+ code:"static int removeInPlace(int[] a, int v) {\n    int k = 0;\n    for (int i = 0; i < a.length; i++) {\n        int x = a[i];\n        if (x != v) a[____] = x;\n    }\n    return k;\n}",acc:["k++"]},
+{lv:"M",en:"A varargs method returns its last argument. Complete the index expression.",
+ th:"เมธอด varargs คืนอาร์กิวเมนต์ตัวสุดท้าย เติมนิพจน์ดัชนี",
+ code:"static int last(int... v) {\n    return v[v.length ____ 1];\n}",acc:["-"]},
+{lv:"H",en:"<code>isStrictlyDescending</code> returns true only when every element is <b>smaller</b> than the one before it (equal neighbours are not allowed). Complete the failing condition.",
+ th:"<code>isStrictlyDescending</code> คืน true ก็ต่อเมื่อทุกสมาชิก<b>น้อยกว่า</b>ตัวก่อนหน้า (ค่าเท่ากันไม่ได้) เติมเงื่อนไขที่ทำให้ไม่ผ่าน",
+ code:"static boolean isStrictlyDescending(int[] a) {\n    for (int i = 1; i < a.length; i++) {\n        if (a[i] ____ a[i - 1]) return false;\n    }\n    return true;\n}",acc:[">="]},
+{lv:"M",en:"<code>total</code> takes an <code>int[]</code>. Call it with an array literal written directly in the call. Complete the expression.",
+ th:"<code>total</code> รับ <code>int[]</code> เรียกมันด้วยลิเทอรัลอาร์เรย์ที่เขียนในการเรียกโดยตรง เติมนิพจน์",
+ code:"int s = total(____{1, 2, 3});",acc:["new int[]"]},
+{lv:"H",en:"<code>lowerBound</code> returns the index of the first element that is ≥ <code>key</code> in a sorted array, or the length if none. Complete the return value inside the loop.",
+ th:"<code>lowerBound</code> คืนดัชนีของสมาชิกตัวแรกที่ ≥ <code>key</code> ในอาร์เรย์ที่เรียงแล้ว หรือคืนความยาวถ้าไม่มี เติมค่าที่คืนในลูป",
+ code:"static int lowerBound(int[] a, int key) {\n    for (int i = 0; i < a.length; i++) {\n        if (a[i] >= key) return ____;\n    }\n    return a.length;\n}",acc:["i"]},
+{lv:"M",en:"Copy the whole of <code>a</code> into the new array <code>b</code> using <code>System.arraycopy(src, srcPos, dest, destPos, length)</code>. Complete the length argument.",
+ th:"คัดลอก <code>a</code> ทั้งหมดลง <code>b</code> ด้วย <code>System.arraycopy(src, srcPos, dest, destPos, length)</code> เติมอาร์กิวเมนต์ความยาว",
+ code:"int[] b = new int[a.length];\nSystem.arraycopy(a, 0, b, 0, ____);",acc:["a.length","b.length"]},
+{lv:"H",en:"Swap the two halves of an even-length array in place: element <code>i</code> trades places with element <code>i + n/2</code>. Complete the index that receives the saved value.",
+ th:"สลับครึ่งหน้ากับครึ่งหลังของอาร์เรย์ความยาวคู่ในที่เดิม: สมาชิก <code>i</code> สลับกับ <code>i + n/2</code> เติมดัชนีที่รับค่าที่เก็บไว้",
+ code:"int n = a.length;\nfor (int i = 0; i < n / 2; i++) {\n    int t = a[i];\n    a[i] = a[i + n / 2];\n    a[____] = t;\n}",acc:["i+n/2","n/2+i"]},
+{lv:"M",en:"The sum of squares can exceed the int range, so the method returns a wider type. Complete the return type.",
+ th:"ผลรวมกำลังสองอาจเกินช่วงของ int เมธอดจึงคืนชนิดที่กว้างกว่า เติมชนิดคืนค่า",
+ code:"static ____ sumSquares(int[] a) {\n    long s = 0;\n    for (int i = 0; i < a.length; i++) s += (long) a[i] * a[i];\n    return s;\n}",acc:["long"]},
+{lv:"H",en:"While building a list of unique values, the inner loop checks whether <code>x</code> is already among the first <code>k</code> results. Once found, there is no reason to keep scanning. Complete the statement.",
+ th:"ระหว่างสร้างรายการค่าที่ไม่ซ้ำ ลูปในตรวจว่า <code>x</code> อยู่ใน <code>k</code> ผลลัพธ์แรกแล้วหรือยัง เมื่อพบแล้วไม่จำเป็นต้องไล่ต่อ เติมคำสั่ง",
+ code:"boolean dup = false;\nfor (int j = 0; j < k; j++) {\n    if (r[j] == x) {\n        dup = true;\n        ____;\n    }\n}\nif (!dup) r[k++] = x;",acc:["break"]},
+{lv:"M",en:"<code>scale</code> multiplies every element by <code>f</code> in place. Complete the compound operator.",
+ th:"<code>scale</code> คูณทุกสมาชิกด้วย <code>f</code> ในที่เดิม เติมตัวดำเนินการแบบรวม",
+ code:"static void scale(int[] a, int f) {\n    for (int i = 0; i < a.length; i++) {\n        a[i] ____ f;\n    }\n}",acc:["*="]},
+{lv:"H",en:"<code>countGroups</code> counts runs of equal neighbours: a new group starts whenever a value differs from the one just before it. Complete the index.",
+ th:"<code>countGroups</code> นับกลุ่มของค่าที่เท่ากันติดกัน: กลุ่มใหม่เริ่มเมื่อค่าต่างจากตัวก่อนหน้า เติมดัชนี",
+ code:"static int countGroups(int[] a) {\n    int groups = a.length == 0 ? 0 : 1;\n    for (int i = 1; i < a.length; i++) {\n        if (a[i] != a[____]) groups++;\n    }\n    return groups;\n}",acc:["i-1"]},
+{lv:"M",en:"<code>hasNegative</code> should stop scanning as soon as a negative value is found. Complete the early return.",
+ th:"<code>hasNegative</code> ควรหยุดไล่ทันทีที่พบค่าลบ เติมการ return ก่อนกำหนด",
+ code:"static boolean hasNegative(int[] a) {\n    for (int i = 0; i < a.length; i++) {\n        int x = a[i];\n        if (x < 0) return ____;\n    }\n    return false;\n}",acc:["true"]},
+{lv:"H",en:"Find the index of the element with the largest <b>absolute</b> value. Complete the index used in the comparison.",
+ th:"หาดัชนีของสมาชิกที่มีค่า<b>สัมบูรณ์</b>มากที่สุด เติมดัชนีที่ใช้ในการเปรียบเทียบ",
+ code:"int best = 0;\nfor (int i = 1; i < a.length; i++) {\n    if (Math.abs(a[i]) > Math.abs(a[____])) best = i;\n}",acc:["best"]},
+{lv:"M",en:"Fill a new array with the even numbers 2, 4, 6, … Complete the formula.",
+ th:"เติมอาร์เรย์ใหม่ด้วยเลขคู่ 2, 4, 6, … เติมสูตร",
+ code:"int[] r = new int[n];\nfor (int i = 0; i < n; i++) {\n    r[i] = 2 * (i ____ 1);\n}",acc:["+"]},
+{lv:"H",en:"<code>rotateLeft</code> returns a copy shifted left by <code>k</code>; element <code>i</code> of the result comes from position <code>i + k</code>, wrapping around the end. Complete the operator that wraps.",
+ th:"<code>rotateLeft</code> คืนสำเนาที่เลื่อนไปทางซ้าย <code>k</code> ตำแหน่ง สมาชิก <code>i</code> ของผลลัพธ์มาจากตำแหน่ง <code>i + k</code> โดยวนกลับเมื่อเกินท้าย เติมตัวดำเนินการที่ทำให้วนกลับ",
+ code:"static int[] rotateLeft(int[] a, int k) {\n    int[] r = new int[a.length];\n    for (int i = 0; i < a.length; i++) {\n        r[i] = a[(i + k) ____ a.length];\n    }\n    return r;\n}",acc:["%"]},
+{lv:"M",en:"<code>inRange</code> reports whether <code>i</code> is a valid index for <code>a</code>. Complete the logical operator.",
+ th:"<code>inRange</code> บอกว่า <code>i</code> เป็นดัชนีที่ใช้ได้กับ <code>a</code> หรือไม่ เติมตัวดำเนินการตรรกะ",
+ code:"static boolean inRange(int[] a, int i) {\n    return i >= 0 ____ i < a.length;\n}",acc:["&&"]},
+{lv:"H",en:"<code>dot</code> computes the dot product of two vectors of equal length. Complete the type of the second parameter.",
+ th:"<code>dot</code> คำนวณผลคูณจุดของเวกเตอร์สองตัวที่ยาวเท่ากัน เติมชนิดของพารามิเตอร์ตัวที่สอง",
+ code:"static int dot(int[] a, ____ b) {\n    int s = 0;\n    for (int i = 0; i < a.length; i++) s += a[i] * b[i];\n    return s;\n}",acc:["int[]"]},
+{lv:"M",en:"<code>sortedString</code> must not change the caller's array, so it sorts a clone. Complete the argument to <code>sort</code>.",
+ th:"<code>sortedString</code> ต้องไม่แก้อาร์เรย์ของผู้เรียก จึงเรียงสำเนาแทน เติมอาร์กิวเมนต์ของ <code>sort</code>",
+ code:"static String sortedString(int[] a) {\n    int[] c = a.clone();\n    Arrays.sort(____);\n    return Arrays.toString(c);\n}",acc:["c"]},
+{lv:"H",en:"A weighted average divides the weighted sum by the <b>sum of the weights</b>, not by the count. Complete the divisor.",
+ th:"ค่าเฉลี่ยถ่วงน้ำหนักหารผลรวมถ่วงน้ำหนักด้วย<b>ผลรวมของน้ำหนัก</b> ไม่ใช่จำนวนตัว เติมตัวหาร",
+ code:"static double weightedMean(int[] a, int[] w) {\n    double sum = 0, wsum = 0;\n    for (int i = 0; i < a.length; i++) {\n        sum += a[i] * w[i];\n        wsum += w[i];\n    }\n    return sum / ____;\n}",acc:["wsum"]},
+{lv:"M",en:"<code>append</code> returns a copy that is one cell longer with <code>v</code> at the end. Complete the index of the new cell.",
+ th:"<code>append</code> คืนสำเนาที่ยาวขึ้นหนึ่งช่องโดยมี <code>v</code> อยู่ท้ายสุด เติมดัชนีของช่องใหม่",
+ code:"static int[] append(int[] a, int v) {\n    int[] r = Arrays.copyOf(a, a.length + 1);\n    r[____] = v;\n    return r;\n}",acc:["a.length","r.length-1"]},
+{lv:"H",en:"Count how many elements equal the maximum in a <b>single</b> pass. When a new maximum appears, the count must restart. Complete the restart value.",
+ th:"นับว่ามีกี่ตัวที่เท่ากับค่ามากสุดใน<b>รอบเดียว</b> เมื่อพบค่ามากสุดตัวใหม่ ตัวนับต้องเริ่มใหม่ เติมค่าที่ใช้เริ่มใหม่",
+ code:"int max = a[0], count = 0;\nfor (int i = 0; i < a.length; i++) {\n    int x = a[i];\n    if (x > max) {\n        max = x;\n        count = ____;\n    } else if (x == max) {\n        count++;\n    }\n}",acc:["1"]},
+{lv:"M",en:"A search sets a flag when the key is found and should then leave the loop. Complete the statement.",
+ th:"การค้นหาตั้งค่าธงเมื่อพบคีย์ แล้วควรออกจากลูป เติมคำสั่ง",
+ code:"boolean found = false;\nfor (int i = 0; i < a.length; i++) {\n    if (a[i] == key) {\n        found = true;\n        ____;\n    }\n}",acc:["break"]},
+{lv:"H",en:"<code>meanOfPositives</code> averages only the positive values and returns 0 when there are none. Complete the divisor.",
+ th:"<code>meanOfPositives</code> หาค่าเฉลี่ยเฉพาะค่าบวก และคืน 0 ถ้าไม่มีค่าบวกเลย เติมตัวหาร",
+ code:"static double meanOfPositives(int[] a) {\n    int s = 0, n = 0;\n    for (int i = 0; i < a.length; i++) {\n        int x = a[i];\n        if (x > 0) { s += x; n++; }\n    }\n    return n == 0 ? 0 : (double) s / ____;\n}",acc:["n"]},
+{lv:"M",en:"The one-argument <code>sum</code> delegates to the three-argument version that sums <code>a[from..to)</code>. Complete the call so the whole array is summed.",
+ th:"<code>sum</code> แบบหนึ่งอาร์กิวเมนต์ส่งต่อไปยังแบบสามอาร์กิวเมนต์ที่บวก <code>a[from..to)</code> เติมการเรียกให้บวกทั้งอาร์เรย์",
+ code:"static int sum(int[] a, int from, int to) {\n    int s = 0;\n    for (int i = from; i < to; i++) s += a[i];\n    return s;\n}\nstatic int sum(int[] a) {\n    return sum(a, 0, ____);\n}",acc:["a.length"]},
+{lv:"H",en:"A 3-point moving average stored in a <code>double[]</code> must divide by a floating-point value, otherwise the fraction is lost. Complete the divisor.",
+ th:"ค่าเฉลี่ยเคลื่อนที่ 3 จุดที่เก็บใน <code>double[]</code> ต้องหารด้วยค่าทศนิยม ไม่เช่นนั้นเศษจะหายไป เติมตัวหาร",
+ code:"double[] r = new double[a.length - 2];\nfor (int i = 0; i < r.length; i++) {\n    r[i] = (a[i] + a[i + 1] + a[i + 2]) / ____;\n}",acc:["3.0","3d","3.0d"]}
+];
+
+const CODE = [
+{lv:"M",t:"Count in range",
+ en:"A shop records the price of every item sold today. Write <code>static int countInRange(int[] prices, int lo, int hi)</code> that returns how many prices lie between <code>lo</code> and <code>hi</code> <b>inclusive</b>.",
+ th:"ร้านค้าบันทึกราคาสินค้าทุกชิ้นที่ขายวันนี้ เขียน <code>static int countInRange(int[] prices, int lo, int hi)</code> ที่คืนจำนวนราคาที่อยู่ระหว่าง <code>lo</code> ถึง <code>hi</code> <b>รวมปลายทั้งสองข้าง</b>",
+ ex:"countInRange({5, 12, 20, 30, 45}, 10, 30)  →  3\ncountInRange({1, 2, 3}, 5, 9)              →  0",
+ sol:"static int countInRange(int[] prices, int lo, int hi) {\n    int c = 0;\n    for (int i = 0; i < prices.length; i++) {\n        int p = prices[i];\n        if (p >= lo && p <= hi) c++;\n    }\n    return c;\n}"},
+{lv:"H",t:"Remove all occurrences",
+ en:"Write <code>static int[] removeAll(int[] a, int v)</code> that returns a <b>new</b> array containing every element of <code>a</code> except those equal to <code>v</code>, in the original order. The result must have exactly the right length, so count first, then copy. Do not modify <code>a</code>.",
+ th:"เขียน <code>static int[] removeAll(int[] a, int v)</code> ที่คืนอาร์เรย์<b>ใหม่</b>ซึ่งมีทุกสมาชิกของ <code>a</code> ยกเว้นตัวที่เท่ากับ <code>v</code> ตามลำดับเดิม ผลลัพธ์ต้องมีความยาวพอดี จึงต้องนับก่อนแล้วค่อยคัดลอก ห้ามแก้ <code>a</code>",
+ ex:"removeAll({3, 1, 3, 2, 3}, 3)  →  {1, 2}\nremoveAll({3, 3}, 3)           →  {}",
+ sol:"static int[] removeAll(int[] a, int v) {\n    int keep = 0;\n    for (int i = 0; i < a.length; i++) {\n        int x = a[i];\n        if (x != v) keep++;\n    }\n    int[] r = new int[keep];\n    int k = 0;\n    for (int j = 0; j < a.length; j++) {\n        int x = a[j];\n        if (x != v) r[k++] = x;\n    }\n    return r;\n}"},
+{lv:"M",t:"Sum of absolute values",
+ en:"Daily temperature deviations from the average can be positive or negative. Write <code>static int sumOfAbs(int[] a)</code> that returns the total of the absolute values, without using <code>Math.abs</code>.",
+ th:"ค่าเบี่ยงเบนของอุณหภูมิรายวันจากค่าเฉลี่ยอาจเป็นบวกหรือลบ เขียน <code>static int sumOfAbs(int[] a)</code> ที่คืนผลรวมของค่าสัมบูรณ์ โดยไม่ใช้ <code>Math.abs</code>",
+ ex:"sumOfAbs({-3, 4, -5, 0})  →  12",
+ sol:"static int sumOfAbs(int[] a) {\n    int s = 0;\n    for (int i = 0; i < a.length; i++) {\n        int x = a[i];\n        if (x < 0) s -= x;\n        else s += x;\n    }\n    return s;\n}"},
+{lv:"H",t:"Missing number",
+ en:"An array of length <code>n</code> contains every integer from <code>0</code> to <code>n</code> exactly once <b>except one</b>, in any order. Write <code>static int missingNumber(int[] a)</code> that returns the missing value. Hint: the expected total of 0..n is <code>n(n+1)/2</code>; or use a <code>boolean[]</code> of size n+1.",
+ th:"อาร์เรย์ความยาว <code>n</code> มีจำนวนเต็มทุกค่าตั้งแต่ <code>0</code> ถึง <code>n</code> ตัวละครั้ง<b>ยกเว้นหนึ่งค่า</b> โดยไม่เรียงลำดับ เขียน <code>static int missingNumber(int[] a)</code> ที่คืนค่าที่หายไป คำใบ้: ผลรวมที่ควรเป็นของ 0..n คือ <code>n(n+1)/2</code> หรือใช้ <code>boolean[]</code> ขนาด n+1",
+ ex:"missingNumber({3, 0, 1})        →  2\nmissingNumber({0, 1, 2, 3})     →  4\nmissingNumber({1})              →  0",
+ sol:"static int missingNumber(int[] a) {\n    int n = a.length;\n    int expected = n * (n + 1) / 2;\n    int actual = 0;\n    for (int i = 0; i < a.length; i++) actual += a[i];\n    return expected - actual;\n}"},
+{lv:"M",t:"Append a value",
+ en:"Arrays cannot grow, so appending means building a bigger one. Write <code>static int[] appendValue(int[] a, int v)</code> that returns a new array with all of <code>a</code> followed by <code>v</code>, using only a loop (no <code>Arrays.copyOf</code>).",
+ th:"อาร์เรย์ขยายไม่ได้ การต่อท้ายจึงต้องสร้างอาร์เรย์ที่ใหญ่กว่า เขียน <code>static int[] appendValue(int[] a, int v)</code> ที่คืนอาร์เรย์ใหม่ซึ่งมี <code>a</code> ทั้งหมดตามด้วย <code>v</code> โดยใช้ลูปเท่านั้น (ห้ามใช้ <code>Arrays.copyOf</code>)",
+ ex:"appendValue({1, 2}, 9)  →  {1, 2, 9}\nappendValue({}, 9)      →  {9}",
+ sol:"static int[] appendValue(int[] a, int v) {\n    int[] r = new int[a.length + 1];\n    for (int i = 0; i < a.length; i++) {\n        r[i] = a[i];\n    }\n    r[a.length] = v;\n    return r;\n}"},
+{lv:"H",t:"Equal ignoring order",
+ en:"Write <code>static boolean equalsIgnoreOrder(int[] a, int[] b)</code> that returns true when both arrays contain the same values with the same multiplicities, regardless of order. Neither input may be modified (sort <b>copies</b>). <code>{1, 2, 2}</code> and <code>{2, 1, 2}</code> are equal; <code>{1, 2, 2}</code> and <code>{1, 1, 2}</code> are not.",
+ th:"เขียน <code>static boolean equalsIgnoreOrder(int[] a, int[] b)</code> ที่คืน true เมื่ออาร์เรย์ทั้งสองมีค่าเหมือนกันด้วยจำนวนซ้ำเท่ากัน โดยไม่สนลำดับ ห้ามแก้อินพุต (ให้เรียง<b>สำเนา</b>) <code>{1, 2, 2}</code> กับ <code>{2, 1, 2}</code> เท่ากัน แต่ <code>{1, 2, 2}</code> กับ <code>{1, 1, 2}</code> ไม่เท่ากัน",
+ ex:"equalsIgnoreOrder({1, 2, 2}, {2, 1, 2})  →  true\nequalsIgnoreOrder({1, 2, 2}, {1, 1, 2})  →  false\nequalsIgnoreOrder({1}, {1, 1})           →  false",
+ sol:"static boolean equalsIgnoreOrder(int[] a, int[] b) {\n    if (a.length != b.length) return false;\n    int[] x = a.clone();\n    int[] y = b.clone();\n    Arrays.sort(x);\n    Arrays.sort(y);\n    for (int i = 0; i < x.length; i++) {\n        if (x[i] != y[i]) return false;\n    }\n    return true;\n}"},
+{lv:"M",t:"First index above a limit",
+ en:"A water sensor reports levels once a minute. Write <code>static int firstIndexAbove(int[] levels, int limit)</code> that returns the index of the first reading strictly greater than <code>limit</code>, or -1 if the limit is never exceeded.",
+ th:"เซ็นเซอร์น้ำรายงานระดับน้ำนาทีละครั้ง เขียน <code>static int firstIndexAbove(int[] levels, int limit)</code> ที่คืนดัชนีของค่าแรกที่มากกว่า <code>limit</code> อย่างเคร่งครัด หรือ -1 ถ้าไม่เคยเกิน",
+ ex:"firstIndexAbove({10, 20, 35, 40}, 30)  →  2\nfirstIndexAbove({10, 20}, 30)          →  -1",
+ sol:"static int firstIndexAbove(int[] levels, int limit) {\n    for (int i = 0; i < levels.length; i++) {\n        if (levels[i] > limit) return i;\n    }\n    return -1;\n}"},
+{lv:"H",t:"Longest increasing run",
+ en:"Write <code>static int longestIncreasingRun(int[] a)</code> that returns the length of the longest block of <b>consecutive, strictly increasing</b> values. A single element counts as a run of length 1; return 0 for an empty array.",
+ th:"เขียน <code>static int longestIncreasingRun(int[] a)</code> ที่คืนความยาวของช่วงที่<b>ติดกันและเพิ่มขึ้นอย่างเคร่งครัด</b>ยาวที่สุด สมาชิกเดี่ยวนับเป็นช่วงยาว 1 คืน 0 ถ้าอาร์เรย์ว่าง",
+ ex:"longestIncreasingRun({1, 2, 3, 1, 2, 3, 4, 1})  →  4\nlongestIncreasingRun({5, 5, 5})                →  1",
+ sol:"static int longestIncreasingRun(int[] a) {\n    if (a.length == 0) return 0;\n    int best = 1, cur = 1;\n    for (int i = 1; i < a.length; i++) {\n        if (a[i] > a[i - 1]) cur++;\n        else cur = 1;\n        if (cur > best) best = cur;\n    }\n    return best;\n}"},
+{lv:"M",t:"Scaled copy",
+ en:"Write <code>static double[] scaleCopy(double[] a, double factor)</code> that returns a <b>new</b> array in which every element is multiplied by <code>factor</code>. The original must stay unchanged.",
+ th:"เขียน <code>static double[] scaleCopy(double[] a, double factor)</code> ที่คืนอาร์เรย์<b>ใหม่</b>ซึ่งทุกสมาชิกถูกคูณด้วย <code>factor</code> ต้นฉบับต้องไม่เปลี่ยน",
+ ex:"scaleCopy({1.5, 2.0}, 2)  →  {3.0, 4.0}",
+ sol:"static double[] scaleCopy(double[] a, double factor) {\n    double[] r = new double[a.length];\n    for (int i = 0; i < a.length; i++) {\n        r[i] = a[i] * factor;\n    }\n    return r;\n}"},
+{lv:"H",t:"Running maximum",
+ en:"Write <code>static int[] cumulativeMax(int[] a)</code> that returns a new array where element <code>i</code> is the largest value among <code>a[0..i]</code>. Do it in one pass.",
+ th:"เขียน <code>static int[] cumulativeMax(int[] a)</code> ที่คืนอาร์เรย์ใหม่โดยสมาชิกที่ <code>i</code> คือค่ามากสุดใน <code>a[0..i]</code> ทำในรอบเดียว",
+ ex:"cumulativeMax({2, 1, 5, 3, 7, 6})  →  {2, 2, 5, 5, 7, 7}",
+ sol:"static int[] cumulativeMax(int[] a) {\n    int[] r = new int[a.length];\n    for (int i = 0; i < a.length; i++) {\n        if (i == 0 || a[i] > r[i - 1]) r[i] = a[i];\n        else r[i] = r[i - 1];\n    }\n    return r;\n}"},
+{lv:"M",t:"Count distinct values",
+ en:"Write <code>static int countDistinct(int[] a)</code> that returns how many different values the array contains. A nested loop is fine: count an element only if it does not appear earlier in the array.",
+ th:"เขียน <code>static int countDistinct(int[] a)</code> ที่คืนจำนวนค่าที่แตกต่างกันในอาร์เรย์ ใช้ลูปซ้อนได้: นับสมาชิกเฉพาะเมื่อไม่เคยปรากฏก่อนหน้าในอาร์เรย์",
+ ex:"countDistinct({4, 4, 1, 4, 1, 9})  →  3",
+ sol:"static int countDistinct(int[] a) {\n    int c = 0;\n    for (int i = 0; i < a.length; i++) {\n        boolean seen = false;\n        for (int j = 0; j < i; j++) {\n            if (a[j] == a[i]) { seen = true; break; }\n        }\n        if (!seen) c++;\n    }\n    return c;\n}"},
+{lv:"H",t:"Third-largest distinct value",
+ en:"Write <code>static int thirdLargest(int[] a)</code> that returns the third-largest <b>distinct</b> value. If fewer than three distinct values exist, return <code>Integer.MIN_VALUE</code>. Do it in one pass with three tracking variables, or by sorting a copy and skipping duplicates.",
+ th:"เขียน <code>static int thirdLargest(int[] a)</code> ที่คืนค่ามากสุดอันดับสามที่<b>ไม่ซ้ำกัน</b> ถ้ามีค่าต่างกันน้อยกว่าสามค่าให้คืน <code>Integer.MIN_VALUE</code> ทำในรอบเดียวด้วยตัวแปรติดตามสามตัว หรือเรียงสำเนาแล้วข้ามค่าซ้ำ",
+ ex:"thirdLargest({5, 9, 9, 7, 5, 1})  →  5\nthirdLargest({2, 2, 3})           →  Integer.MIN_VALUE",
+ sol:"static int thirdLargest(int[] a) {\n    int[] s = a.clone();\n    Arrays.sort(s);\n    int distinct = 0;\n    for (int i = s.length - 1; i >= 0; i--) {\n        if (i == s.length - 1 || s[i] != s[i + 1]) {\n            distinct++;\n            if (distinct == 3) return s[i];\n        }\n    }\n    return Integer.MIN_VALUE;\n}"},
+{lv:"M",t:"All different",
+ en:"Student IDs in a class must be unique. Write <code>static boolean allDifferent(int[] ids)</code> that returns true when no value appears twice.",
+ th:"รหัสนักศึกษาในชั้นเรียนต้องไม่ซ้ำกัน เขียน <code>static boolean allDifferent(int[] ids)</code> ที่คืน true เมื่อไม่มีค่าใดปรากฏสองครั้ง",
+ ex:"allDifferent({101, 102, 103})  →  true\nallDifferent({101, 102, 101})  →  false",
+ sol:"static boolean allDifferent(int[] ids) {\n    for (int i = 0; i < ids.length; i++) {\n        for (int j = i + 1; j < ids.length; j++) {\n            if (ids[i] == ids[j]) return false;\n        }\n    }\n    return true;\n}"},
+{lv:"H",t:"Interleave two arrays",
+ en:"Write <code>static int[] interleave(int[] a, int[] b)</code> that returns <code>a[0], b[0], a[1], b[1], …</code>. When one array runs out, the remaining elements of the other are appended in order.",
+ th:"เขียน <code>static int[] interleave(int[] a, int[] b)</code> ที่คืน <code>a[0], b[0], a[1], b[1], …</code> เมื่ออาร์เรย์หนึ่งหมด ให้ต่อสมาชิกที่เหลือของอีกอาร์เรย์ตามลำดับ",
+ ex:"interleave({1, 3, 5, 7}, {2, 4})  →  {1, 2, 3, 4, 5, 7}\ninterleave({}, {8, 9})           →  {8, 9}",
+ sol:"static int[] interleave(int[] a, int[] b) {\n    int[] r = new int[a.length + b.length];\n    int i = 0, j = 0, k = 0;\n    while (i < a.length || j < b.length) {\n        if (i < a.length) r[k++] = a[i++];\n        if (j < b.length) r[k++] = b[j++];\n    }\n    return r;\n}"},
+{lv:"M",t:"Swap adjacent pairs",
+ en:"Write <code>static void swapPairs(int[] a)</code> that swaps elements 0↔1, 2↔3, 4↔5, … in place. If the length is odd, the last element stays where it is.",
+ th:"เขียน <code>static void swapPairs(int[] a)</code> ที่สลับสมาชิก 0↔1, 2↔3, 4↔5, … ในที่เดิม ถ้าความยาวเป็นเลขคี่ สมาชิกตัวสุดท้ายอยู่ที่เดิม",
+ ex:"{1, 2, 3, 4, 5}  →  {2, 1, 4, 3, 5}",
+ sol:"static void swapPairs(int[] a) {\n    for (int i = 0; i + 1 < a.length; i += 2) {\n        int t = a[i];\n        a[i] = a[i + 1];\n        a[i + 1] = t;\n    }\n}"},
+{lv:"H",t:"Balance index",
+ en:"Write <code>static int balanceIndex(int[] a)</code> that returns the smallest index <code>i</code> such that the sum of the elements <b>before</b> <code>i</code> equals the sum of the elements <b>after</b> <code>i</code>. Return -1 if no such index exists. Aim for one pass using the total and a running left sum.",
+ th:"เขียน <code>static int balanceIndex(int[] a)</code> ที่คืนดัชนี <code>i</code> ที่น้อยที่สุด ซึ่งผลรวมของสมาชิก<b>ก่อน</b> <code>i</code> เท่ากับผลรวมของสมาชิก<b>หลัง</b> <code>i</code> คืน -1 ถ้าไม่มี ควรทำในรอบเดียวโดยใช้ผลรวมทั้งหมดกับผลรวมสะสมด้านซ้าย",
+ ex:"balanceIndex({1, 7, 3, 6, 5, 6})  →  3   (1+7+3 = 5+6)\nbalanceIndex({1, 2, 3})           →  -1",
+ sol:"static int balanceIndex(int[] a) {\n    int total = 0;\n    for (int j = 0; j < a.length; j++) total += a[j];\n    int left = 0;\n    for (int i = 0; i < a.length; i++) {\n        int right = total - left - a[i];\n        if (left == right) return i;\n        left += a[i];\n    }\n    return -1;\n}"},
+{lv:"M",t:"Closest value",
+ en:"Write <code>static int indexOfClosest(int[] a, int target)</code> that returns the index of the element whose distance to <code>target</code> is smallest. If several are equally close, return the first. Assume at least one element.",
+ th:"เขียน <code>static int indexOfClosest(int[] a, int target)</code> ที่คืนดัชนีของสมาชิกที่ห่างจาก <code>target</code> น้อยที่สุด ถ้าห่างเท่ากันหลายตัวให้คืนตัวแรก ถือว่ามีอย่างน้อยหนึ่งสมาชิก",
+ ex:"indexOfClosest({10, 22, 14, 30}, 17)  →  2\nindexOfClosest({10, 24}, 17)          →  0",
+ sol:"static int indexOfClosest(int[] a, int target) {\n    int best = 0;\n    for (int i = 1; i < a.length; i++) {\n        if (Math.abs(a[i] - target) < Math.abs(a[best] - target)) best = i;\n    }\n    return best;\n}"},
+{lv:"H",t:"Rotate right in place",
+ en:"Write <code>static void rotateRightInPlace(int[] a, int k)</code> that rotates the array right by <code>k</code> positions <b>without allocating a second array</b>. <code>k</code> may be larger than the length (reduce it with <code>%</code>). Hint: reverse the whole array, then reverse the first <code>k</code> elements, then reverse the rest. Write a helper <code>static void reverseRange(int[] a, int i, int j)</code>.",
+ th:"เขียน <code>static void rotateRightInPlace(int[] a, int k)</code> ที่หมุนอาร์เรย์ไปทางขวา <code>k</code> ตำแหน่ง<b>โดยไม่จองอาร์เรย์ที่สอง</b> <code>k</code> อาจมากกว่าความยาว (ลดด้วย <code>%</code>) คำใบ้: กลับทั้งอาร์เรย์ แล้วกลับ <code>k</code> ตัวแรก แล้วกลับส่วนที่เหลือ ให้เขียนเมธอดช่วย <code>static void reverseRange(int[] a, int i, int j)</code>",
+ ex:"{1, 2, 3, 4, 5}, k = 2  →  {4, 5, 1, 2, 3}\n{1, 2, 3}, k = 4        →  {3, 1, 2}",
+ sol:"static void reverseRange(int[] a, int i, int j) {\n    while (i < j) {\n        int t = a[i]; a[i] = a[j]; a[j] = t;\n        i++; j--;\n    }\n}\n\nstatic void rotateRightInPlace(int[] a, int k) {\n    int n = a.length;\n    if (n == 0) return;\n    k = k % n;\n    reverseRange(a, 0, n - 1);\n    reverseRange(a, 0, k - 1);\n    reverseRange(a, k, n - 1);\n}"},
+{lv:"M",t:"Dot product",
+ en:"Write <code>static int dotProduct(int[] a, int[] b)</code> that returns <code>a[0]·b[0] + a[1]·b[1] + …</code>. If the lengths differ, return -1 instead of throwing.",
+ th:"เขียน <code>static int dotProduct(int[] a, int[] b)</code> ที่คืน <code>a[0]·b[0] + a[1]·b[1] + …</code> ถ้าความยาวไม่เท่ากันให้คืน -1 แทนการโยน exception",
+ ex:"dotProduct({1, 2, 3}, {4, 5, 6})  →  32\ndotProduct({1, 2}, {4})           →  -1",
+ sol:"static int dotProduct(int[] a, int[] b) {\n    if (a.length != b.length) return -1;\n    int s = 0;\n    for (int i = 0; i < a.length; i++) {\n        s += a[i] * b[i];\n    }\n    return s;\n}"},
+{lv:"H",t:"Split by threshold",
+ en:"Write <code>static int[][] splitByThreshold(int[] a, int t)</code> that returns two arrays packed in a 2-row jagged array: row 0 holds every value <b>below</b> <code>t</code>, row 1 holds the rest, both in their original order and each with exactly the right length.",
+ th:"เขียน <code>static int[][] splitByThreshold(int[] a, int t)</code> ที่คืนอาร์เรย์สองแถวแบบขั้นบันได: แถว 0 เก็บทุกค่าที่<b>น้อยกว่า</b> <code>t</code> แถว 1 เก็บที่เหลือ ทั้งคู่คงลำดับเดิมและมีความยาวพอดี",
+ ex:"splitByThreshold({5, 12, 3, 20, 8}, 10)  →  {{5, 3, 8}, {12, 20}}",
+ sol:"static int[][] splitByThreshold(int[] a, int t) {\n    int below = 0;\n    for (int i = 0; i < a.length; i++) {\n        if (a[i] < t) below++;\n    }\n    int[] lo = new int[below];\n    int[] hi = new int[a.length - below];\n    int nLo = 0, nHi = 0;\n    for (int i = 0; i < a.length; i++) {\n        if (a[i] < t) lo[nLo++] = a[i];\n        else hi[nHi++] = a[i];\n    }\n    return new int[][]{lo, hi};\n}"},
+{lv:"M",t:"Differences between neighbours",
+ en:"Write <code>static int[] differences(int[] a)</code> that returns an array of length <code>a.length - 1</code> where element <code>i</code> is <code>a[i+1] - a[i]</code>. For an array with fewer than two elements return an empty array.",
+ th:"เขียน <code>static int[] differences(int[] a)</code> ที่คืนอาร์เรย์ความยาว <code>a.length - 1</code> โดยสมาชิกที่ <code>i</code> คือ <code>a[i+1] - a[i]</code> ถ้ามีสมาชิกน้อยกว่าสองตัวให้คืนอาร์เรย์ว่าง",
+ ex:"differences({3, 7, 4, 10})  →  {4, -3, 6}\ndifferences({5})            →  {}",
+ sol:"static int[] differences(int[] a) {\n    if (a.length < 2) return new int[0];\n    int[] d = new int[a.length - 1];\n    for (int i = 0; i < d.length; i++) {\n        d[i] = a[i + 1] - a[i];\n    }\n    return d;\n}"},
+{lv:"H",t:"Deduplicate a sorted array in place",
+ en:"Write <code>static int dedupeSorted(int[] a)</code> for a <b>sorted</b> array. Shift the elements so that the distinct values occupy the first <code>k</code> cells in order, and return <code>k</code>. The contents after index <code>k</code> do not matter. Do not allocate another array.",
+ th:"เขียน <code>static int dedupeSorted(int[] a)</code> สำหรับอาร์เรย์ที่<b>เรียงแล้ว</b> เลื่อนสมาชิกให้ค่าที่ไม่ซ้ำอยู่ใน <code>k</code> ช่องแรกตามลำดับ แล้วคืน <code>k</code> ค่าหลังดัชนี <code>k</code> ไม่สำคัญ ห้ามจองอาร์เรย์เพิ่ม",
+ ex:"a = {1, 1, 2, 3, 3, 3, 5}  →  returns 4, a starts with {1, 2, 3, 5}\na = {}                      →  returns 0",
+ sol:"static int dedupeSorted(int[] a) {\n    if (a.length == 0) return 0;\n    int k = 1;\n    for (int i = 1; i < a.length; i++) {\n        if (a[i] != a[k - 1]) {\n            a[k++] = a[i];\n        }\n    }\n    return k;\n}"},
+{lv:"M",t:"Best profit",
+ en:"<code>prices[i]</code> is a stock price on day <code>i</code>. Write <code>static int maxProfit(int[] prices)</code> that returns the largest <code>prices[j] - prices[i]</code> with <code>j &gt; i</code> (buy first, sell later). Return 0 if no profit is possible. A nested loop is acceptable.",
+ th:"<code>prices[i]</code> คือราคาหุ้นในวันที่ <code>i</code> เขียน <code>static int maxProfit(int[] prices)</code> ที่คืนค่า <code>prices[j] - prices[i]</code> ที่มากที่สุดโดย <code>j &gt; i</code> (ซื้อก่อนขายทีหลัง) คืน 0 ถ้าไม่มีทางได้กำไร ใช้ลูปซ้อนได้",
+ ex:"maxProfit({7, 1, 5, 3, 6, 4})  →  5   (buy 1, sell 6)\nmaxProfit({7, 6, 4, 3})        →  0",
+ sol:"static int maxProfit(int[] prices) {\n    int best = 0;\n    for (int i = 0; i < prices.length; i++) {\n        for (int j = i + 1; j < prices.length; j++) {\n            int p = prices[j] - prices[i];\n            if (p > best) best = p;\n        }\n    }\n    return best;\n}"},
+{lv:"H",t:"Is a rotation",
+ en:"Write <code>static boolean isRotation(int[] a, int[] b)</code> that returns true when <code>b</code> can be obtained by rotating <code>a</code> some number of positions. Try every starting offset and compare element by element with wrap-around. Two empty arrays are rotations of each other.",
+ th:"เขียน <code>static boolean isRotation(int[] a, int[] b)</code> ที่คืน true เมื่อ <code>b</code> ได้จากการหมุน <code>a</code> ไปจำนวนตำแหน่งใดตำแหน่งหนึ่ง ลองทุกจุดเริ่มต้นแล้วเทียบทีละตัวแบบวนกลับ อาร์เรย์ว่างสองตัวถือว่าเป็นการหมุนของกันและกัน",
+ ex:"isRotation({1, 2, 3, 4}, {3, 4, 1, 2})  →  true\nisRotation({1, 2, 3, 4}, {1, 3, 2, 4})  →  false\nisRotation({1, 2}, {1, 2, 1})           →  false",
+ sol:"static boolean isRotation(int[] a, int[] b) {\n    if (a.length != b.length) return false;\n    int n = a.length;\n    if (n == 0) return true;\n    for (int shift = 0; shift < n; shift++) {\n        boolean match = true;\n        for (int i = 0; i < n; i++) {\n            if (a[(i + shift) % n] != b[i]) { match = false; break; }\n        }\n        if (match) return true;\n    }\n    return false;\n}"},
+{lv:"M",t:"Clamp values",
+ en:"Sensor readings outside a valid range are treated as noise. Write <code>static void clampAll(int[] a, int lo, int hi)</code> that replaces every value below <code>lo</code> with <code>lo</code> and every value above <code>hi</code> with <code>hi</code>, in place.",
+ th:"ค่าที่อ่านจากเซ็นเซอร์นอกช่วงที่ยอมรับถือเป็นสัญญาณรบกวน เขียน <code>static void clampAll(int[] a, int lo, int hi)</code> ที่แทนทุกค่าที่ต่ำกว่า <code>lo</code> ด้วย <code>lo</code> และทุกค่าที่สูงกว่า <code>hi</code> ด้วย <code>hi</code> ในที่เดิม",
+ ex:"{-5, 3, 12, 8}, lo = 0, hi = 10  →  {0, 3, 10, 8}",
+ sol:"static void clampAll(int[] a, int lo, int hi) {\n    for (int i = 0; i < a.length; i++) {\n        if (a[i] < lo) a[i] = lo;\n        else if (a[i] > hi) a[i] = hi;\n    }\n}"},
+{lv:"H",t:"Leaders in an array",
+ en:"An element is a <b>leader</b> if it is strictly greater than every element to its right; the last element is always a leader. Write <code>static int[] leaders(int[] a)</code> that returns all leaders in their original order, with exactly the right length. Hint: scan from the right keeping the maximum seen so far.",
+ th:"สมาชิกเป็น<b>ผู้นำ</b>ถ้ามันมากกว่าทุกสมาชิกทางขวาอย่างเคร่งครัด สมาชิกตัวสุดท้ายเป็นผู้นำเสมอ เขียน <code>static int[] leaders(int[] a)</code> ที่คืนผู้นำทั้งหมดตามลำดับเดิม ด้วยความยาวพอดี คำใบ้: ไล่จากขวาพร้อมเก็บค่ามากสุดที่เจอ",
+ ex:"leaders({16, 17, 4, 3, 5, 2})  →  {17, 5, 2}\nleaders({1, 2, 3})             →  {3}",
+ sol:"static int[] leaders(int[] a) {\n    boolean[] isLeader = new boolean[a.length];\n    int count = 0;\n    int maxRight = Integer.MIN_VALUE;\n    for (int i = a.length - 1; i >= 0; i--) {\n        if (a[i] > maxRight) {\n            isLeader[i] = true;\n            count++;\n            maxRight = a[i];\n        }\n    }\n    int[] r = new int[count];\n    int k = 0;\n    for (int i = 0; i < a.length; i++) {\n        if (isLeader[i]) r[k++] = a[i];\n    }\n    return r;\n}"},
+{lv:"M",t:"Alternating sum",
+ en:"Write <code>static int alternatingSum(int[] a)</code> that returns <code>a[0] - a[1] + a[2] - a[3] + …</code>. Use the parity of the index to decide the sign.",
+ th:"เขียน <code>static int alternatingSum(int[] a)</code> ที่คืน <code>a[0] - a[1] + a[2] - a[3] + …</code> ใช้ความเป็นคู่/คี่ของดัชนีตัดสินเครื่องหมาย",
+ ex:"alternatingSum({10, 3, 2, 1})  →  8\nalternatingSum({})             →  0",
+ sol:"static int alternatingSum(int[] a) {\n    int s = 0;\n    for (int i = 0; i < a.length; i++) {\n        if (i % 2 == 0) s += a[i];\n        else s -= a[i];\n    }\n    return s;\n}"},
+{lv:"H",t:"Majority element",
+ en:"Write <code>static int majority(int[] a)</code> that returns the value occurring <b>more than</b> <code>a.length / 2</code> times, or <code>Integer.MIN_VALUE</code> if no such value exists. A counting approach with nested loops is acceptable; the Boyer–Moore one-pass vote followed by a verification pass earns full marks.",
+ th:"เขียน <code>static int majority(int[] a)</code> ที่คืนค่าที่ปรากฏ<b>มากกว่า</b> <code>a.length / 2</code> ครั้ง หรือ <code>Integer.MIN_VALUE</code> ถ้าไม่มี ใช้การนับด้วยลูปซ้อนได้ การใช้ Boyer–Moore แบบรอบเดียวแล้วตรวจยืนยันอีกรอบจะได้คะแนนเต็ม",
+ ex:"majority({2, 2, 1, 2, 3, 2})  →  2\nmajority({1, 2, 3, 1})        →  Integer.MIN_VALUE",
+ sol:"static int majority(int[] a) {\n    int candidate = 0, votes = 0;\n    for (int i = 0; i < a.length; i++) {\n        int x = a[i];\n        if (votes == 0) { candidate = x; votes = 1; }\n        else if (x == candidate) votes++;\n        else votes--;\n    }\n    int count = 0;\n    for (int j = 0; j < a.length; j++) if (a[j] == candidate) count++;\n    return count > a.length / 2 ? candidate : Integer.MIN_VALUE;\n}"},
+{lv:"M",t:"Pad on the left",
+ en:"Write <code>static int[] padLeft(int[] a, int width, int v)</code> that returns a new array of length <code>width</code> whose last cells are the elements of <code>a</code> and whose leading cells are filled with <code>v</code>. If <code>a</code> is already at least <code>width</code> long, return a plain copy of <code>a</code>.",
+ th:"เขียน <code>static int[] padLeft(int[] a, int width, int v)</code> ที่คืนอาร์เรย์ใหม่ความยาว <code>width</code> โดยช่องท้ายเป็นสมาชิกของ <code>a</code> และช่องนำหน้าเติมด้วย <code>v</code> ถ้า <code>a</code> ยาวอย่างน้อย <code>width</code> อยู่แล้วให้คืนสำเนาธรรมดาของ <code>a</code>",
+ ex:"padLeft({7, 8}, 5, 0)     →  {0, 0, 0, 7, 8}\npadLeft({1, 2, 3}, 2, 0)  →  {1, 2, 3}",
+ sol:"static int[] padLeft(int[] a, int width, int v) {\n    if (a.length >= width) return a.clone();\n    int[] r = new int[width];\n    int pad = width - a.length;\n    for (int i = 0; i < pad; i++) r[i] = v;\n    for (int i = 0; i < a.length; i++) r[pad + i] = a[i];\n    return r;\n}"},
+{lv:"H",t:"Symmetric difference",
+ en:"Write <code>static int[] symmetricDifference(int[] a, int[] b)</code> that returns the distinct values that appear in <b>exactly one</b> of the two arrays: first those from <code>a</code> (in order of first appearance), then those from <code>b</code>. Write a helper <code>static boolean contains(int[] arr, int len, int v)</code> that checks only the first <code>len</code> cells and use it both for membership tests and for de-duplicating the result.",
+ th:"เขียน <code>static int[] symmetricDifference(int[] a, int[] b)</code> ที่คืนค่าที่ไม่ซ้ำกันซึ่งปรากฏใน<b>อาร์เรย์ใดอาร์เรย์หนึ่งเท่านั้น</b>: ค่าจาก <code>a</code> ก่อน (ตามลำดับที่พบครั้งแรก) แล้วตามด้วยค่าจาก <code>b</code> ให้เขียนเมธอดช่วย <code>static boolean contains(int[] arr, int len, int v)</code> ที่ตรวจเฉพาะ <code>len</code> ช่องแรก และใช้ทั้งตรวจสมาชิกและกันค่าซ้ำในผลลัพธ์",
+ ex:"symmetricDifference({1, 2, 2, 3}, {3, 4, 4, 5})  →  {1, 2, 4, 5}",
+ sol:"static boolean contains(int[] arr, int len, int v) {\n    for (int i = 0; i < len; i++) {\n        if (arr[i] == v) return true;\n    }\n    return false;\n}\n\nstatic int[] symmetricDifference(int[] a, int[] b) {\n    int[] tmp = new int[a.length + b.length];\n    int n = 0;\n    for (int j = 0; j < a.length; j++) {\n        int x = a[j];\n        if (!contains(b, b.length, x) && !contains(tmp, n, x)) tmp[n++] = x;\n    }\n    for (int k = 0; k < b.length; k++) {\n        int x = b[k];\n        if (!contains(a, a.length, x) && !contains(tmp, n, x)) tmp[n++] = x;\n    }\n    return Arrays.copyOf(tmp, n);\n}"}
+];
+
+
+const KEY='java-mock-exam-set1';
+let state={mcq:{},fill:{},code:{},done:{},tab:'mcq'};
+try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&typeof s==='object')state=Object.assign(state,s);}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function h(tag,attrs,...kids){const el=document.createElement(tag);for(const k in attrs||{}){if(k==='html')el.innerHTML=attrs[k];else if(k.startsWith('on'))el.addEventListener(k.slice(2),attrs[k]);else el.setAttribute(k,attrs[k]);}
+  for(const c of kids){if(c==null)continue;el.append(c.nodeType?c:document.createTextNode(c));}return el;}
+function lv(q){if(!q.lv)return null;return h('span',{class:'lv '+q.lv,title:q.lv==='H'?'Hard · ยาก':'Medium · ปานกลาง'},q.lv==='H'?'HARD':'MED');}
+function shuffled(n,seed){const idx=[...Array(n).keys()];let s=seed*2654435761%4294967296+12345;for(let i=n-1;i>0;i--){s=(s*1103515245+12345)%2147483648;const j=s%(i+1);[idx[i],idx[j]]=[idx[j],idx[i]];}return idx;}
+const LET='ABCD';
+
+// ---------- Part 1: MCQ ----------
+const mcqEls=[];
+MCQ.forEach((q,i)=>{
+  const order=shuffled(q.opts.length,i+7);
+  const card=h('div',{class:'q',id:'mcq-'+(i+1)});
+  card.append(h('div',{class:'qh'},h('div',{class:'num'},String(i+1)),h('div',{class:'qt'},h('div',{class:'en',html:q.en}),h('div',{class:'th',html:q.th})),lv(q)));
+  if(q.code)card.append(h('pre',{},q.code));
+  const opts=h('div',{class:'opts'});
+  order.forEach((oi,k)=>{
+    const id=`m${i}o${oi}`;
+    const inp=h('input',{type:'radio',name:'m'+i,id,value:String(oi)});
+    if(state.mcq[i]===oi)inp.checked=true;
+    inp.addEventListener('change',()=>{state.mcq[i]=oi;save();});
+    opts.append(h('label',{class:'opt',for:id},inp,h('span',{class:'k'},LET[k]),h('code',{},q.opts[oi])));
+  });
+  card.append(opts);
+  const fb=h('span',{class:'fb'});const exp=h('div',{class:'exp',html:q.exp});exp.hidden=true;
+  const foot=h('div',{class:'foot'},h('button',{class:'btn',type:'button',onclick:()=>checkMcq(i,true)},'Check · ตรวจ'),fb);
+  card.append(foot,exp);
+  mcqEls.push({card,opts,fb,exp,order});
+  document.getElementById('list-mcq').append(card);
+});
+function checkMcq(i,reveal){
+  const q=MCQ[i],e=mcqEls[i],sel=state.mcq[i];
+  e.opts.querySelectorAll('.opt').forEach(o=>o.classList.remove('ok','bad'));
+  e.card.classList.remove('ok','bad');
+  if(sel===undefined&&!reveal){e.fb.className='fb';e.fb.textContent='';return null;}
+  const labels=e.opts.querySelectorAll('.opt');
+  labels.forEach(l=>{const v=+l.querySelector('input').value;if(v===q.ans)l.classList.add('ok');else if(v===sel)l.classList.add('bad');});
+  const ok=sel===q.ans;
+  e.card.classList.add(ok?'ok':'bad');
+  e.fb.className='fb '+(ok?'ok':'bad');
+  e.fb.textContent=sel===undefined?'Not answered · ยังไม่ได้ตอบ':ok?'Correct · ถูกต้อง':'Incorrect · ไม่ถูกต้อง';
+  e.exp.hidden=false;
+  updateScore();
+  return ok;
+}
+
+// ---------- Part 3: Fill ----------
+const fillEls=[];
+function norm(s){return s.replace(/\s+/g,'').toLowerCase();}
+FILL.forEach((q,i)=>{
+  const card=h('div',{class:'q',id:'fill-'+(i+1)});
+  card.append(h('div',{class:'qh'},h('div',{class:'num'},String(i+1)),h('div',{class:'qt'},h('div',{class:'en',html:q.en}),h('div',{class:'th',html:q.th})),lv(q)));
+  const pre=h('pre');
+  const parts=q.code.split('____');
+  let inp;
+  parts.forEach((p,k)=>{pre.append(p);if(k<parts.length-1){inp=h('input',{class:'blank',type:'text',id:'f'+i,autocomplete:'off',spellcheck:'false','aria-label':'blank '+(i+1)});
+    inp.value=state.fill[i]||'';inp.addEventListener('input',()=>{state.fill[i]=inp.value;save();inp.classList.remove('ok','bad');});
+    inp.addEventListener('keydown',ev=>{if(ev.key==='Enter')checkFill(i,true);});pre.append(inp);}});
+  card.append(pre);
+  const fb=h('span',{class:'fb'});const ans=h('div',{class:'exp'});ans.hidden=true;
+  ans.innerHTML='Answer · เฉลย: '+q.acc.map(a=>'<code>'+esc(a)+'</code>').join(' or ');
+  card.append(h('div',{class:'foot'},h('button',{class:'btn',type:'button',onclick:()=>checkFill(i,true)},'Check · ตรวจ'),fb),ans);
+  fillEls.push({card,inp,fb,ans});
+  document.getElementById('list-fill').append(card);
+});
+function checkFill(i,reveal){
+  const q=FILL[i],e=fillEls[i],v=state.fill[i]||'';
+  const ok=v.trim()!==''&&q.acc.some(a=>norm(a)===norm(v));
+  e.inp.classList.remove('ok','bad');e.card.classList.remove('ok','bad');
+  if(!reveal&&v.trim()==='')return null;
+  e.inp.classList.add(ok?'ok':'bad');e.card.classList.add(ok?'ok':'bad');
+  e.fb.className='fb '+(ok?'ok':'bad');
+  e.fb.textContent=v.trim()===''?'Not answered · ยังไม่ได้ตอบ':ok?'Correct · ถูกต้อง':'Incorrect · ไม่ถูกต้อง';
+  e.ans.hidden=ok;
+  updateScore();
+  return ok;
+}
+
+// ---------- Part 2: Code ----------
+const codeEls=[];
+CODE.forEach((q,i)=>{
+  const card=h('div',{class:'q',id:'code-'+(i+1)});
+  card.append(h('div',{class:'qh'},h('div',{class:'num'},String(i+1)),h('div',{class:'qt'},h('div',{class:'title'},q.t),h('div',{class:'en',html:q.en}),h('div',{class:'th',html:q.th})),lv(q)));
+  card.append(h('div',{class:'ex',html:'Examples · ตัวอย่าง:<br><code>'+esc(q.ex)+'</code>'}));
+  const ta=h('textarea',{id:'c'+i,placeholder:'// Write your Java code here · เขียนโค้ด Java ที่นี่',spellcheck:'false'});
+  ta.value=state.code[i]||'';ta.addEventListener('input',()=>{state.code[i]=ta.value;save();});
+  ta.addEventListener('keydown',ev=>{if(ev.key==='Tab'){ev.preventDefault();const s=ta.selectionStart;ta.setRangeText('    ',s,ta.selectionEnd,'end');ta.dispatchEvent(new Event('input'));}});
+  card.append(ta);
+  const sol=h('div',{class:'sol'},h('div',{class:'lbl'},'Model answer · เฉลย'),h('pre',{},q.sol));sol.hidden=true;
+  const btn=h('button',{class:'btn',type:'button'},'Show model answer · ดูเฉลย');
+  btn.addEventListener('click',()=>{sol.hidden=!sol.hidden;btn.textContent=sol.hidden?'Show model answer · ดูเฉลย':'Hide model answer · ซ่อนเฉลย';});
+  const chk=h('input',{type:'checkbox',id:'d'+i});chk.checked=!!state.done[i];
+  chk.addEventListener('change',()=>{state.done[i]=chk.checked;card.classList.toggle('ok',chk.checked);save();updateScore();});
+  card.classList.toggle('ok',chk.checked);
+  card.append(h('div',{class:'foot'},btn,h('label',{class:'done',for:'d'+i},chk,'Done · ทำได้แล้ว')),sol);
+  codeEls.push({card,sol,btn});
+  document.getElementById('list-code').append(card);
+});
+
+// ---------- Scoring, tabs, bulk actions ----------
+function updateScore(){
+  const m=MCQ.reduce((n,q,i)=>n+(state.mcq[i]===q.ans?1:0),0);
+  const f=FILL.reduce((n,q,i)=>n+((state.fill[i]||'').trim()&&q.acc.some(a=>norm(a)===norm(state.fill[i]))?1:0),0);
+  const c=CODE.reduce((n,q,i)=>n+(state.done[i]?1:0),0);
+  document.getElementById('n-mcq').textContent=m+'/30';
+  document.getElementById('n-fill').textContent=f+'/30';
+  document.getElementById('n-code').textContent=c+'/30';
+  document.getElementById('total').innerHTML=(m+f+c)+'<small>/90</small>';
+  return {m,f,c};
+}
+function showTab(p){
+  state.tab=p;save();
+  document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.part===p?'true':'false'));
+  document.querySelectorAll('.part').forEach(s=>s.classList.toggle('active',s.id==='part-'+p));
+}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{showTab(t.dataset.part);window.scrollTo({top:0});}));
+document.querySelectorAll('[data-checkall]').forEach(b=>b.addEventListener('click',()=>{
+  const p=b.dataset.checkall,arr=p==='mcq'?MCQ:FILL,fn=p==='mcq'?checkMcq:checkFill;
+  let ok=0,ans=0;arr.forEach((q,i)=>{const r=fn(i,true);if(r)ok++;if(p==='mcq'?state.mcq[i]!==undefined:(state.fill[i]||'').trim())ans++;});
+  const res=document.getElementById('res-'+p);
+  res.innerHTML=`<b>${ok} / ${arr.length}</b> correct · ตอบถูก ${ok} จาก ${arr.length} ข้อ (${ans} answered · ตอบแล้ว ${ans} ข้อ)`;
+  res.classList.add('show');updateScore();res.scrollIntoView({block:'nearest'});
+}));
+document.querySelectorAll('[data-showall]').forEach(b=>b.addEventListener('click',()=>{
+  const p=b.dataset.showall;
+  if(p==='mcq')MCQ.forEach((q,i)=>checkMcq(i,true));
+  else if(p==='fill')FILL.forEach((q,i)=>{checkFill(i,true);fillEls[i].ans.hidden=false;});
+  else codeEls.forEach(e=>{e.sol.hidden=false;e.btn.textContent='Hide model answer · ซ่อนเฉลย';});
+  updateScore();
+}));
+document.getElementById('reset').addEventListener('click',()=>{
+  const btn=document.getElementById('reset');
+  if(btn.dataset.arm!=='1'){btn.dataset.arm='1';btn.textContent='Press again to clear everything · กดอีกครั้งเพื่อล้างทั้งหมด';setTimeout(()=>{btn.dataset.arm='';btn.textContent='Reset · เริ่มใหม่';},4000);return;}
+  state={mcq:{},fill:{},code:{},done:{},tab:state.tab};save();location.reload();
+});
+const hashTab=(location.hash||'').slice(1);
+showTab(['mcq','code','fill'].includes(hashTab)?hashTab:(state.tab||'mcq'));
+updateScore();
+</script>

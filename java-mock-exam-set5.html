@@ -1,0 +1,690 @@
+<title>Java Arrays & Methods Set 5</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Sarabun:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a sticky score bar, three part tabs, one column of question cards (max 760px) */
+:root{
+  --bg:#f3f5f2; --surface:#ffffff; --fg:#1b2129; --muted:#5c6670; --line:#d7dcd9;
+  --accent:#1f5f6b; --accent-fg:#ffffff; --accent-soft:#e3eef0;
+  --ok:#1d7a4a; --ok-soft:#e1f2e7; --bad:#b4372f; --bad-soft:#f9e4e1;
+  --code-bg:#eef1ee; --code-fg:#1b2129; --blank-bg:#fff7d6;
+  --font-ui:"IBM Plex Sans Thai","Sarabun",system-ui,sans-serif;
+  --font-body:"Sarabun","IBM Plex Sans Thai",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#14191d; --surface:#1d2429; --fg:#e6eaec; --muted:#9aa5ad; --line:#323c43;
+  --accent:#63b8c6; --accent-fg:#0f1a1d; --accent-soft:#1f3337;
+  --ok:#5fcf8c; --ok-soft:#1b3326; --bad:#ef8a80; --bad-soft:#3b2220;
+  --code-bg:#0f1416; --code-fg:#e6eaec; --blank-bg:#3a3415; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#14191d; --surface:#1d2429; --fg:#e6eaec; --muted:#9aa5ad; --line:#323c43;
+  --accent:#63b8c6; --accent-fg:#0f1a1d; --accent-soft:#1f3337;
+  --ok:#5fcf8c; --ok-soft:#1b3326; --bad:#ef8a80; --bad-soft:#3b2220;
+  --code-bg:#0f1416; --code-fg:#e6eaec; --blank-bg:#3a3415; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+h1,h2,h3{font-family:var(--font-ui);text-wrap:balance;margin:0}
+code,pre,textarea,input.blank{font-family:var(--font-mono)}
+code{font-size:.92em;background:var(--code-bg);color:var(--code-fg);padding:.05em .35em;border-radius:4px}
+.wrap{max-width:760px;margin:0 auto}
+header.top{padding-block:28px 12px}
+.eyebrow{font-family:var(--font-ui);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font-size:clamp(1.5rem,4vw,2.1rem);font-weight:700;line-height:1.2;margin-top:4px}
+.sub{color:var(--muted);margin-top:6px;max-width:60ch}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:18px}
+.rule{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--surface);font-size:.92rem}
+.rule b{font-family:var(--font-ui);display:block}
+.rule span{color:var(--muted)}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding-block:10px}
+.bar .wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tabs{display:flex;gap:4px;flex:1 1 auto;min-width:0}
+.tab{font-family:var(--font-ui);font-weight:600;font-size:.9rem;border:1px solid var(--line);background:var(--surface);color:var(--fg);
+  border-radius:999px;padding:6px 14px;cursor:pointer;display:flex;gap:8px;align-items:center;white-space:nowrap}
+.tab[aria-selected="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.tab .n{font-variant-numeric:tabular-nums;font-weight:500;opacity:.85}
+.total{font-family:var(--font-ui);font-weight:600;font-variant-numeric:tabular-nums;margin-left:auto}
+.total small{color:var(--muted);font-weight:500}
+.btn{font-family:var(--font-ui);font-weight:600;font-size:.88rem;border:1px solid var(--line);background:var(--surface);color:var(--fg);
+  border-radius:6px;padding:7px 12px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.btn.ghost{background:transparent}
+.btn:focus-visible,.tab:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+section.part{display:none;padding-block:18px}
+section.part.active{display:block}
+.part-head{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px}
+.part-head h2{font-size:1.25rem}
+.part-head p{margin:2px 0 0;color:var(--muted);font-size:.95rem}
+.part-head .actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+
+.q{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:12px}
+.q.ok{border-color:var(--ok)} .q.bad{border-color:var(--bad)}
+.qh{display:flex;gap:10px;align-items:baseline}
+.num{font-family:var(--font-ui);font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;min-width:2.2em}
+.qt{flex:1;min-width:0}
+.qt .en{font-weight:500}
+.qt .th{color:var(--muted);font-size:.95rem}
+.qt .title{font-family:var(--font-ui);font-weight:600;font-size:1.05rem}
+.lv{font-family:var(--font-ui);font-size:.7rem;font-weight:700;letter-spacing:.06em;border-radius:4px;padding:1px 6px;align-self:center;white-space:nowrap;border:1px solid var(--line);color:var(--muted)}
+.lv.H{border-color:var(--accent);color:var(--accent)}
+pre{background:var(--code-bg);color:var(--code-fg);border-radius:8px;padding:12px 14px;margin:10px 0 0;overflow-x:auto;font-size:.88rem;line-height:1.5;tab-size:4}
+input.blank{background:var(--blank-bg);color:var(--code-fg);border:1px solid var(--line);border-bottom:2px solid var(--accent);border-radius:4px;
+  font-size:inherit;padding:1px 6px;width:14ch;max-width:100%;margin:0 2px}
+input.blank.ok{border-color:var(--ok);background:var(--ok-soft)} input.blank.bad{border-color:var(--bad);background:var(--bad-soft)}
+.opts{display:grid;gap:6px;margin-top:10px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:8px 10px;cursor:pointer}
+.opt:hover{border-color:var(--accent)}
+.opt input{margin-top:4px;accent-color:var(--accent)}
+.opt .k{font-family:var(--font-ui);font-weight:600;color:var(--muted);min-width:1.2em}
+.opt code{background:transparent;padding:0;font-size:.9em}
+.opt.ok{border-color:var(--ok);background:var(--ok-soft)} .opt.bad{border-color:var(--bad);background:var(--bad-soft)}
+.foot{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.fb{font-family:var(--font-ui);font-weight:600;font-size:.9rem}
+.fb.ok{color:var(--ok)} .fb.bad{color:var(--bad)}
+.exp{margin-top:8px;padding:8px 12px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 6px 6px 0;font-size:.92rem}
+.ex{margin-top:8px;font-size:.9rem;color:var(--muted)}
+.ex code{white-space:pre-wrap}
+textarea{width:100%;min-height:150px;margin-top:10px;background:var(--code-bg);color:var(--code-fg);border:1px solid var(--line);border-radius:8px;
+  padding:10px 12px;font-size:.88rem;line-height:1.5;resize:vertical;tab-size:4}
+.sol{margin-top:10px}
+.sol .lbl{font-family:var(--font-ui);font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.done{display:flex;gap:8px;align-items:center;font-family:var(--font-ui);font-weight:600;font-size:.9rem;cursor:pointer}
+.done input{accent-color:var(--ok);width:16px;height:16px}
+.result{margin-top:16px;padding:14px 16px;border-radius:10px;background:var(--accent-soft);border:1px solid var(--accent);display:none}
+.result.show{display:block}
+.result b{font-family:var(--font-ui);font-size:1.1rem}
+@media (prefers-reduced-motion:no-preference){.q{transition:border-color .2s}}
+@media (max-width:480px){.tab{padding:6px 10px;font-size:.84rem}.q{padding:14px}}
+</style>
+
+<header class="top wrap">
+  <div class="eyebrow">Java Programming · Mock Exam Set 5 · ชุดที่ 5 · Medium + Hard</div>
+  <h1>Arrays &amp; Methods · Set 5</h1>
+  <p class="sub">90 questions in three parts, mixed medium and hard (each question is tagged MED or HARD). Focus of this set: Applied data processing. Answers are checked on the page and every question keeps its model solution.<br>90 ข้อ 3 ส่วน ผสมระดับปานกลางและยาก (แต่ละข้อมีป้าย MED/HARD) จุดเน้นของชุดนี้: การประมวลผลข้อมูลเชิงประยุกต์ ตรวจคำตอบได้ทันที และทุกข้อมีเฉลย</p>
+  <div class="rules">
+    <div class="rule"><b>Part 1 · Multiple choice</b><span>30 × 1 point · ปรนัย 30 ข้อ</span></div>
+    <div class="rule"><b>Part 2 · Write the code</b><span>30 tasks, self-marked · เขียนโปรแกรม 30 ข้อ</span></div>
+    <div class="rule"><b>Part 3 · Fill in the blank</b><span>30 × 1 point · เติมคำ 30 ข้อ</span></div>
+  </div>
+</header>
+
+<div class="bar"><div class="wrap">
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-mcq" data-part="mcq" aria-selected="true">Part 1 <span class="n" id="n-mcq">0/30</span></button>
+    <button class="tab" role="tab" id="tab-code" data-part="code" aria-selected="false">Part 2 <span class="n" id="n-code">0/30</span></button>
+    <button class="tab" role="tab" id="tab-fill" data-part="fill" aria-selected="false">Part 3 <span class="n" id="n-fill">0/30</span></button>
+  </div>
+  <div class="total" id="total">0<small>/90</small></div>
+  <button class="btn ghost" id="reset" type="button">Reset · เริ่มใหม่</button>
+</div></div>
+
+<main class="wrap">
+  <section class="part active" id="part-mcq">
+    <div class="part-head"><div><h2>Part 1 · Multiple choice · ปรนัย</h2><p>Choose one answer, then press Check. · เลือกคำตอบหนึ่งข้อ แล้วกด ตรวจ</p></div>
+      <div class="actions"><button class="btn primary" type="button" data-checkall="mcq">Check all · ตรวจทั้งหมด</button><button class="btn" type="button" data-showall="mcq">Show answers · เฉลย</button></div></div>
+    <div id="list-mcq"></div>
+    <div class="result" id="res-mcq"></div>
+  </section>
+  <section class="part" id="part-code">
+    <div class="part-head"><div><h2>Part 2 · Write the code · เขียนโปรแกรม</h2><p>Write each method in the box, compare with the model answer, then tick Done. · เขียนเมธอดในช่อง เทียบกับเฉลย แล้วติ๊ก ทำได้แล้ว</p></div>
+      <div class="actions"><button class="btn" type="button" data-showall="code">Show all answers · เฉลยทั้งหมด</button></div></div>
+    <div id="list-code"></div>
+  </section>
+  <section class="part" id="part-fill">
+    <div class="part-head"><div><h2>Part 3 · Fill in the blank · เติมคำในช่องว่าง</h2><p>Type the missing code in the yellow box. · พิมพ์โค้ดที่หายไปในช่องสีเหลือง</p></div>
+      <div class="actions"><button class="btn primary" type="button" data-checkall="fill">Check all · ตรวจทั้งหมด</button><button class="btn" type="button" data-showall="fill">Show answers · เฉลย</button></div></div>
+    <div id="list-fill"></div>
+    <div class="result" id="res-fill"></div>
+  </section>
+</main>
+
+<script>
+const MCQ = [
+{lv:"M",en:"A lecturer records attendance for one student as a <code>boolean[]</code>, one entry per class meeting (<code>true</code> = present). The loop below is meant to count something. What is printed?",
+ th:"อาจารย์บันทึกการเข้าเรียนของนักศึกษาหนึ่งคนเป็น <code>boolean[]</code> ช่องละหนึ่งคาบ (<code>true</code> = มาเรียน) ลูปด้านล่างตั้งใจนับบางอย่าง โปรแกรมพิมพ์อะไร",
+ code:"boolean[] present = {true, false, true, true, false};\nint c = 0;\nfor (int i = 0; i < present.length; i++) {\n    if (!present[i]) c++;\n}\nSystem.out.println(c);",
+ opts:["2","3","5","0"],ans:0,
+ exp:"!p is true only for the two false entries, so the loop counts absences. / !p เป็นจริงเฉพาะสองช่องที่เป็น false ลูปจึงนับจำนวนครั้งที่ขาดเรียน"},
+{lv:"H",en:"Temperature readings are taken once a day. The code sums the day-to-day changes and divides by the number of changes. What is printed?",
+ th:"วัดอุณหภูมิวันละครั้ง โค้ดรวมผลต่างระหว่างวันแล้วหารด้วยจำนวนผลต่าง โปรแกรมพิมพ์อะไร",
+ code:"double[] t = {30.0, 32.0, 31.0, 35.0};\ndouble s = 0;\nfor (int i = 1; i < t.length; i++) {\n    s += t[i] - t[i - 1];\n}\nSystem.out.println(s / (t.length - 1));",
+ opts:["1.6666666666666667","1.0","5.0","1.25"],ans:0,
+ exp:"Changes are +2, -1, +4 = 5 (the sum telescopes to 35 - 30). 5 / 3 in double arithmetic is 1.6666666666666667. / ผลต่างคือ +2, -1, +4 รวม 5 (เท่ากับ 35 - 30) หาร 3 แบบ double ได้ 1.6666666666666667"},
+{lv:"M",en:"Monthly sales for five months are stored in order. <code>Arrays.copyOfRange</code> is used to extract one quarter. What is printed?",
+ th:"ยอดขายห้าเดือนเก็บเรียงตามลำดับ ใช้ <code>Arrays.copyOfRange</code> ดึงข้อมูลหนึ่งไตรมาส โปรแกรมพิมพ์อะไร",
+ code:"int[] sales = {120, 80, 95, 140, 60};\nint[] q = Arrays.copyOfRange(sales, 1, 4);\nSystem.out.println(q.length + \" \" + q[q.length - 1]);",
+ opts:["3 140","4 60","3 95","4 140"],ans:0,
+ exp:"copyOfRange(from, to) copies indexes 1, 2, 3 (to is exclusive): {80, 95, 140}. / copyOfRange(from, to) คัดลอกดัชนี 1, 2, 3 (ไม่รวม to): {80, 95, 140}"},
+{lv:"H",en:"An inventory method refills every product whose stock is below <code>min</code> up to <code>target</code>, and returns how many it refilled. What does <code>main</code> print?",
+ th:"เมธอดคลังสินค้าเติมสินค้าทุกรายการที่สต็อกต่ำกว่า <code>min</code> ให้ถึง <code>target</code> และคืนจำนวนรายการที่เติม <code>main</code> พิมพ์อะไร",
+ code:"static int restock(int[] stock, int min, int target) {\n    int n = 0;\n    for (int i = 0; i < stock.length; i++) {\n        if (stock[i] < min) {\n            stock[i] = target;\n            n++;\n        }\n    }\n    return n;\n}\npublic static void main(String[] args) {\n    int[] s = {3, 10, 1, 7};\n    int k = restock(s, 5, 20);\n    System.out.println(k + \" \" + (s[0] + s[2]));\n}",
+ opts:["2 40","2 4","0 4","4 40"],ans:0,
+ exp:"Items 0 and 2 are below 5 and become 20 through the shared reference; 2 refilled, 20 + 20 = 40. / รายการ 0 และ 2 ต่ำกว่า 5 จึงกลายเป็น 20 ผ่านการอ้างอิงร่วม เติม 2 รายการ และ 20 + 20 = 40"},
+{lv:"M",en:"A sensor buffer is created as a <code>double[]</code> and only one slot is written before printing. What is printed?",
+ th:"สร้างบัฟเฟอร์เซ็นเซอร์เป็น <code>double[]</code> และเขียนค่าเพียงช่องเดียวก่อนพิมพ์ โปรแกรมพิมพ์อะไร",
+ code:"double[] d = new double[3];\nd[1] = 2.5;\nSystem.out.println(Arrays.toString(d));",
+ opts:["[0.0, 2.5, 0.0]","[0, 2.5, 0]","[null, 2.5, null]","[0.0, 2.5]"],ans:0,
+ exp:"double elements default to 0.0 and Arrays.toString prints doubles with a decimal point. / สมาชิก double มีค่าเริ่มต้น 0.0 และ Arrays.toString พิมพ์ double พร้อมจุดทศนิยม"},
+{lv:"H",en:"A grayscale image is stored as an <code>int[][]</code> of pixel values 0–255. The code inverts each pixel (<code>255 - p</code>) and counts the pixels that are bright <b>after</b> inversion. What is printed?",
+ th:"ภาพระดับสีเทาเก็บเป็น <code>int[][]</code> ค่าพิกเซล 0–255 โค้ดกลับค่าแต่ละพิกเซล (<code>255 - p</code>) แล้วนับพิกเซลที่สว่าง<b>หลัง</b>กลับค่า โปรแกรมพิมพ์อะไร",
+ code:"int[][] img = {{0, 100}, {200, 255}};\nint c = 0;\nfor (int i = 0; i < img.length; i++) {\n    for (int j = 0; j < img[i].length; j++) {\n        if (255 - img[i][j] >= 128) c++;\n    }\n}\nSystem.out.println(c);",
+ opts:["2","3","1","4"],ans:0,
+ exp:"Inverted values are 255, 155, 55, 0; only the first two reach 128. / ค่าหลังกลับคือ 255, 155, 55, 0 มีเพียงสองค่าแรกที่ถึง 128"},
+{lv:"M",en:"<code>first</code> returns the first element of an array but must survive both a <code>null</code> reference and an empty array. What is printed?",
+ th:"<code>first</code> คืนสมาชิกตัวแรกของอาร์เรย์ แต่ต้องรองรับทั้งการอ้างอิง <code>null</code> และอาร์เรย์ว่าง โปรแกรมพิมพ์อะไร",
+ code:"static int first(int[] a) {\n    if (a == null || a.length == 0) return -1;\n    return a[0];\n}\npublic static void main(String[] args) {\n    int[] e = {};\n    System.out.println(first(null) + first(e) + first(new int[]{5}));\n}",
+ opts:["3","-1-15","NullPointerException","5"],ans:0,
+ exp:"All three results are ints, so + adds them: -1 + -1 + 5 = 3. The null check runs before a.length, so no exception. / ทั้งสามผลลัพธ์เป็น int จึงบวกกัน: -1 + -1 + 5 = 3 และตรวจ null ก่อน a.length จึงไม่เกิด exception"},
+{lv:"H",en:"A student tries to mirror one row of an image horizontally by swapping each pixel with its opposite. The loop runs over the <b>whole</b> row. What is printed?",
+ th:"นักศึกษาพยายามกลับด้านแถวหนึ่งของภาพในแนวนอนโดยสลับพิกเซลแต่ละตัวกับตัวตรงข้าม ลูปวน<b>ทั้ง</b>แถว โปรแกรมพิมพ์อะไร",
+ code:"int[] row = {1, 2, 3, 4, 5};\nfor (int i = 0; i < row.length; i++) {\n    int t = row[i];\n    row[i] = row[row.length - 1 - i];\n    row[row.length - 1 - i] = t;\n}\nSystem.out.println(Arrays.toString(row));",
+ opts:["[1, 2, 3, 4, 5]","[5, 4, 3, 2, 1]","[5, 4, 3, 4, 5]","[1, 2, 3, 2, 1]"],ans:0,
+ exp:"Every pair is swapped twice (once from each side), so the row ends up unchanged. The loop must stop at row.length / 2. / แต่ละคู่ถูกสลับสองครั้ง (จากแต่ละด้าน) แถวจึงกลับมาเหมือนเดิม ลูปต้องหยุดที่ row.length / 2"},
+{lv:"M",en:"A grade book converts scores to letters with a helper method and builds a summary string. What is printed?",
+ th:"สมุดคะแนนแปลงคะแนนเป็นเกรดด้วยเมธอดช่วยแล้วต่อเป็นสตริงสรุป โปรแกรมพิมพ์อะไร",
+ code:"static String grade(int s) {\n    return s >= 80 ? \"A\" : s >= 60 ? \"B\" : \"C\";\n}\npublic static void main(String[] args) {\n    int[] sc = {80, 79, 60, 59, 100};\n    String r = \"\";\n    for (int i = 0; i < sc.length; i++) r += grade(sc[i]);\n    System.out.println(r);\n}",
+ opts:["ABBCA","AABCA","ABBBA","ABCCA"],ans:0,
+ exp:"80→A, 79→B, 60→B, 59→C, 100→A. The boundaries 80 and 60 are inclusive. / 80→A, 79→B, 60→B, 59→C, 100→A ขอบ 80 และ 60 นับรวม"},
+{lv:"H",en:"Two score tables with identical contents are compared with <code>Arrays.equals</code> and <code>Arrays.deepEquals</code>. What is printed?",
+ th:"ตารางคะแนนสองตารางที่มีค่าเหมือนกันถูกเปรียบเทียบด้วย <code>Arrays.equals</code> และ <code>Arrays.deepEquals</code> โปรแกรมพิมพ์อะไร",
+ code:"int[][] a = {{1, 2}, {3, 4}};\nint[][] b = {{1, 2}, {3, 4}};\nSystem.out.println(Arrays.equals(a, b) + \" \" + Arrays.deepEquals(a, b));",
+ opts:["false true","true true","true false","false false"],ans:0,
+ exp:"Arrays.equals only checks whether each row is the same array (it is not); deepEquals goes into the rows and compares the values. / Arrays.equals ตรวจแค่ว่าแต่ละแถวเป็นอาร์เรย์เดียวกันหรือไม่ (ไม่ใช่) ส่วน deepEquals เจาะลงไปเทียบค่าในแถว"},
+{lv:"M",en:"A shop looks for its best month. Two months tie for the highest sales. Which index is printed?",
+ th:"ร้านค้าหาเดือนที่ขายดีที่สุด มีสองเดือนที่ยอดขายสูงสุดเท่ากัน ดัชนีใดถูกพิมพ์",
+ code:"int[] sales = {40, 75, 75, 20};\nint best = 0;\nfor (int i = 1; i < sales.length; i++) {\n    if (sales[i] > sales[best]) best = i;\n}\nSystem.out.println(best);",
+ opts:["1","2","75","0"],ans:0,
+ exp:"The strict > keeps the first maximum; index 2 does not replace index 1. / เครื่องหมาย > แบบเคร่งครัดรักษาค่าสูงสุดตัวแรกไว้ ดัชนี 2 จึงไม่แทนที่ดัชนี 1"},
+{lv:"H",en:"A ticket queue is simulated with a circular array of capacity 3. When the queue is full, the oldest ticket is dropped before the new one is stored. Trace all four arrivals. What is printed?",
+ th:"จำลองคิวบัตรคิวด้วยอาร์เรย์วงกลมความจุ 3 เมื่อคิวเต็ม บัตรที่เก่าที่สุดจะถูกทิ้งก่อนเก็บบัตรใหม่ ไล่การมาถึงทั้งสี่ครั้ง โปรแกรมพิมพ์อะไร",
+ code:"int[] q = new int[3];\nint head = 0, tail = 0, size = 0;\nint[] arrivals = {7, 8, 9, 10};\nfor (int k = 0; k < arrivals.length; k++) {\n    int a = arrivals[k];\n    if (size == q.length) {\n        head = (head + 1) % q.length;\n        size--;\n    }\n    q[tail] = a;\n    tail = (tail + 1) % q.length;\n    size++;\n}\nSystem.out.println(q[head] + \" \" + Arrays.toString(q));",
+ opts:["8 [10, 8, 9]","7 [7, 8, 9]","10 [10, 8, 9]","8 [8, 9, 10]"],ans:0,
+ exp:"After 7, 8, 9 the array is [7, 8, 9] and tail wraps to 0. Arrival 10 is full: head moves to 1, then q[0] = 10. Oldest is q[1] = 8. / หลัง 7, 8, 9 อาร์เรย์เป็น [7, 8, 9] และ tail วนกลับไป 0 เมื่อ 10 มาถึงคิวเต็ม head เลื่อนไป 1 แล้ว q[0] = 10 ตัวเก่าสุดคือ q[1] = 8"},
+{lv:"M",en:"A clinic counts the body-temperature readings that are strictly above a limit. What is printed?",
+ th:"คลินิกนับค่าอุณหภูมิร่างกายที่สูงกว่าเกณฑ์อย่างเคร่งครัด โปรแกรมพิมพ์อะไร",
+ code:"static int above(double[] t, double lim) {\n    int c = 0;\n    for (int i = 0; i < t.length; i++) {\n        if (t[i] > lim) c++;\n    }\n    return c;\n}\npublic static void main(String[] args) {\n    double[] t = {36.5, 37.0, 38.2, 37.0};\n    System.out.println(above(t, 37.0));\n}",
+ opts:["1","3","2","0"],ans:0,
+ exp:"Only 38.2 is strictly greater than 37.0; the two readings equal to 37.0 are not counted. / มีเพียง 38.2 ที่มากกว่า 37.0 อย่างเคร่งครัด ค่าที่เท่ากับ 37.0 สองค่าไม่ถูกนับ"},
+{lv:"H",en:"The population variance of a data set is computed. Note that <code>mean</code> is computed with <b>integer</b> division. What is printed?",
+ th:"คำนวณความแปรปรวนประชากรของชุดข้อมูล สังเกตว่า <code>mean</code> ถูกคำนวณด้วยการหารแบบ<b>จำนวนเต็ม</b> โปรแกรมพิมพ์อะไร",
+ code:"int[] a = {2, 4, 4, 4, 5, 5, 7, 9};\nint sum = 0;\nfor (int i = 0; i < a.length; i++) sum += a[i];\ndouble mean = sum / a.length;\ndouble v = 0;\nfor (int i = 0; i < a.length; i++) v += (a[i] - mean) * (a[i] - mean);\nSystem.out.println(v / a.length);",
+ opts:["4.0","2.0","32.0","4"],ans:0,
+ exp:"sum = 40 and 40 / 8 = 5 exactly, so the integer division happens to be harmless here. Squared deviations sum to 32; 32 / 8 = 4.0 (printed as a double). / sum = 40 และ 40 / 8 = 5 พอดี การหารจำนวนเต็มจึงไม่เสียหายในกรณีนี้ ผลรวมกำลังสองของส่วนเบี่ยงเบนคือ 32; 32 / 8 = 4.0 (พิมพ์เป็น double)"},
+{lv:"M",en:"Student IDs are sorted and then searched with <code>Arrays.binarySearch</code>. What is printed?",
+ th:"รหัสนักศึกษาถูกเรียงแล้วค้นหาด้วย <code>Arrays.binarySearch</code> โปรแกรมพิมพ์อะไร",
+ code:"int[] ids = {503, 101, 250, 777};\nArrays.sort(ids);\nSystem.out.println(Arrays.binarySearch(ids, 503));",
+ opts:["2","0","3","-1"],ans:0,
+ exp:"After sorting: {101, 250, 503, 777}; 503 is at index 2 of the sorted array, not its original position. / หลังเรียง: {101, 250, 503, 777} 503 อยู่ที่ดัชนี 2 ของอาร์เรย์ที่เรียงแล้ว ไม่ใช่ตำแหน่งเดิม"},
+{lv:"H",en:"Scores are normalised to a 0–100 scale with the formula <code>(s - min) / (max - min) * 100</code>, written entirely with ints. What is printed?",
+ th:"คะแนนถูกปรับให้อยู่ในช่วง 0–100 ด้วยสูตร <code>(s - min) / (max - min) * 100</code> โดยเขียนด้วย int ทั้งหมด โปรแกรมพิมพ์อะไร",
+ code:"int[] s = {10, 20, 40};\nint min = 10, max = 40;\nint[] n = new int[s.length];\nfor (int i = 0; i < s.length; i++) {\n    n[i] = (s[i] - min) / (max - min) * 100;\n}\nSystem.out.println(Arrays.toString(n));",
+ opts:["[0, 0, 100]","[0, 33, 100]","[0, 33.33, 100]","[0, 50, 100]"],ans:0,
+ exp:"10 / 30 is 0 in integer division before the * 100, so the middle value collapses to 0. Multiply by 100 first or use doubles. / 10 / 30 เป็น 0 ในการหารจำนวนเต็มก่อนคูณ 100 ค่ากลางจึงกลายเป็น 0 ควรคูณ 100 ก่อนหรือใช้ double"},
+{lv:"M",en:"A brightness filter adds 20 to each pixel and clamps the result to the 0–255 range with a helper method. What is the sum printed?",
+ th:"ฟิลเตอร์ความสว่างบวก 20 ให้แต่ละพิกเซลแล้วจำกัดผลให้อยู่ในช่วง 0–255 ด้วยเมธอดช่วย ผลรวมที่พิมพ์คือเท่าใด",
+ code:"static int clamp(int v) {\n    return v > 255 ? 255 : (v < 0 ? 0 : v);\n}\npublic static void main(String[] args) {\n    int[] px = {250, 10, 128};\n    int s = 0;\n    for (int i = 0; i < px.length; i++) s += clamp(px[i] + 20);\n    System.out.println(s);\n}",
+ opts:["433","448","428","408"],ans:0,
+ exp:"270 clamps to 255, 30 stays, 148 stays: 255 + 30 + 148 = 433. / 270 ถูกจำกัดเป็น 255, 30 คงเดิม, 148 คงเดิม: 255 + 30 + 148 = 433"},
+{lv:"H",en:"<code>doubled</code> builds and returns a <b>new</b> array with every quantity doubled. The caller calls it but ignores the returned value. What is printed?",
+ th:"<code>doubled</code> สร้างและคืนอาร์เรย์<b>ใหม่</b>ที่ทุกจำนวนถูกคูณสอง ผู้เรียกเรียกเมธอดแต่ไม่สนใจค่าที่คืน โปรแกรมพิมพ์อะไร",
+ code:"static int[] doubled(int[] a) {\n    int[] r = new int[a.length];\n    for (int i = 0; i < a.length; i++) r[i] = a[i] * 2;\n    return r;\n}\npublic static void main(String[] args) {\n    int[] q = {1, 2, 3};\n    doubled(q);\n    System.out.println(q[1]);\n}",
+ opts:["2","4","0","Compile error: return value must be used"],ans:0,
+ exp:"The method never writes to the original array; the doubled copy is discarded, so q is unchanged. / เมธอดไม่เคยเขียนลงอาร์เรย์เดิม สำเนาที่คูณสองถูกทิ้งไป q จึงไม่เปลี่ยน"},
+{lv:"M",en:"Attendance for two students over three days is stored as a <code>boolean[][]</code> (row = student, column = day). What is printed for student 1?",
+ th:"การเข้าเรียนของนักศึกษาสองคนในสามวันเก็บเป็น <code>boolean[][]</code> (แถว = นักศึกษา, คอลัมน์ = วัน) โปรแกรมพิมพ์อะไรสำหรับนักศึกษาคนที่ 1",
+ code:"boolean[][] att = {{true, true, false}, {false, false, true}};\nint c = 0;\nfor (int d = 0; d < att[1].length; d++) {\n    if (att[1][d]) c++;\n}\nSystem.out.println(c);",
+ opts:["1","2","3","0"],ans:0,
+ exp:"Row 1 is {false, false, true}; only the last day is true. / แถว 1 คือ {false, false, true} มีเพียงวันสุดท้ายที่เป็น true"},
+{lv:"H",en:"A 3-row grid is built, but every row slot is assigned the <b>same</b> row array. Two cells are then written and the whole grid is summed. What is printed?",
+ th:"สร้างตาราง 3 แถว แต่ทุกช่องแถวถูกกำหนดให้ชี้ไปที่อาร์เรย์แถว<b>เดียวกัน</b> จากนั้นเขียนสองช่องแล้วรวมทั้งตาราง โปรแกรมพิมพ์อะไร",
+ code:"int[][] g = new int[3][];\nint[] row = new int[2];\nfor (int i = 0; i < 3; i++) g[i] = row;\ng[0][0] = 5;\ng[2][1] = 7;\nint s = 0;\nfor (int i = 0; i < g.length; i++) {\n    for (int j = 0; j < g[i].length; j++) s += g[i][j];\n}\nSystem.out.println(s);",
+ opts:["36","12","0","24"],ans:0,
+ exp:"All three rows are the same array {5, 7}, so the sum counts it three times: 3 × 12 = 36. / ทั้งสามแถวคืออาร์เรย์เดียวกัน {5, 7} ผลรวมจึงนับสามครั้ง: 3 × 12 = 36"},
+{lv:"M",en:"<code>Arrays.copyOf</code> is used to resize a stock list both upward and downward. What is printed?",
+ th:"ใช้ <code>Arrays.copyOf</code> ปรับขนาดรายการสต็อกทั้งขยายและย่อ โปรแกรมพิมพ์อะไร",
+ code:"int[] a = {4, 5, 6};\nint[] b = Arrays.copyOf(a, 5);\nSystem.out.println(b.length + \" \" + b[4] + \" \" + Arrays.copyOf(a, 2).length);",
+ opts:["5 0 2","5 6 2","3 0 2","ArrayIndexOutOfBoundsException"],ans:0,
+ exp:"Growing pads with zeros; shrinking truncates. / การขยายเติมศูนย์ให้ ส่วนการย่อตัดส่วนเกินทิ้ง"},
+{lv:"H",en:"A recursive helper counts the scores above a limit, starting from index <code>i</code>. Note the starting index used in <code>main</code>. What is printed?",
+ th:"เมธอดเรียกซ้ำนับคะแนนที่สูงกว่าเกณฑ์ โดยเริ่มจากดัชนี <code>i</code> สังเกตดัชนีเริ่มต้นที่ใช้ใน <code>main</code> โปรแกรมพิมพ์อะไร",
+ code:"static int countAbove(int[] s, int i, int lim) {\n    if (i == s.length) return 0;\n    return (s[i] > lim ? 1 : 0) + countAbove(s, i + 1, lim);\n}\npublic static void main(String[] args) {\n    int[] s = {55, 80, 79, 90};\n    System.out.println(countAbove(s, 1, 60));\n}",
+ opts:["3","4","2","1"],ans:0,
+ exp:"The call starts at index 1, so 55 is skipped; 80, 79 and 90 are all above 60. / การเรียกเริ่มที่ดัชนี 1 จึงข้าม 55 ส่วน 80, 79 และ 90 สูงกว่า 60 ทั้งหมด"},
+{lv:"M",en:"A sales table has one row per branch and one column per product. The loop sums a single column. What is printed?",
+ th:"ตารางยอดขายมีหนึ่งแถวต่อสาขาและหนึ่งคอลัมน์ต่อสินค้า ลูปรวมค่าคอลัมน์เดียว โปรแกรมพิมพ์อะไร",
+ code:"int[][] sales = {{10, 20}, {30, 40}, {50, 60}};\nint s = 0;\nfor (int i = 0; i < sales.length; i++) {\n    s += sales[i][1];\n}\nSystem.out.println(s);",
+ opts:["120","90","210","60"],ans:0,
+ exp:"Column 1 holds 20, 40, 60 = 120. / คอลัมน์ 1 เก็บ 20, 40, 60 รวม 120"},
+{lv:"H",en:"A warehouse scanner walks through the stock levels with a <code>while</code> loop and stops as soon as it has found the <b>second</b> empty slot. What is printed?",
+ th:"เครื่องสแกนคลังไล่ระดับสต็อกด้วยลูป <code>while</code> และหยุดทันทีที่พบช่องว่าง<b>ช่องที่สอง</b> โปรแกรมพิมพ์อะไร",
+ code:"int[] stock = {4, 0, 7, 0, 2};\nint i = 0, empty = 0;\nwhile (i < stock.length) {\n    if (stock[i] == 0) {\n        empty++;\n        if (empty == 2) break;\n    }\n    i++;\n}\nSystem.out.println(i + \" \" + empty);",
+ opts:["3 2","4 2","3 1","5 2"],ans:0,
+ exp:"break leaves the loop before i++ runs, so i still points at the second empty slot (index 3). / break ออกจากลูปก่อนที่ i++ จะทำงาน i จึงยังชี้ที่ช่องว่างช่องที่สอง (ดัชนี 3)"},
+{lv:"M",en:"<code>valid</code> reports whether an index can be used safely on an array. What is printed for a 4-element array?",
+ th:"<code>valid</code> รายงานว่าดัชนีใช้กับอาร์เรย์ได้อย่างปลอดภัยหรือไม่ โปรแกรมพิมพ์อะไรสำหรับอาร์เรย์ 4 ช่อง",
+ code:"static boolean valid(int[] a, int i) {\n    return i >= 0 && i < a.length;\n}\npublic static void main(String[] args) {\n    int[] a = new int[4];\n    System.out.println(valid(a, 4) + \" \" + valid(a, 0) + \" \" + valid(a, -1));\n}",
+ opts:["false true false","true true false","false true true","true true true"],ans:0,
+ exp:"Valid indexes are 0..3; 4 and -1 are both out of range. / ดัชนีที่ใช้ได้คือ 0..3 ส่วน 4 และ -1 อยู่นอกช่วง"},
+{lv:"H",en:"A queue stored in a plain array removes the element at index 1 by shifting later elements left and decreasing the logical size <code>n</code>. What is printed?",
+ th:"คิวที่เก็บในอาร์เรย์ธรรมดาลบสมาชิกที่ดัชนี 1 โดยเลื่อนสมาชิกถัดไปมาทางซ้ายและลดขนาดเชิงตรรกะ <code>n</code> โปรแกรมพิมพ์อะไร",
+ code:"int[] q = {5, 6, 7, 8};\nint n = q.length;\nint rm = 1;\nfor (int i = rm; i < n - 1; i++) {\n    q[i] = q[i + 1];\n}\nn--;\nSystem.out.println(n + \" \" + Arrays.toString(q));",
+ opts:["3 [5, 7, 8, 8]","3 [5, 7, 8]","3 [5, 7, 8, 0]","4 [5, 7, 8, 8]"],ans:0,
+ exp:"The physical array keeps its length; the last slot still holds the old 8 and only n says the queue has 3 items. / อาร์เรย์จริงยังยาวเท่าเดิม ช่องสุดท้ายยังเก็บ 8 ตัวเก่า มีเพียง n ที่บอกว่าคิวมี 3 รายการ"},
+{lv:"M",en:"<code>avg</code> returns <code>Double.NaN</code> for an empty reading list instead of dividing by zero. What is printed?",
+ th:"<code>avg</code> คืน <code>Double.NaN</code> สำหรับรายการค่าที่ว่างแทนการหารด้วยศูนย์ โปรแกรมพิมพ์อะไร",
+ code:"static double avg(double[] t) {\n    if (t.length == 0) return Double.NaN;\n    double s = 0;\n    for (int i = 0; i < t.length; i++) s += t[i];\n    return s / t.length;\n}\npublic static void main(String[] args) {\n    System.out.println(avg(new double[0]) + \" \" + avg(new double[]{1.5, 2.5}));\n}",
+ opts:["NaN 2.0","0.0 2.0","ArithmeticException","null 2.0"],ans:0,
+ exp:"The guard returns NaN for the empty array; (1.5 + 2.5) / 2 = 2.0. / ตัวตรวจคืน NaN สำหรับอาร์เรย์ว่าง และ (1.5 + 2.5) / 2 = 2.0"},
+{lv:"H",en:"A student declares two helpers for summing readings: one with a varargs parameter and one with an array parameter. What happens?",
+ th:"นักศึกษาประกาศเมธอดช่วยสองตัวสำหรับรวมค่าที่อ่านได้: ตัวหนึ่งรับ varargs อีกตัวรับอาร์เรย์ จะเกิดอะไรขึ้น",
+ code:"static int total(int... a) {\n    int s = 0;\n    for (int i = 0; i < a.length; i++) s += a[i];\n    return s;\n}\nstatic int total(int[] a) {\n    int s = 0;\n    for (int i = 0; i < a.length; i++) s += a[i];\n    return s;\n}",
+ opts:["Compile error: both methods have the same erasure/signature","total(1, 2) calls the first, total(new int[]{1, 2}) calls the second","It compiles and the array version is always preferred","Runtime error: ambiguous method call"],ans:0,
+ exp:"int... is compiled as int[], so the two declarations clash. / int... ถูกคอมไพล์เป็น int[] การประกาศสองตัวจึงชนกัน"},
+{lv:"M",en:"Student nicknames are sorted alphabetically with <code>Arrays.sort</code>. What is printed?",
+ th:"ชื่อเล่นนักศึกษาถูกเรียงตามตัวอักษรด้วย <code>Arrays.sort</code> โปรแกรมพิมพ์อะไร",
+ code:"String[] names = {\"Nok\", \"Aom\", \"Beam\"};\nArrays.sort(names);\nSystem.out.println(names[0] + names[2]);",
+ opts:["AomNok","NokBeam","AomBeam","BeamNok"],ans:0,
+ exp:"Sorted order is Aom, Beam, Nok. / ลำดับหลังเรียงคือ Aom, Beam, Nok"},
+{lv:"H",en:"A smoothing filter replaces a temperature series with the average of each pair of neighbouring readings. What is printed?",
+ th:"ฟิลเตอร์ปรับเรียบแทนที่ชุดอุณหภูมิด้วยค่าเฉลี่ยของค่าที่อยู่ติดกันแต่ละคู่ โปรแกรมพิมพ์อะไร",
+ code:"double[] t = {10, 20, 40, 40};\ndouble[] m = new double[t.length - 1];\nfor (int i = 0; i < m.length; i++) {\n    m[i] = (t[i] + t[i + 1]) / 2;\n}\nSystem.out.println(Arrays.toString(m));",
+ opts:["[15.0, 30.0, 40.0]","[15, 30, 40]","[15.0, 30.0, 40.0, 40.0]","ArrayIndexOutOfBoundsException"],ans:0,
+ exp:"Three pairs: (10+20)/2, (20+40)/2, (40+40)/2. Division is double because t holds doubles. / สามคู่: (10+20)/2, (20+40)/2, (40+40)/2 การหารเป็นแบบ double เพราะ t เก็บ double"}
+];
+
+// ____ marks the blank. acc = accepted answers (whitespace-insensitive, case-insensitive).
+const FILL = [
+{lv:"M",en:"Count how many class meetings a student missed. <code>present[i]</code> is <code>true</code> when the student attended.",
+ th:"นับจำนวนคาบที่นักศึกษาขาดเรียน <code>present[i]</code> เป็น <code>true</code> เมื่อนักศึกษามาเรียน",
+ code:"int absent = 0;\nfor (int i = 0; i < present.length; i++) {\n    if (____) absent++;\n}",acc:["!present[i]","present[i]==false"]},
+{lv:"H",en:"Extract the sales of the <b>last three</b> months from a year of monthly figures with <code>Arrays.copyOfRange</code>.",
+ th:"ดึงยอดขาย<b>สามเดือนสุดท้าย</b>จากข้อมูลรายเดือนหนึ่งปีด้วย <code>Arrays.copyOfRange</code>",
+ code:"int[] last3 = Arrays.copyOfRange(sales, ____, sales.length);",acc:["sales.length-3"]},
+{lv:"M",en:"Invert a grayscale image in place: each pixel value <code>p</code> (0–255) becomes its opposite brightness.",
+ th:"กลับค่าภาพระดับสีเทาในที่เดิม: พิกเซล <code>p</code> (0–255) แต่ละตัวกลายเป็นความสว่างตรงข้าม",
+ code:"for (int i = 0; i < img.length; i++) {\n    for (int j = 0; j < img[i].length; j++) {\n        img[i][j] = ____ - img[i][j];\n    }\n}",acc:["255"]},
+{lv:"H",en:"A circular queue stores items in a fixed array. After writing at <code>tail</code>, the index must wrap around to 0 when it reaches the end.",
+ th:"คิววงกลมเก็บรายการในอาร์เรย์ขนาดคงที่ หลังเขียนที่ <code>tail</code> ดัชนีต้องวนกลับไป 0 เมื่อถึงปลายอาร์เรย์",
+ code:"q[tail] = item;\ntail = (tail + 1) ____ q.length;\nsize++;",acc:["%"]},
+{lv:"M",en:"Count the products whose stock level is below the reorder minimum.",
+ th:"นับสินค้าที่ระดับสต็อกต่ำกว่าจุดสั่งซื้อขั้นต่ำ",
+ code:"int low = 0;\nfor (int i = 0; i < stock.length; i++) {\n    if (stock[i] < min[i]) low____;\n}",acc:["++","+=1"]},
+{lv:"H",en:"Population variance: the mean of the squared deviations from the mean. Complete the exponent passed to <code>Math.pow</code>.",
+ th:"ความแปรปรวนประชากร: ค่าเฉลี่ยของกำลังสองของส่วนเบี่ยงเบนจากค่าเฉลี่ย เติมเลขชี้กำลังที่ส่งให้ <code>Math.pow</code>",
+ code:"static double variance(double[] a, double mean) {\n    double v = 0;\n    for (int i = 0; i < a.length; i++) {\n        v += Math.pow(a[i] - mean, ____);\n    }\n    return v / a.length;\n}",acc:["2","2.0"]},
+{lv:"M",en:"<code>totalOf</code> must return 0 instead of crashing when it is given no array at all or an empty one.",
+ th:"<code>totalOf</code> ต้องคืน 0 แทนที่จะพังเมื่อได้รับอาร์เรย์ที่ไม่มีอยู่เลยหรืออาร์เรย์ว่าง",
+ code:"static int totalOf(int[] a) {\n    if (a == ____ || a.length == 0) return 0;\n    int s = 0;\n    for (int i = 0; i < a.length; i++) s += a[i];\n    return s;\n}",acc:["null"]},
+{lv:"H",en:"Normalise raw scores to a 0–100 scale as doubles. The multiplication by <code>100.0</code> happens first so the division is not truncated. Complete the denominator.",
+ th:"ปรับคะแนนดิบให้อยู่ในช่วง 0–100 เป็น double โดยคูณ <code>100.0</code> ก่อนเพื่อไม่ให้การหารถูกตัดเศษ เติมตัวหาร",
+ code:"double[] n = new double[s.length];\nfor (int i = 0; i < s.length; i++) {\n    n[i] = (s[i] - min) * 100.0 / (____);\n}",acc:["max-min"]},
+{lv:"M",en:"Find the index of the month with the highest sales (first one wins on a tie).",
+ th:"หาดัชนีของเดือนที่ยอดขายสูงสุด (ถ้าเท่ากันให้เดือนแรกชนะ)",
+ code:"int best = 0;\nfor (int i = 1; i < sales.length; i++) {\n    if (sales[i] > sales[best]) best = ____;\n}",acc:["i"]},
+{lv:"H",en:"Binarise an image: pixels at or above the threshold <code>t</code> become 1 (white), the rest become 0 (black), in a new array.",
+ th:"แปลงภาพเป็นขาวดำ: พิกเซลที่มากกว่าหรือเท่ากับเกณฑ์ <code>t</code> กลายเป็น 1 (ขาว) ที่เหลือเป็น 0 (ดำ) ในอาร์เรย์ใหม่",
+ code:"int[][] out = new int[img.length][img[0].length];\nfor (int i = 0; i < img.length; i++) {\n    for (int j = 0; j < img[i].length; j++) {\n        out[i][j] = img[i][j] >= t ? ____ : 0;\n    }\n}",acc:["1"]},
+{lv:"M",en:"Sum one product column <code>col</code> across every branch row of a sales table.",
+ th:"รวมคอลัมน์สินค้า <code>col</code> หนึ่งคอลัมน์จากทุกแถวสาขาในตารางยอดขาย",
+ code:"static int columnTotal(int[][] sales, int col) {\n    int total = 0;\n    for (int i = 0; i < sales.length; i++) {\n        total += sales[i][____];\n    }\n    return total;\n}",acc:["col"]},
+{lv:"H",en:"Mirror one image row into a new array so the leftmost pixel becomes the rightmost.",
+ th:"กลับด้านแถวภาพหนึ่งแถวลงอาร์เรย์ใหม่ให้พิกเซลซ้ายสุดกลายเป็นขวาสุด",
+ code:"int[] r = new int[row.length];\nfor (int j = 0; j < row.length; j++) {\n    r[j] = row[row.length - 1 - ____];\n}",acc:["j"]},
+{lv:"M",en:"Look up a student ID in a <b>sorted</b> ID list using the library search.",
+ th:"ค้นหารหัสนักศึกษาในรายการรหัสที่<b>เรียงแล้ว</b>โดยใช้เมธอดค้นหาของไลบรารี",
+ code:"Arrays.sort(ids);\nint pos = Arrays.____(ids, key);\nif (pos >= 0) System.out.println(\"found at \" + pos);",acc:["binarySearch"]},
+{lv:"H",en:"Moving average with window size <code>k</code>: each output value is the mean of <code>k</code> consecutive readings starting at <code>i</code>. Complete the inner loop bound.",
+ th:"ค่าเฉลี่ยเคลื่อนที่ขนาดหน้าต่าง <code>k</code>: ค่าผลลัพธ์แต่ละตัวคือค่าเฉลี่ยของค่าที่อ่านติดกัน <code>k</code> ค่าเริ่มที่ <code>i</code> เติมขอบเขตของลูปใน",
+ code:"double[] m = new double[t.length - k + 1];\nfor (int i = 0; i < m.length; i++) {\n    double s = 0;\n    for (int j = i; j < i + ____; j++) s += t[j];\n    m[i] = s / k;\n}",acc:["k"]},
+{lv:"M",en:"Clamp a pixel value into the legal 0–255 range.",
+ th:"จำกัดค่าพิกเซลให้อยู่ในช่วงที่ถูกต้อง 0–255",
+ code:"static int clamp(int v) {\n    return v > 255 ? ____ : (v < 0 ? 0 : v);\n}",acc:["255"]},
+{lv:"H",en:"Two score tables (<code>int[][]</code>) must be compared cell by cell. Choose the <code>Arrays</code> method that looks inside the rows.",
+ th:"ต้องเปรียบเทียบตารางคะแนนสองตาราง (<code>int[][]</code>) ทีละช่อง เลือกเมธอดของ <code>Arrays</code> ที่ตรวจลึกเข้าไปในแถว",
+ code:"boolean same = Arrays.____(tableA, tableB);",acc:["deepEquals"]},
+{lv:"M",en:"<code>perfectAttendance</code> should stop as soon as one absence is found.",
+ th:"<code>perfectAttendance</code> ควรหยุดทันทีที่พบการขาดเรียนครั้งแรก",
+ code:"static boolean perfectAttendance(boolean[] present) {\n    for (int i = 0; i < present.length; i++) {\n        if (!present[i]) return ____;\n    }\n    return true;\n}",acc:["false"]},
+{lv:"H",en:"Dequeue from a circular queue: read the item at <code>head</code>, advance <code>head</code> with wrap-around, and shrink the count.",
+ th:"นำรายการออกจากคิววงกลม: อ่านรายการที่ <code>head</code> เลื่อน <code>head</code> แบบวนกลับ และลดจำนวนรายการ",
+ code:"int item = q[head];\nhead = (head + 1) % q.length;\nsize____;\nreturn item;",acc:["--","-=1"]},
+{lv:"M",en:"Compute an attendance percentage as a double. <code>present</code> is the number of days attended and <code>days</code> holds one entry per class day.",
+ th:"คำนวณเปอร์เซ็นต์การเข้าเรียนเป็น double โดย <code>present</code> คือจำนวนวันที่มาเรียน และ <code>days</code> มีหนึ่งช่องต่อวันเรียน",
+ code:"double pct = present * 100.0 / ____;",acc:["days.length"]},
+{lv:"H",en:"Remove the element at <code>idx</code> from an array-backed list of logical size <code>n</code> by shifting the later elements left by one.",
+ th:"ลบสมาชิกที่ <code>idx</code> จากรายการที่เก็บในอาร์เรย์ขนาดเชิงตรรกะ <code>n</code> โดยเลื่อนสมาชิกถัดไปมาทางซ้ายหนึ่งช่อง",
+ code:"for (int i = idx; i < n - 1; i++) {\n    a[i] = a[____];\n}\nn--;",acc:["i+1"]},
+{lv:"M",en:"<code>grade</code> returns a <code>char</code> 'A'–'F'. Count how many students received each letter in <code>counts[0..5]</code>.",
+ th:"<code>grade</code> คืน <code>char</code> 'A'–'F' นับว่านักศึกษาได้แต่ละเกรดกี่คนใน <code>counts[0..5]</code>",
+ code:"int[] counts = new int[6];\nfor (int i = 0; i < scores.length; i++) {\n    char g = grade(scores[i]);\n    counts[g ____ 'A']++;\n}",acc:["-"]},
+{lv:"H",en:"Apply a brightness change of <code>delta</code> (positive or negative) to every pixel, clamping with the helper. Complete the expression passed to <code>clamp</code>.",
+ th:"ปรับความสว่างด้วย <code>delta</code> (บวกหรือลบ) ให้ทุกพิกเซล โดยจำกัดค่าด้วยเมธอดช่วย เติมนิพจน์ที่ส่งให้ <code>clamp</code>",
+ code:"for (int i = 0; i < img.length; i++) {\n    for (int j = 0; j < img[i].length; j++) {\n        img[i][j] = clamp(img[i][j] ____ delta);\n    }\n}",acc:["+"]},
+{lv:"M",en:"Count temperature readings that lie inside the comfortable range <code>[lo, hi]</code>, both ends included.",
+ th:"นับค่าอุณหภูมิที่อยู่ในช่วงสบาย <code>[lo, hi]</code> รวมปลายทั้งสองข้าง",
+ code:"int c = 0;\nfor (int i = 0; i < t.length; i++) {\n    if (t[i] >= lo ____ t[i] <= hi) c++;\n}",acc:["&&"]},
+{lv:"H",en:"An inventory log stores deliveries as positive numbers and sales as negative numbers. Find the index of the <b>most recent delivery</b> by scanning backwards.",
+ th:"บันทึกคลังสินค้าเก็บการรับของเป็นเลขบวกและการขายเป็นเลขลบ หาดัชนีของ<b>การรับของครั้งล่าสุด</b>โดยไล่ย้อนกลับ",
+ code:"static int lastDelivery(int[] log) {\n    for (int i = log.length - 1; i >= 0; i--) {\n        if (log[i] ____ 0) return i;\n    }\n    return -1;\n}",acc:[">"]},
+{lv:"M",en:"Reset every product's stock level to the default of 50 in one call.",
+ th:"ตั้งระดับสต็อกของสินค้าทุกรายการเป็นค่าเริ่มต้น 50 ด้วยการเรียกครั้งเดียว",
+ code:"Arrays.____(stock, 50);",acc:["fill"]},
+{lv:"H",en:"Find the largest day-to-day temperature swing regardless of direction. Complete the <code>Math</code> method.",
+ th:"หาการเปลี่ยนแปลงอุณหภูมิระหว่างวันที่มากที่สุดโดยไม่สนทิศทาง เติมเมธอดของ <code>Math</code>",
+ code:"double maxSwing = 0;\nfor (int i = 1; i < t.length; i++) {\n    double d = Math.____(t[i] - t[i - 1]);\n    if (d > maxSwing) maxSwing = d;\n}",acc:["abs"]},
+{lv:"M",en:"Total every cell of a 2D sales table with nested index loops. Rows may have different lengths, so the inner bound must come from the current row.",
+ th:"รวมทุกช่องของตารางยอดขาย 2 มิติด้วยลูปดัชนีซ้อนกัน แถวอาจยาวไม่เท่ากัน ขอบเขตของลูปในจึงต้องมาจากแถวปัจจุบัน",
+ code:"int total = 0;\nfor (int i = 0; i < table.length; i++) {\n    for (int j = 0; j < table[i].____; j++) total += table[i][j];\n}",acc:["length"]},
+{lv:"H",en:"Median of an even-length <b>sorted</b> copy <code>s</code>: the mean of the two middle values, as a double. Complete the divisor so the result is not truncated.",
+ th:"มัธยฐานของสำเนาที่<b>เรียงแล้ว</b> <code>s</code> ที่มีความยาวเป็นเลขคู่: ค่าเฉลี่ยของสองค่ากลางเป็น double เติมตัวหารให้ผลไม่ถูกตัดเศษ",
+ code:"int n = s.length;\ndouble med = (s[n / 2 - 1] + s[n / 2]) / ____;",acc:["2.0","2d","2.0d"]},
+{lv:"M",en:"Declare the method header: <code>movingAverage</code> receives the readings and a window size and returns a new array of averages.",
+ th:"ประกาศหัวเมธอด: <code>movingAverage</code> รับค่าที่อ่านได้และขนาดหน้าต่าง แล้วคืนอาร์เรย์ค่าเฉลี่ยใหม่",
+ code:"static ____ movingAverage(double[] t, int k) {\n    double[] m = new double[t.length - k + 1];\n    // ...\n    return m;\n}",acc:["double[]"]},
+{lv:"H",en:"Standard deviation is the square root of the variance. <code>variance</code> already exists and takes the data array. Complete the call.",
+ th:"ส่วนเบี่ยงเบนมาตรฐานคือรากที่สองของความแปรปรวน <code>variance</code> มีอยู่แล้วและรับอาร์เรย์ข้อมูล เติมการเรียก",
+ code:"static double stdDev(double[] data) {\n    return Math.sqrt(variance(____));\n}",acc:["data"]}
+];
+
+const CODE = [
+{lv:"M",t:"Attendance rate",
+ en:"A course records attendance for one student as a <code>boolean[] days</code> (<code>true</code> = present). Write <code>static double attendanceRate(boolean[] days)</code> that returns the percentage of days attended (0–100). Return 0 when there are no days recorded, and make sure the division is done in floating point.",
+ th:"วิชาหนึ่งบันทึกการเข้าเรียนของนักศึกษาเป็น <code>boolean[] days</code> (<code>true</code> = มาเรียน) เขียน <code>static double attendanceRate(boolean[] days)</code> ที่คืนเปอร์เซ็นต์การเข้าเรียน (0–100) คืน 0 ถ้าไม่มีวันที่บันทึก และต้องหารแบบทศนิยม",
+ ex:"attendanceRate({true, true, false, true})  →  75.0\nattendanceRate({})                          →  0.0",
+ sol:"static double attendanceRate(boolean[] days) {\n    if (days.length == 0) return 0;\n    int present = 0;\n    for (int i = 0; i < days.length; i++) {\n        if (days[i]) present++;\n    }\n    return present * 100.0 / days.length;\n}"},
+{lv:"H",t:"Items below reorder level",
+ en:"An inventory keeps two parallel arrays: <code>stock[i]</code> is the current quantity of product <code>i</code> and <code>min[i]</code> is its reorder level. Write <code>static int[] belowReorder(int[] stock, int[] min)</code> that returns the indexes of all products whose stock is strictly below their reorder level, in ascending index order. The returned array must have exactly the right length (count first, then fill).",
+ th:"คลังสินค้าเก็บอาร์เรย์คู่ขนานสองตัว: <code>stock[i]</code> คือจำนวนปัจจุบันของสินค้า <code>i</code> และ <code>min[i]</code> คือจุดสั่งซื้อ เขียน <code>static int[] belowReorder(int[] stock, int[] min)</code> ที่คืนดัชนีของสินค้าทุกรายการที่สต็อกต่ำกว่าจุดสั่งซื้ออย่างเคร่งครัด เรียงดัชนีจากน้อยไปมาก อาร์เรย์ที่คืนต้องมีความยาวพอดี (นับก่อนแล้วค่อยเติม)",
+ ex:"belowReorder({3, 10, 1, 7}, {5, 5, 5, 7})  →  {0, 2}\nbelowReorder({9, 9}, {1, 1})               →  {}",
+ sol:"static int[] belowReorder(int[] stock, int[] min) {\n    int count = 0;\n    for (int i = 0; i < stock.length; i++) {\n        if (stock[i] < min[i]) count++;\n    }\n    int[] r = new int[count];\n    int k = 0;\n    for (int i = 0; i < stock.length; i++) {\n        if (stock[i] < min[i]) r[k++] = i;\n    }\n    return r;\n}"},
+{lv:"M",t:"Invert an image",
+ en:"A grayscale image is an <code>int[][]</code> of values 0–255. Write <code>static int[][] invert(int[][] img)</code> that returns a <b>new</b> image where every pixel <code>p</code> becomes <code>255 - p</code>. The original must not be modified. Rows may have different lengths, so size each output row from its input row.",
+ th:"ภาพระดับสีเทาเป็น <code>int[][]</code> ค่า 0–255 เขียน <code>static int[][] invert(int[][] img)</code> ที่คืนภาพ<b>ใหม่</b>ซึ่งทุกพิกเซล <code>p</code> กลายเป็น <code>255 - p</code> ห้ามแก้ภาพต้นฉบับ แถวอาจยาวไม่เท่ากัน จึงต้องกำหนดขนาดแต่ละแถวผลลัพธ์จากแถวอินพุต",
+ ex:"invert({{0, 255}, {100, 55}})  →  {{255, 0}, {155, 200}}",
+ sol:"static int[][] invert(int[][] img) {\n    int[][] out = new int[img.length][];\n    for (int i = 0; i < img.length; i++) {\n        out[i] = new int[img[i].length];\n        for (int j = 0; j < img[i].length; j++) {\n            out[i][j] = 255 - img[i][j];\n        }\n    }\n    return out;\n}"},
+{lv:"H",t:"Box blur",
+ en:"Write <code>static int[][] boxBlur(int[][] img)</code> that returns a new image where each pixel is the <b>integer</b> average of itself and its existing neighbours in the 3 × 3 block around it (edge and corner pixels simply have fewer neighbours; do not pad). Use integer division. The input is rectangular.",
+ th:"เขียน <code>static int[][] boxBlur(int[][] img)</code> ที่คืนภาพใหม่โดยแต่ละพิกเซลคือค่าเฉลี่ยแบบ<b>จำนวนเต็ม</b>ของตัวเองกับเพื่อนบ้านที่มีอยู่จริงในบล็อก 3 × 3 รอบตัว (พิกเซลขอบและมุมมีเพื่อนบ้านน้อยกว่า ห้ามเติมขอบ) ใช้การหารจำนวนเต็ม อินพุตเป็นสี่เหลี่ยมผืนผ้า",
+ ex:"boxBlur({{10, 20, 30}, {40, 50, 60}, {70, 80, 90}})  →  {{30, 35, 40}, {45, 50, 55}, {60, 65, 70}}",
+ sol:"static int[][] boxBlur(int[][] img) {\n    int rows = img.length, cols = img[0].length;\n    int[][] out = new int[rows][cols];\n    for (int i = 0; i < rows; i++) {\n        for (int j = 0; j < cols; j++) {\n            int sum = 0, n = 0;\n            for (int di = -1; di <= 1; di++) {\n                for (int dj = -1; dj <= 1; dj++) {\n                    int r = i + di, c = j + dj;\n                    if (r >= 0 && r < rows && c >= 0 && c < cols) {\n                        sum += img[r][c];\n                        n++;\n                    }\n                }\n            }\n            out[i][j] = sum / n;\n        }\n    }\n    return out;\n}"},
+{lv:"M",t:"Best month",
+ en:"Monthly sales are stored in <code>int[] sales</code> (index 0 = January). Write <code>static int bestMonth(int[] sales)</code> that returns the index of the month with the highest sales. If several months tie, return the <b>earliest</b>. Return -1 for an empty array.",
+ th:"ยอดขายรายเดือนเก็บใน <code>int[] sales</code> (ดัชนี 0 = มกราคม) เขียน <code>static int bestMonth(int[] sales)</code> ที่คืนดัชนีของเดือนที่ยอดขายสูงสุด ถ้ามีหลายเดือนเท่ากันให้คืนเดือนที่<b>มาก่อน</b> คืน -1 ถ้าอาร์เรย์ว่าง",
+ ex:"bestMonth({40, 75, 75, 20})  →  1\nbestMonth({})                →  -1",
+ sol:"static int bestMonth(int[] sales) {\n    if (sales.length == 0) return -1;\n    int best = 0;\n    for (int i = 1; i < sales.length; i++) {\n        if (sales[i] > sales[best]) best = i;\n    }\n    return best;\n}"},
+{lv:"H",t:"Moving average",
+ en:"A weather station smooths its readings. Write <code>static double[] movingAverage(double[] t, int k)</code> that returns an array of <code>t.length - k + 1</code> values, where element <code>i</code> is the mean of <code>t[i] … t[i + k - 1]</code>. If <code>k</code> is less than 1 or larger than <code>t.length</code>, return an empty array.",
+ th:"สถานีตรวจอากาศปรับเรียบค่าที่อ่านได้ เขียน <code>static double[] movingAverage(double[] t, int k)</code> ที่คืนอาร์เรย์ยาว <code>t.length - k + 1</code> โดยสมาชิกที่ <code>i</code> คือค่าเฉลี่ยของ <code>t[i] … t[i + k - 1]</code> ถ้า <code>k</code> น้อยกว่า 1 หรือมากกว่า <code>t.length</code> ให้คืนอาร์เรย์ว่าง",
+ ex:"movingAverage({10, 20, 30, 40, 50}, 3)  →  {20.0, 30.0, 40.0}\nmovingAverage({1, 2}, 5)                →  {}",
+ sol:"static double[] movingAverage(double[] t, int k) {\n    if (k < 1 || k > t.length) return new double[0];\n    double[] m = new double[t.length - k + 1];\n    for (int i = 0; i < m.length; i++) {\n        double s = 0;\n        for (int j = i; j < i + k; j++) s += t[j];\n        m[i] = s / k;\n    }\n    return m;\n}"},
+{lv:"M",t:"Readings in range",
+ en:"Write <code>static int countInRange(double[] t, double lo, double hi)</code> that returns how many readings lie inside <code>[lo, hi]</code>, both ends included. If <code>lo &gt; hi</code>, treat the arguments as swapped rather than returning 0.",
+ th:"เขียน <code>static int countInRange(double[] t, double lo, double hi)</code> ที่คืนจำนวนค่าที่อยู่ในช่วง <code>[lo, hi]</code> รวมปลายทั้งสอง ถ้า <code>lo &gt; hi</code> ให้ถือว่าอาร์กิวเมนต์สลับกันแทนที่จะคืน 0",
+ ex:"countInRange({36.5, 37.0, 38.2, 35.9}, 36.0, 37.0)  →  2\ncountInRange({36.5, 37.0, 38.2, 35.9}, 37.0, 36.0)  →  2",
+ sol:"static int countInRange(double[] t, double lo, double hi) {\n    if (lo > hi) {\n        double tmp = lo; lo = hi; hi = tmp;\n    }\n    int c = 0;\n    for (int i = 0; i < t.length; i++) {\n        if (t[i] >= lo && t[i] <= hi) c++;\n    }\n    return c;\n}"},
+{lv:"H",t:"Variance and standard deviation",
+ en:"Write <code>static double variance(double[] a)</code> that returns the <b>population</b> variance (mean of squared deviations from the mean) and <code>static double stdDev(double[] a)</code> that returns its square root by calling <code>variance</code>. Both return 0 for an empty array. Do not use <code>Math.pow</code>; multiply the deviation by itself.",
+ th:"เขียน <code>static double variance(double[] a)</code> ที่คืนความแปรปรวน<b>ประชากร</b> (ค่าเฉลี่ยของกำลังสองของส่วนเบี่ยงเบนจากค่าเฉลี่ย) และ <code>static double stdDev(double[] a)</code> ที่คืนรากที่สองโดยเรียก <code>variance</code> ทั้งสองคืน 0 สำหรับอาร์เรย์ว่าง ห้ามใช้ <code>Math.pow</code> ให้คูณส่วนเบี่ยงเบนกับตัวเอง",
+ ex:"variance({2, 4, 4, 4, 5, 5, 7, 9})  →  4.0\nstdDev({2, 4, 4, 4, 5, 5, 7, 9})    →  2.0",
+ sol:"static double variance(double[] a) {\n    if (a.length == 0) return 0;\n    double sum = 0;\n    for (int i = 0; i < a.length; i++) sum += a[i];\n    double mean = sum / a.length;\n    double v = 0;\n    for (int i = 0; i < a.length; i++) {\n        double d = a[i] - mean;\n        v += d * d;\n    }\n    return v / a.length;\n}\n\nstatic double stdDev(double[] a) {\n    return Math.sqrt(variance(a));\n}"},
+{lv:"M",t:"Subject averages",
+ en:"A grade book is an <code>int[][] scores</code> where each row is a student and each column is a subject (all rows have the same length). Write <code>static double[] subjectAverages(int[][] scores)</code> that returns the average score of each subject (one value per column).",
+ th:"สมุดคะแนนเป็น <code>int[][] scores</code> โดยแต่ละแถวคือนักศึกษาและแต่ละคอลัมน์คือวิชา (ทุกแถวยาวเท่ากัน) เขียน <code>static double[] subjectAverages(int[][] scores)</code> ที่คืนคะแนนเฉลี่ยของแต่ละวิชา (หนึ่งค่าต่อคอลัมน์)",
+ ex:"subjectAverages({{80, 70}, {60, 90}, {70, 80}})  →  {70.0, 80.0}",
+ sol:"static double[] subjectAverages(int[][] scores) {\n    int cols = scores[0].length;\n    double[] avg = new double[cols];\n    for (int j = 0; j < cols; j++) {\n        double s = 0;\n        for (int i = 0; i < scores.length; i++) s += scores[i][j];\n        avg[j] = s / scores.length;\n    }\n    return avg;\n}"},
+{lv:"H",t:"Normalise scores",
+ en:"Write <code>static double[] normalise(int[] s)</code> that maps raw scores onto a 0–100 scale: the lowest score becomes 0, the highest becomes 100 and the others are scaled linearly with <code>(x - min) * 100.0 / (max - min)</code>. If every score is the same (max == min), return an array of zeros of the same length. Return an empty array for empty input.",
+ th:"เขียน <code>static double[] normalise(int[] s)</code> ที่แปลงคะแนนดิบเป็นช่วง 0–100: คะแนนต่ำสุดกลายเป็น 0 สูงสุดเป็น 100 และค่าอื่นปรับเชิงเส้นด้วย <code>(x - min) * 100.0 / (max - min)</code> ถ้าทุกคะแนนเท่ากัน (max == min) ให้คืนอาร์เรย์ศูนย์ที่ยาวเท่ากัน คืนอาร์เรย์ว่างถ้าอินพุตว่าง",
+ ex:"normalise({10, 20, 40})  →  {0.0, 33.333333333333336, 100.0}\nnormalise({5, 5})        →  {0.0, 0.0}",
+ sol:"static double[] normalise(int[] s) {\n    double[] n = new double[s.length];\n    if (s.length == 0) return n;\n    int min = s[0], max = s[0];\n    for (int i = 0; i < s.length; i++) {\n        if (s[i] < min) min = s[i];\n        if (s[i] > max) max = s[i];\n    }\n    if (max == min) return n;\n    for (int i = 0; i < s.length; i++) {\n        n[i] = (s[i] - min) * 100.0 / (max - min);\n    }\n    return n;\n}"},
+{lv:"M",t:"Append to an array",
+ en:"Java arrays cannot grow. Write <code>static int[] append(int[] a, int v)</code> that returns a new array one element longer, containing all of <code>a</code> followed by <code>v</code>. Then show how a caller would use it to keep a growing list of ticket numbers (hint: <code>tickets = append(tickets, 42);</code>).",
+ th:"อาร์เรย์ใน Java ขยายไม่ได้ เขียน <code>static int[] append(int[] a, int v)</code> ที่คืนอาร์เรย์ใหม่ยาวขึ้นหนึ่งช่อง มีสมาชิกของ <code>a</code> ทั้งหมดตามด้วย <code>v</code> แล้วแสดงว่าผู้เรียกจะใช้มันเก็บรายการหมายเลขบัตรคิวที่เพิ่มขึ้นเรื่อย ๆ ได้อย่างไร (คำใบ้: <code>tickets = append(tickets, 42);</code>)",
+ ex:"append({1, 2}, 3)  →  {1, 2, 3}\nappend({}, 9)      →  {9}",
+ sol:"static int[] append(int[] a, int v) {\n    int[] r = new int[a.length + 1];\n    for (int i = 0; i < a.length; i++) r[i] = a[i];\n    r[a.length] = v;\n    return r;\n}\n\n// usage\n// int[] tickets = new int[0];\n// tickets = append(tickets, 42);\n// tickets = append(tickets, 43);"},
+{lv:"H",t:"Bounded queue simulation",
+ en:"A service desk can hold at most <code>capacity</code> waiting tickets. Tickets arrive in the order given by <code>arrivals</code>; when the queue is full, the <b>oldest</b> ticket is dropped to make room. Write <code>static int[] simulate(int capacity, int[] arrivals)</code> that returns the tickets still waiting at the end, oldest first. Implement it with a circular array and <code>head</code>, <code>tail</code>, <code>size</code> variables (not by shifting).",
+ th:"เคาน์เตอร์บริการรับบัตรคิวรอได้ไม่เกิน <code>capacity</code> ใบ บัตรมาถึงตามลำดับใน <code>arrivals</code> เมื่อคิวเต็ม บัตรที่<b>เก่าที่สุด</b>จะถูกทิ้งเพื่อให้มีที่ว่าง เขียน <code>static int[] simulate(int capacity, int[] arrivals)</code> ที่คืนบัตรที่ยังรออยู่ตอนจบ เรียงจากเก่าสุด ใช้อาร์เรย์วงกลมพร้อมตัวแปร <code>head</code>, <code>tail</code>, <code>size</code> (ห้ามใช้การเลื่อนสมาชิก)",
+ ex:"simulate(3, {7, 8, 9, 10})     →  {8, 9, 10}\nsimulate(2, {1, 2, 3, 4, 5})   →  {4, 5}\nsimulate(4, {1, 2})            →  {1, 2}",
+ sol:"static int[] simulate(int capacity, int[] arrivals) {\n    int[] q = new int[capacity];\n    int head = 0, tail = 0, size = 0;\n    for (int k = 0; k < arrivals.length; k++) {\n        int a = arrivals[k];\n        if (size == capacity) {\n            head = (head + 1) % capacity;\n            size--;\n        }\n        q[tail] = a;\n        tail = (tail + 1) % capacity;\n        size++;\n    }\n    int[] out = new int[size];\n    for (int i = 0; i < size; i++) {\n        out[i] = q[(head + i) % capacity];\n    }\n    return out;\n}"},
+{lv:"M",t:"Brightness with clamping",
+ en:"Write <code>static int clamp(int v)</code> that limits a value to 0–255, and <code>static void brighten(int[] px, int delta)</code> that adds <code>delta</code> (which may be negative) to every pixel <b>in place</b>, clamping each result with <code>clamp</code>.",
+ th:"เขียน <code>static int clamp(int v)</code> ที่จำกัดค่าให้อยู่ใน 0–255 และ <code>static void brighten(int[] px, int delta)</code> ที่บวก <code>delta</code> (อาจเป็นลบ) ให้ทุกพิกเซล<b>ในที่เดิม</b> โดยจำกัดผลแต่ละค่าด้วย <code>clamp</code>",
+ ex:"int[] px = {250, 10, 128};  brighten(px, 20)   →  px = {255, 30, 148}\nint[] px = {5, 100};        brighten(px, -30)  →  px = {0, 70}",
+ sol:"static int clamp(int v) {\n    if (v > 255) return 255;\n    if (v < 0) return 0;\n    return v;\n}\n\nstatic void brighten(int[] px, int delta) {\n    for (int i = 0; i < px.length; i++) {\n        px[i] = clamp(px[i] + delta);\n    }\n}"},
+{lv:"H",t:"Top-k readings",
+ en:"Write <code>static int[] topKIndexes(double[] t, int k)</code> that returns the indexes of the <code>k</code> largest readings, from largest to smallest. When two readings are equal, the one with the lower index comes first. Do not modify <code>t</code>, and do not sort it; use a <code>boolean[] used</code> array to mark indexes already chosen. Assume <code>0 ≤ k ≤ t.length</code>.",
+ th:"เขียน <code>static int[] topKIndexes(double[] t, int k)</code> ที่คืนดัชนีของค่าที่ใหญ่ที่สุด <code>k</code> ค่า เรียงจากมากไปน้อย ถ้าค่าเท่ากันให้ดัชนีที่น้อยกว่ามาก่อน ห้ามแก้หรือเรียง <code>t</code> ให้ใช้อาร์เรย์ <code>boolean[] used</code> เพื่อทำเครื่องหมายดัชนีที่เลือกไปแล้ว ถือว่า <code>0 ≤ k ≤ t.length</code>",
+ ex:"topKIndexes({3.5, 9.0, 7.2, 9.0, 1.0}, 3)  →  {1, 3, 2}",
+ sol:"static int[] topKIndexes(double[] t, int k) {\n    boolean[] used = new boolean[t.length];\n    int[] out = new int[k];\n    for (int n = 0; n < k; n++) {\n        int best = -1;\n        for (int i = 0; i < t.length; i++) {\n            if (used[i]) continue;\n            if (best == -1 || t[i] > t[best]) best = i;\n        }\n        used[best] = true;\n        out[n] = best;\n    }\n    return out;\n}"},
+{lv:"M",t:"Absent days",
+ en:"Write <code>static int[] absentDays(boolean[] present)</code> that returns the day numbers (<b>1-based</b>) on which the student was absent, in order. The result must be exactly as long as the number of absences.",
+ th:"เขียน <code>static int[] absentDays(boolean[] present)</code> ที่คืนหมายเลขวัน (<b>เริ่มที่ 1</b>) ที่นักศึกษาขาดเรียน ตามลำดับ ผลลัพธ์ต้องยาวเท่ากับจำนวนครั้งที่ขาดพอดี",
+ ex:"absentDays({true, false, true, false, false})  →  {2, 4, 5}",
+ sol:"static int[] absentDays(boolean[] present) {\n    int n = 0;\n    for (int i = 0; i < present.length; i++) if (!present[i]) n++;\n    int[] out = new int[n];\n    int k = 0;\n    for (int i = 0; i < present.length; i++) {\n        if (!present[i]) out[k++] = i + 1;\n    }\n    return out;\n}"},
+{lv:"H",t:"Stock with automatic restock",
+ en:"A shop starts with <code>start</code> units. <code>log</code> lists events in order: a negative number is a sale, a positive number is a delivery. After <b>each</b> event, if the stock is below <code>min</code>, the shop immediately restocks to exactly <code>restockTo</code> units. Write <code>static int finalStock(int start, int[] log, int min, int restockTo)</code> that returns the stock after the last event. Also write <code>static int restockCount(int start, int[] log, int min, int restockTo)</code> that returns how many automatic restocks happened.",
+ th:"ร้านเริ่มต้นด้วยสินค้า <code>start</code> หน่วย <code>log</code> เก็บเหตุการณ์ตามลำดับ: เลขลบคือการขาย เลขบวกคือการรับของ หลัง<b>แต่ละ</b>เหตุการณ์ ถ้าสต็อกต่ำกว่า <code>min</code> ร้านจะเติมทันทีให้เป็น <code>restockTo</code> หน่วยพอดี เขียน <code>static int finalStock(int start, int[] log, int min, int restockTo)</code> ที่คืนสต็อกหลังเหตุการณ์สุดท้าย และเขียน <code>static int restockCount(int start, int[] log, int min, int restockTo)</code> ที่คืนจำนวนครั้งที่เติมอัตโนมัติ",
+ ex:"finalStock(10, {-4, -5, +3, -8}, 5, 20)     →  15   (6 → 1 → restock 20 → 23 → 15)\nrestockCount(10, {-4, -5, +3, -8}, 5, 20)   →  1",
+ sol:"static int finalStock(int start, int[] log, int min, int restockTo) {\n    int stock = start;\n    for (int i = 0; i < log.length; i++) {\n        stock += log[i];\n        if (stock < min) stock = restockTo;\n    }\n    return stock;\n}\n\nstatic int restockCount(int start, int[] log, int min, int restockTo) {\n    int stock = start, count = 0;\n    for (int i = 0; i < log.length; i++) {\n        stock += log[i];\n        if (stock < min) {\n            stock = restockTo;\n            count++;\n        }\n    }\n    return count;\n}"},
+{lv:"M",t:"Fahrenheit to Celsius",
+ en:"A sensor reports temperatures in Fahrenheit. Write <code>static double[] toCelsius(double[] f)</code> that returns a new array with each value converted using <code>C = (F - 32) * 5 / 9</code>. Then write <code>static double[] roundAll(double[] a)</code> that returns a copy with each value rounded to one decimal place using <code>Math.round(x * 10) / 10.0</code>.",
+ th:"เซ็นเซอร์รายงานอุณหภูมิเป็นฟาเรนไฮต์ เขียน <code>static double[] toCelsius(double[] f)</code> ที่คืนอาร์เรย์ใหม่โดยแปลงแต่ละค่าด้วย <code>C = (F - 32) * 5 / 9</code> แล้วเขียน <code>static double[] roundAll(double[] a)</code> ที่คืนสำเนาซึ่งแต่ละค่าปัดเป็นทศนิยมหนึ่งตำแหน่งด้วย <code>Math.round(x * 10) / 10.0</code>",
+ ex:"roundAll(toCelsius({32, 212, 98.6}))  →  {0.0, 100.0, 37.0}",
+ sol:"static double[] toCelsius(double[] f) {\n    double[] c = new double[f.length];\n    for (int i = 0; i < f.length; i++) {\n        c[i] = (f[i] - 32) * 5 / 9;\n    }\n    return c;\n}\n\nstatic double[] roundAll(double[] a) {\n    double[] r = new double[a.length];\n    for (int i = 0; i < a.length; i++) {\n        r[i] = Math.round(a[i] * 10) / 10.0;\n    }\n    return r;\n}"},
+{lv:"H",t:"Find peaks",
+ en:"A <b>peak</b> is a reading that is strictly greater than both its immediate neighbours; the first and last readings can never be peaks. Write <code>static int[] findPeaks(double[] t)</code> that returns the indexes of all peaks in ascending order, with exactly the right length.",
+ th:"<b>ยอด</b> คือค่าที่มากกว่าเพื่อนบ้านทั้งสองข้างอย่างเคร่งครัด ค่าแรกและค่าสุดท้ายเป็นยอดไม่ได้ เขียน <code>static int[] findPeaks(double[] t)</code> ที่คืนดัชนีของยอดทั้งหมดเรียงจากน้อยไปมาก โดยมีความยาวพอดี",
+ ex:"findPeaks({1, 3, 2, 5, 5, 4, 6})  →  {1}\nfindPeaks({0, 2, 0, 2, 0})        →  {1, 3}",
+ sol:"static int[] findPeaks(double[] t) {\n    int n = 0;\n    for (int i = 1; i < t.length - 1; i++) {\n        if (t[i] > t[i - 1] && t[i] > t[i + 1]) n++;\n    }\n    int[] out = new int[n];\n    int k = 0;\n    for (int i = 1; i < t.length - 1; i++) {\n        if (t[i] > t[i - 1] && t[i] > t[i + 1]) out[k++] = i;\n    }\n    return out;\n}"},
+{lv:"M",t:"Count a grade",
+ en:"Write <code>static char grade(int score)</code> that returns 'A' (≥ 80), 'B' (≥ 70), 'C' (≥ 60), 'D' (≥ 50) or 'F', and <code>static int countGrade(int[] scores, char g)</code> that returns how many scores receive the letter <code>g</code>, by calling <code>grade</code>.",
+ th:"เขียน <code>static char grade(int score)</code> ที่คืน 'A' (≥ 80), 'B' (≥ 70), 'C' (≥ 60), 'D' (≥ 50) หรือ 'F' และ <code>static int countGrade(int[] scores, char g)</code> ที่คืนจำนวนคะแนนที่ได้เกรด <code>g</code> โดยเรียก <code>grade</code>",
+ ex:"countGrade({85, 72, 80, 49, 60}, 'A')  →  2\ncountGrade({85, 72, 80, 49, 60}, 'F')  →  1",
+ sol:"static char grade(int score) {\n    if (score >= 80) return 'A';\n    if (score >= 70) return 'B';\n    if (score >= 60) return 'C';\n    if (score >= 50) return 'D';\n    return 'F';\n}\n\nstatic int countGrade(int[] scores, char g) {\n    int c = 0;\n    for (int i = 0; i < scores.length; i++) {\n        if (grade(scores[i]) == g) c++;\n    }\n    return c;\n}"},
+{lv:"H",t:"Scale an image down",
+ en:"Write <code>static int[][] scaleDown(int[][] img)</code> that halves an image with even dimensions: each output pixel is the integer average of the corresponding 2 × 2 block of input pixels. An input of size r × c produces r/2 × c/2.",
+ th:"เขียน <code>static int[][] scaleDown(int[][] img)</code> ที่ย่อภาพที่มีขนาดเป็นเลขคู่ลงครึ่งหนึ่ง: แต่ละพิกเซลผลลัพธ์คือค่าเฉลี่ยจำนวนเต็มของบล็อก 2 × 2 ที่สอดคล้องกันในภาพอินพุต อินพุตขนาด r × c ให้ผลลัพธ์ r/2 × c/2",
+ ex:"scaleDown({{10, 20, 30, 40}, {50, 60, 70, 80}})  →  {{35, 55}}",
+ sol:"static int[][] scaleDown(int[][] img) {\n    int r = img.length / 2, c = img[0].length / 2;\n    int[][] out = new int[r][c];\n    for (int i = 0; i < r; i++) {\n        for (int j = 0; j < c; j++) {\n            int sum = img[2 * i][2 * j] + img[2 * i][2 * j + 1]\n                    + img[2 * i + 1][2 * j] + img[2 * i + 1][2 * j + 1];\n            out[i][j] = sum / 4;\n        }\n    }\n    return out;\n}"},
+{lv:"M",t:"Month-to-month change",
+ en:"Write <code>static int[] monthlyChange(int[] sales)</code> that returns an array one element shorter than the input, where element <code>i</code> is <code>sales[i + 1] - sales[i]</code>. Return an empty array if there are fewer than two months.",
+ th:"เขียน <code>static int[] monthlyChange(int[] sales)</code> ที่คืนอาร์เรย์สั้นกว่าอินพุตหนึ่งช่อง โดยสมาชิกที่ <code>i</code> คือ <code>sales[i + 1] - sales[i]</code> คืนอาร์เรย์ว่างถ้ามีน้อยกว่าสองเดือน",
+ ex:"monthlyChange({100, 120, 90})  →  {20, -30}\nmonthlyChange({5})             →  {}",
+ sol:"static int[] monthlyChange(int[] sales) {\n    if (sales.length < 2) return new int[0];\n    int[] d = new int[sales.length - 1];\n    for (int i = 0; i < d.length; i++) {\n        d[i] = sales[i + 1] - sales[i];\n    }\n    return d;\n}"},
+{lv:"H",t:"Percentile (nearest rank)",
+ en:"Write <code>static double percentile(double[] data, int p)</code> using the nearest-rank method: sort a <b>copy</b> of the data, compute <code>rank = ceil(p / 100.0 × n)</code> (at least 1), and return the value at index <code>rank - 1</code>. Assume <code>1 ≤ p ≤ 100</code> and a non-empty array. The original array must stay unchanged.",
+ th:"เขียน <code>static double percentile(double[] data, int p)</code> ด้วยวิธี nearest-rank: เรียง<b>สำเนา</b>ของข้อมูล คำนวณ <code>rank = ceil(p / 100.0 × n)</code> (อย่างน้อย 1) แล้วคืนค่าที่ดัชนี <code>rank - 1</code> ถือว่า <code>1 ≤ p ≤ 100</code> และอาร์เรย์ไม่ว่าง อาร์เรย์ต้นฉบับต้องไม่เปลี่ยน",
+ ex:"percentile({15, 20, 35, 40, 50}, 40)   →  20.0\npercentile({15, 20, 35, 40, 50}, 100)  →  50.0",
+ sol:"static double percentile(double[] data, int p) {\n    double[] s = data.clone();\n    Arrays.sort(s);\n    int rank = (int) Math.ceil(p / 100.0 * s.length);\n    if (rank < 1) rank = 1;\n    return s[rank - 1];\n}"},
+{lv:"M",t:"Duplicate IDs",
+ en:"Write <code>static boolean hasDuplicateIds(int[] ids)</code> that returns true if any student ID appears more than once. Use nested loops and compare every pair exactly once.",
+ th:"เขียน <code>static boolean hasDuplicateIds(int[] ids)</code> ที่คืน true ถ้ามีรหัสนักศึกษาใดปรากฏมากกว่าหนึ่งครั้ง ใช้ลูปซ้อนและเปรียบเทียบทุกคู่เพียงครั้งเดียว",
+ ex:"hasDuplicateIds({101, 205, 101})  →  true\nhasDuplicateIds({1, 2, 3})        →  false",
+ sol:"static boolean hasDuplicateIds(int[] ids) {\n    for (int i = 0; i < ids.length; i++) {\n        for (int j = i + 1; j < ids.length; j++) {\n            if (ids[i] == ids[j]) return true;\n        }\n    }\n    return false;\n}"},
+{lv:"H",t:"Zigzag scan",
+ en:"A printer reads a pixel grid in a zigzag: row 0 left-to-right, row 1 right-to-left, row 2 left-to-right, and so on. Write <code>static int[] zigzag(int[][] m)</code> that returns all pixels of a rectangular grid in that order.",
+ th:"เครื่องพิมพ์อ่านตารางพิกเซลแบบซิกแซก: แถว 0 จากซ้ายไปขวา แถว 1 จากขวาไปซ้าย แถว 2 จากซ้ายไปขวา สลับกันไป เขียน <code>static int[] zigzag(int[][] m)</code> ที่คืนพิกเซลทั้งหมดของตารางสี่เหลี่ยมตามลำดับนั้น",
+ ex:"zigzag({{1, 2, 3}, {4, 5, 6}, {7, 8, 9}})  →  {1, 2, 3, 6, 5, 4, 7, 8, 9}",
+ sol:"static int[] zigzag(int[][] m) {\n    int rows = m.length, cols = m[0].length;\n    int[] out = new int[rows * cols];\n    int k = 0;\n    for (int i = 0; i < rows; i++) {\n        if (i % 2 == 0) {\n            for (int j = 0; j < cols; j++) out[k++] = m[i][j];\n        } else {\n            for (int j = cols - 1; j >= 0; j--) out[k++] = m[i][j];\n        }\n    }\n    return out;\n}"},
+{lv:"M",t:"Pad to a fixed length",
+ en:"Reports always show 12 months. Write <code>static int[] padToLength(int[] a, int len, int value)</code> that returns a copy of <code>a</code> extended to <code>len</code> elements, with the new slots filled with <code>value</code>. If <code>a</code> is already <code>len</code> or longer, return a copy truncated to <code>len</code>. Use <code>Arrays.copyOf</code> and <code>Arrays.fill</code>.",
+ th:"รายงานแสดง 12 เดือนเสมอ เขียน <code>static int[] padToLength(int[] a, int len, int value)</code> ที่คืนสำเนาของ <code>a</code> ที่ขยายเป็น <code>len</code> ช่อง โดยช่องใหม่เติมด้วย <code>value</code> ถ้า <code>a</code> ยาวเท่ากับหรือเกิน <code>len</code> อยู่แล้ว ให้คืนสำเนาที่ตัดเหลือ <code>len</code> ใช้ <code>Arrays.copyOf</code> และ <code>Arrays.fill</code>",
+ ex:"padToLength({3, 4}, 5, -1)     →  {3, 4, -1, -1, -1}\npadToLength({1, 2, 3}, 2, 0)   →  {1, 2}",
+ sol:"static int[] padToLength(int[] a, int len, int value) {\n    int[] r = Arrays.copyOf(a, len);\n    if (a.length < len) {\n        Arrays.fill(r, a.length, len, value);\n    }\n    return r;\n}"},
+{lv:"H",t:"Crop an image",
+ en:"Write <code>static int[][] crop(int[][] img, int r0, int c0, int h, int w)</code> that returns a new <code>h × w</code> image containing the block whose top-left corner is <code>(r0, c0)</code>. If the requested block runs past the bottom or right edge, the missing pixels must be filled with 0 rather than throwing an exception.",
+ th:"เขียน <code>static int[][] crop(int[][] img, int r0, int c0, int h, int w)</code> ที่คืนภาพใหม่ขนาด <code>h × w</code> ซึ่งเป็นบล็อกที่มีมุมซ้ายบนอยู่ที่ <code>(r0, c0)</code> ถ้าบล็อกที่ขอเลยขอบล่างหรือขอบขวา พิกเซลที่หายไปต้องเติมด้วย 0 แทนการโยน exception",
+ ex:"crop({{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}, 1, 1, 2, 3)  →  {{5, 6, 0}, {8, 9, 0}}",
+ sol:"static int[][] crop(int[][] img, int r0, int c0, int h, int w) {\n    int[][] out = new int[h][w];\n    for (int i = 0; i < h; i++) {\n        for (int j = 0; j < w; j++) {\n            int r = r0 + i, c = c0 + j;\n            if (r < img.length && c < img[r].length) {\n                out[i][j] = img[r][c];\n            }\n        }\n    }\n    return out;\n}"},
+{lv:"M",t:"Order total",
+ en:"An order is stored in two parallel arrays: <code>qty[i]</code> units of product <code>i</code> at <code>price[i]</code> baht each. Write <code>static double orderTotal(int[] qty, double[] price)</code> that returns the total cost, and <code>static int mostExpensiveLine(int[] qty, double[] price)</code> that returns the index of the line with the largest <code>qty × price</code> (first on ties).",
+ th:"คำสั่งซื้อเก็บในอาร์เรย์คู่ขนานสองตัว: <code>qty[i]</code> หน่วยของสินค้า <code>i</code> ราคาหน่วยละ <code>price[i]</code> บาท เขียน <code>static double orderTotal(int[] qty, double[] price)</code> ที่คืนราคารวม และ <code>static int mostExpensiveLine(int[] qty, double[] price)</code> ที่คืนดัชนีของรายการที่ <code>qty × price</code> มากที่สุด (ถ้าเท่ากันเอาตัวแรก)",
+ ex:"orderTotal({2, 1, 5}, {30.0, 100.0, 12.5})         →  222.5\nmostExpensiveLine({2, 1, 5}, {30.0, 100.0, 12.5})  →  1",
+ sol:"static double orderTotal(int[] qty, double[] price) {\n    double total = 0;\n    for (int i = 0; i < qty.length; i++) {\n        total += qty[i] * price[i];\n    }\n    return total;\n}\n\nstatic int mostExpensiveLine(int[] qty, double[] price) {\n    int best = 0;\n    for (int i = 1; i < qty.length; i++) {\n        if (qty[i] * price[i] > qty[best] * price[best]) best = i;\n    }\n    return best;\n}"},
+{lv:"H",t:"Restock plan within a budget",
+ en:"For each product <code>i</code>, if <code>stock[i] &lt; min[i]</code> the shop wants to order <code>max[i] - stock[i]</code> units at <code>cost[i]</code> baht per unit. Products are considered in index order, and an order is placed only if its <b>whole</b> cost still fits in the remaining <code>budget</code>; otherwise that product is skipped and the next one is considered. Write <code>static int[] restockPlan(int[] stock, int[] min, int[] max, int[] cost, int budget)</code> that returns the units ordered for every product (0 where nothing is ordered).",
+ th:"สำหรับสินค้า <code>i</code> แต่ละรายการ ถ้า <code>stock[i] &lt; min[i]</code> ร้านต้องการสั่ง <code>max[i] - stock[i]</code> หน่วย ราคาหน่วยละ <code>cost[i]</code> บาท พิจารณาสินค้าตามลำดับดัชนี และจะสั่งเฉพาะเมื่อค่าใช้จ่าย<b>ทั้งหมด</b>ของรายการนั้นยังอยู่ใน <code>budget</code> ที่เหลือ ไม่เช่นนั้นข้ามรายการนั้นไปพิจารณารายการถัดไป เขียน <code>static int[] restockPlan(int[] stock, int[] min, int[] max, int[] cost, int budget)</code> ที่คืนจำนวนหน่วยที่สั่งของทุกสินค้า (0 ถ้าไม่ได้สั่ง)",
+ ex:"restockPlan({1, 8, 0}, {5, 5, 5}, {10, 10, 6}, {20, 1, 10}, 100)  →  {0, 0, 6}\n  (product 0 needs 9 × 20 = 180 > 100 → skipped; product 1 is fine; product 2 needs 6 × 10 = 60 ≤ 100)",
+ sol:"static int[] restockPlan(int[] stock, int[] min, int[] max, int[] cost, int budget) {\n    int[] order = new int[stock.length];\n    int remaining = budget;\n    for (int i = 0; i < stock.length; i++) {\n        if (stock[i] < min[i]) {\n            int units = max[i] - stock[i];\n            int total = units * cost[i];\n            if (total <= remaining) {\n                order[i] = units;\n                remaining -= total;\n            }\n        }\n    }\n    return order;\n}"},
+{lv:"M",t:"Compare readings with tolerance",
+ en:"Two sensors should agree. Write <code>static boolean sameReadings(double[] a, double[] b, double eps)</code> that returns true only if both arrays have the same length and every pair of values differs by at most <code>eps</code> (use <code>Math.abs</code>). Return false if either array is <code>null</code>.",
+ th:"เซ็นเซอร์สองตัวควรให้ค่าตรงกัน เขียน <code>static boolean sameReadings(double[] a, double[] b, double eps)</code> ที่คืน true ก็ต่อเมื่ออาร์เรย์ทั้งสองยาวเท่ากันและค่าแต่ละคู่ต่างกันไม่เกิน <code>eps</code> (ใช้ <code>Math.abs</code>) คืน false ถ้าอาร์เรย์ใดเป็น <code>null</code>",
+ ex:"sameReadings({1.0, 2.0}, {1.01, 1.99}, 0.05)  →  true\nsameReadings({1.0, 2.0}, {1.0}, 0.05)         →  false",
+ sol:"static boolean sameReadings(double[] a, double[] b, double eps) {\n    if (a == null || b == null) return false;\n    if (a.length != b.length) return false;\n    for (int i = 0; i < a.length; i++) {\n        if (Math.abs(a[i] - b[i]) > eps) return false;\n    }\n    return true;\n}"},
+{lv:"H",t:"Serve within a time limit",
+ en:"Tickets wait in order; <code>serviceTime[i]</code> is how many minutes ticket <code>tickets[i]</code> will take. The desk is open for <code>limit</code> minutes and serves tickets in order until the <b>next</b> ticket would not finish within the limit. Write <code>static int[] served(int[] tickets, int[] serviceTime, int limit)</code> that returns the ticket numbers actually served, and <code>static int idleMinutes(int[] serviceTime, int limit)</code> that returns the unused minutes.",
+ th:"บัตรคิวรอตามลำดับ <code>serviceTime[i]</code> คือจำนวนนาทีที่บัตร <code>tickets[i]</code> ใช้ เคาน์เตอร์เปิด <code>limit</code> นาที และให้บริการตามลำดับจนกว่าบัตร<b>ถัดไป</b>จะทำไม่เสร็จภายในเวลา เขียน <code>static int[] served(int[] tickets, int[] serviceTime, int limit)</code> ที่คืนหมายเลขบัตรที่ได้รับบริการจริง และ <code>static int idleMinutes(int[] serviceTime, int limit)</code> ที่คืนนาทีที่เหลือไม่ได้ใช้",
+ ex:"served({11, 12, 13, 14}, {10, 15, 20, 5}, 40)   →  {11, 12}   (10 + 15 = 25; adding 20 would exceed 40, so service stops)\nidleMinutes({10, 15, 20, 5}, 40)                →  15",
+ sol:"static int[] served(int[] tickets, int[] serviceTime, int limit) {\n    int used = 0, n = 0;\n    while (n < tickets.length && used + serviceTime[n] <= limit) {\n        used += serviceTime[n];\n        n++;\n    }\n    return Arrays.copyOf(tickets, n);\n}\n\nstatic int idleMinutes(int[] serviceTime, int limit) {\n    int used = 0, n = 0;\n    while (n < serviceTime.length && used + serviceTime[n] <= limit) {\n        used += serviceTime[n];\n        n++;\n    }\n    return limit - used;\n}"}
+];
+
+
+const KEY='java-mock-exam-set5';
+let state={mcq:{},fill:{},code:{},done:{},tab:'mcq'};
+try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&typeof s==='object')state=Object.assign(state,s);}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function h(tag,attrs,...kids){const el=document.createElement(tag);for(const k in attrs||{}){if(k==='html')el.innerHTML=attrs[k];else if(k.startsWith('on'))el.addEventListener(k.slice(2),attrs[k]);else el.setAttribute(k,attrs[k]);}
+  for(const c of kids){if(c==null)continue;el.append(c.nodeType?c:document.createTextNode(c));}return el;}
+function lv(q){if(!q.lv)return null;return h('span',{class:'lv '+q.lv,title:q.lv==='H'?'Hard · ยาก':'Medium · ปานกลาง'},q.lv==='H'?'HARD':'MED');}
+function shuffled(n,seed){const idx=[...Array(n).keys()];let s=seed*2654435761%4294967296+12345;for(let i=n-1;i>0;i--){s=(s*1103515245+12345)%2147483648;const j=s%(i+1);[idx[i],idx[j]]=[idx[j],idx[i]];}return idx;}
+const LET='ABCD';
+
+// ---------- Part 1: MCQ ----------
+const mcqEls=[];
+MCQ.forEach((q,i)=>{
+  const order=shuffled(q.opts.length,i+7);
+  const card=h('div',{class:'q',id:'mcq-'+(i+1)});
+  card.append(h('div',{class:'qh'},h('div',{class:'num'},String(i+1)),h('div',{class:'qt'},h('div',{class:'en',html:q.en}),h('div',{class:'th',html:q.th})),lv(q)));
+  if(q.code)card.append(h('pre',{},q.code));
+  const opts=h('div',{class:'opts'});
+  order.forEach((oi,k)=>{
+    const id=`m${i}o${oi}`;
+    const inp=h('input',{type:'radio',name:'m'+i,id,value:String(oi)});
+    if(state.mcq[i]===oi)inp.checked=true;
+    inp.addEventListener('change',()=>{state.mcq[i]=oi;save();});
+    opts.append(h('label',{class:'opt',for:id},inp,h('span',{class:'k'},LET[k]),h('code',{},q.opts[oi])));
+  });
+  card.append(opts);
+  const fb=h('span',{class:'fb'});const exp=h('div',{class:'exp',html:q.exp});exp.hidden=true;
+  const foot=h('div',{class:'foot'},h('button',{class:'btn',type:'button',onclick:()=>checkMcq(i,true)},'Check · ตรวจ'),fb);
+  card.append(foot,exp);
+  mcqEls.push({card,opts,fb,exp,order});
+  document.getElementById('list-mcq').append(card);
+});
+function checkMcq(i,reveal){
+  const q=MCQ[i],e=mcqEls[i],sel=state.mcq[i];
+  e.opts.querySelectorAll('.opt').forEach(o=>o.classList.remove('ok','bad'));
+  e.card.classList.remove('ok','bad');
+  if(sel===undefined&&!reveal){e.fb.className='fb';e.fb.textContent='';return null;}
+  const labels=e.opts.querySelectorAll('.opt');
+  labels.forEach(l=>{const v=+l.querySelector('input').value;if(v===q.ans)l.classList.add('ok');else if(v===sel)l.classList.add('bad');});
+  const ok=sel===q.ans;
+  e.card.classList.add(ok?'ok':'bad');
+  e.fb.className='fb '+(ok?'ok':'bad');
+  e.fb.textContent=sel===undefined?'Not answered · ยังไม่ได้ตอบ':ok?'Correct · ถูกต้อง':'Incorrect · ไม่ถูกต้อง';
+  e.exp.hidden=false;
+  updateScore();
+  return ok;
+}
+
+// ---------- Part 3: Fill ----------
+const fillEls=[];
+function norm(s){return s.replace(/\s+/g,'').toLowerCase();}
+FILL.forEach((q,i)=>{
+  const card=h('div',{class:'q',id:'fill-'+(i+1)});
+  card.append(h('div',{class:'qh'},h('div',{class:'num'},String(i+1)),h('div',{class:'qt'},h('div',{class:'en',html:q.en}),h('div',{class:'th',html:q.th})),lv(q)));
+  const pre=h('pre');
+  const parts=q.code.split('____');
+  let inp;
+  parts.forEach((p,k)=>{pre.append(p);if(k<parts.length-1){inp=h('input',{class:'blank',type:'text',id:'f'+i,autocomplete:'off',spellcheck:'false','aria-label':'blank '+(i+1)});
+    inp.value=state.fill[i]||'';inp.addEventListener('input',()=>{state.fill[i]=inp.value;save();inp.classList.remove('ok','bad');});
+    inp.addEventListener('keydown',ev=>{if(ev.key==='Enter')checkFill(i,true);});pre.append(inp);}});
+  card.append(pre);
+  const fb=h('span',{class:'fb'});const ans=h('div',{class:'exp'});ans.hidden=true;
+  ans.innerHTML='Answer · เฉลย: '+q.acc.map(a=>'<code>'+esc(a)+'</code>').join(' or ');
+  card.append(h('div',{class:'foot'},h('button',{class:'btn',type:'button',onclick:()=>checkFill(i,true)},'Check · ตรวจ'),fb),ans);
+  fillEls.push({card,inp,fb,ans});
+  document.getElementById('list-fill').append(card);
+});
+function checkFill(i,reveal){
+  const q=FILL[i],e=fillEls[i],v=state.fill[i]||'';
+  const ok=v.trim()!==''&&q.acc.some(a=>norm(a)===norm(v));
+  e.inp.classList.remove('ok','bad');e.card.classList.remove('ok','bad');
+  if(!reveal&&v.trim()==='')return null;
+  e.inp.classList.add(ok?'ok':'bad');e.card.classList.add(ok?'ok':'bad');
+  e.fb.className='fb '+(ok?'ok':'bad');
+  e.fb.textContent=v.trim()===''?'Not answered · ยังไม่ได้ตอบ':ok?'Correct · ถูกต้อง':'Incorrect · ไม่ถูกต้อง';
+  e.ans.hidden=ok;
+  updateScore();
+  return ok;
+}
+
+// ---------- Part 2: Code ----------
+const codeEls=[];
+CODE.forEach((q,i)=>{
+  const card=h('div',{class:'q',id:'code-'+(i+1)});
+  card.append(h('div',{class:'qh'},h('div',{class:'num'},String(i+1)),h('div',{class:'qt'},h('div',{class:'title'},q.t),h('div',{class:'en',html:q.en}),h('div',{class:'th',html:q.th})),lv(q)));
+  card.append(h('div',{class:'ex',html:'Examples · ตัวอย่าง:<br><code>'+esc(q.ex)+'</code>'}));
+  const ta=h('textarea',{id:'c'+i,placeholder:'// Write your Java code here · เขียนโค้ด Java ที่นี่',spellcheck:'false'});
+  ta.value=state.code[i]||'';ta.addEventListener('input',()=>{state.code[i]=ta.value;save();});
+  ta.addEventListener('keydown',ev=>{if(ev.key==='Tab'){ev.preventDefault();const s=ta.selectionStart;ta.setRangeText('    ',s,ta.selectionEnd,'end');ta.dispatchEvent(new Event('input'));}});
+  card.append(ta);
+  const sol=h('div',{class:'sol'},h('div',{class:'lbl'},'Model answer · เฉลย'),h('pre',{},q.sol));sol.hidden=true;
+  const btn=h('button',{class:'btn',type:'button'},'Show model answer · ดูเฉลย');
+  btn.addEventListener('click',()=>{sol.hidden=!sol.hidden;btn.textContent=sol.hidden?'Show model answer · ดูเฉลย':'Hide model answer · ซ่อนเฉลย';});
+  const chk=h('input',{type:'checkbox',id:'d'+i});chk.checked=!!state.done[i];
+  chk.addEventListener('change',()=>{state.done[i]=chk.checked;card.classList.toggle('ok',chk.checked);save();updateScore();});
+  card.classList.toggle('ok',chk.checked);
+  card.append(h('div',{class:'foot'},btn,h('label',{class:'done',for:'d'+i},chk,'Done · ทำได้แล้ว')),sol);
+  codeEls.push({card,sol,btn});
+  document.getElementById('list-code').append(card);
+});
+
+// ---------- Scoring, tabs, bulk actions ----------
+function updateScore(){
+  const m=MCQ.reduce((n,q,i)=>n+(state.mcq[i]===q.ans?1:0),0);
+  const f=FILL.reduce((n,q,i)=>n+((state.fill[i]||'').trim()&&q.acc.some(a=>norm(a)===norm(state.fill[i]))?1:0),0);
+  const c=CODE.reduce((n,q,i)=>n+(state.done[i]?1:0),0);
+  document.getElementById('n-mcq').textContent=m+'/30';
+  document.getElementById('n-fill').textContent=f+'/30';
+  document.getElementById('n-code').textContent=c+'/30';
+  document.getElementById('total').innerHTML=(m+f+c)+'<small>/90</small>';
+  return {m,f,c};
+}
+function showTab(p){
+  state.tab=p;save();
+  document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.part===p?'true':'false'));
+  document.querySelectorAll('.part').forEach(s=>s.classList.toggle('active',s.id==='part-'+p));
+}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{showTab(t.dataset.part);window.scrollTo({top:0});}));
+document.querySelectorAll('[data-checkall]').forEach(b=>b.addEventListener('click',()=>{
+  const p=b.dataset.checkall,arr=p==='mcq'?MCQ:FILL,fn=p==='mcq'?checkMcq:checkFill;
+  let ok=0,ans=0;arr.forEach((q,i)=>{const r=fn(i,true);if(r)ok++;if(p==='mcq'?state.mcq[i]!==undefined:(state.fill[i]||'').trim())ans++;});
+  const res=document.getElementById('res-'+p);
+  res.innerHTML=`<b>${ok} / ${arr.length}</b> correct · ตอบถูก ${ok} จาก ${arr.length} ข้อ (${ans} answered · ตอบแล้ว ${ans} ข้อ)`;
+  res.classList.add('show');updateScore();res.scrollIntoView({block:'nearest'});
+}));
+document.querySelectorAll('[data-showall]').forEach(b=>b.addEventListener('click',()=>{
+  const p=b.dataset.showall;
+  if(p==='mcq')MCQ.forEach((q,i)=>checkMcq(i,true));
+  else if(p==='fill')FILL.forEach((q,i)=>{checkFill(i,true);fillEls[i].ans.hidden=false;});
+  else codeEls.forEach(e=>{e.sol.hidden=false;e.btn.textContent='Hide model answer · ซ่อนเฉลย';});
+  updateScore();
+}));
+document.getElementById('reset').addEventListener('click',()=>{
+  const btn=document.getElementById('reset');
+  if(btn.dataset.arm!=='1'){btn.dataset.arm='1';btn.textContent='Press again to clear everything · กดอีกครั้งเพื่อล้างทั้งหมด';setTimeout(()=>{btn.dataset.arm='';btn.textContent='Reset · เริ่มใหม่';},4000);return;}
+  state={mcq:{},fill:{},code:{},done:{},tab:state.tab};save();location.reload();
+});
+const hashTab=(location.hash||'').slice(1);
+showTab(['mcq','code','fill'].includes(hashTab)?hashTab:(state.tab||'mcq'));
+updateScore();
+</script>
